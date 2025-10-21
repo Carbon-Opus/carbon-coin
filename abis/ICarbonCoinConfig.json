@@ -1,0 +1,301 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "configType",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "DefaultConfigUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "getAntiBotConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "antiBotDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxBuyAmountEarly",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxWalletPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "cooldownPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minBuyAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.AntiBotConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCircuitBreakerConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "maxPriceImpact",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "volatilityWindow",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxVolatilityMoves",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "circuitBreakerDuration",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.CircuitBreakerConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFeeConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "buyFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sellFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxFee",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.FeeConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getWhaleLimitConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "whaleThreshold",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "whaleDelay",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxTradeSize",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxSellPercentage",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.WhaleLimitConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "antiBotDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxBuyAmountEarly",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxWalletPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "cooldownPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minBuyAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.AntiBotConfig",
+        "name": "newConfig",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateDefaultAntiBotConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "maxPriceImpact",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "volatilityWindow",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxVolatilityMoves",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "circuitBreakerDuration",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.CircuitBreakerConfig",
+        "name": "newConfig",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateDefaultCircuitBreakerConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "buyFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sellFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxFee",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.FeeConfig",
+        "name": "newConfig",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateDefaultFeeConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "whaleThreshold",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "whaleDelay",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxTradeSize",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxSellPercentage",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ICarbonCoinConfig.WhaleLimitConfig",
+        "name": "newConfig",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateDefaultWhaleLimitConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

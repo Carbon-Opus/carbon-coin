@@ -11,11 +11,10 @@ module.exports = async (hre) => {
   const chainId = chainIdByName(network.name);
 
   console.log(`Using chainId: ${chainId}, network name: ${network.name}`);
-  console.log(`globals.routers[chainId] = ${JSON.stringify(globals.routers[chainId])}`);
 
-  const universalRouter = globals.routers[chainId].UniversalRouter;
-  const useExistingConfigContract = isHardhat(network) ? '' : '0x12F64E0410Fb551932b4a9CD7079E01B51727BAc';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x39962fC8E3E59bdF0C104D8aa273B76f481c2686';
+  const dexRouter = globals.addresses[chainId].router;
+  const useExistingConfigContract = isHardhat(network) ? '' : '0x29BAf302f9FB7cB9fE4cB04CEFE17a1faF2d9E7E';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0x538203da70651B577135a27479ceDc0A26F32539';
 
   log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   log('Carbon Opus - Carbon Coin - Contract Deployment');
@@ -28,13 +27,16 @@ module.exports = async (hre) => {
   log('  - User1:    ', user1);
   log(' ');
 
-  // TEMP: Validate
-  const constructorArgs = [];
-  const tempCarbonCoinConfig = await ethers.getContractAt('CarbonCoinConfig', useExistingConfigContract);
-  if (!isHardhat(network)) {
-    await verifyContract('CarbonCoinConfig', tempCarbonCoinConfig, constructorArgs);
-  }
-  return;
+
+  //////////////////////////////////////////////////////////////
+  // TEMP VERIFY
+  // const constructorArgs = [];
+  // const tmpCarbonCoinConfig = await ethers.getContractAt('CarbonCoinConfig', useExistingConfigContract);
+  // await verifyContract('CarbonCoinConfig', tmpCarbonCoinConfig, constructorArgs);
+  // return;
+  //
+  //////////////////////////////////////////////////////////////
+
 
   // Deploy & Verify CarbonCoinConfig
   if (useExistingConfigContract.length === 0) {
@@ -47,7 +49,9 @@ module.exports = async (hre) => {
     });
 
     if (!isHardhat(network)) {
-      await verifyContract('CarbonCoinConfig', await ethers.getContract('CarbonCoinConfig'), constructorArgs);
+      setTimeout(async () => {
+        await verifyContract('CarbonCoinConfig', await ethers.getContract('CarbonCoinConfig'), constructorArgs);
+      }, 1000);
     }
   }
 
@@ -64,7 +68,7 @@ module.exports = async (hre) => {
     log('  Deploying CarbonCoinLauncher...');
     const constructorArgs = [
       carbonCoinConfig.address,
-      universalRouter,
+      dexRouter,
     ];
     await deploy('CarbonCoinLauncher', {
       from: deployer,
@@ -73,7 +77,9 @@ module.exports = async (hre) => {
     });
 
     if (!isHardhat(network)) {
-      await verifyContract('CarbonCoinLauncher', await ethers.getContract('CarbonCoinLauncher'), constructorArgs);
+      setTimeout(async () => {
+        await verifyContract('CarbonCoinLauncher', await ethers.getContract('CarbonCoinLauncher'), constructorArgs);
+      }, 1000);
     }
   }
 

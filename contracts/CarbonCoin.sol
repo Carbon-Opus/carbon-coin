@@ -30,7 +30,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
-import { IUniswapV2Router02, IUniswapV2Factory, IUniswapV2Pair } from "./interface/IUniswapV2.sol";
+import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
 
 
 contract CarbonCoin is ICarbonCoin, ERC20, ReentrancyGuard, Pausable {
@@ -64,17 +64,17 @@ contract CarbonCoin is ICarbonCoin, ERC20, ReentrancyGuard, Pausable {
     uint256 public lastGraduationAttempt;
     uint256 public constant GRADUATION_COOLDOWN = 1 hours;
 
-    IUniswapV2Router02 public immutable uniswapRouter;
-    address public uniswapPair;
+    ISomniaExchangeRouter02 public immutable dexRouter;
+    address public dexPair;
 
     /**
      * @notice Constructor for the CarbonCoin contract.
-     * @dev Initializes the token with its name, symbol, creator, and Uniswap router.
+     * @dev Initializes the token with its name, symbol, creator, and Somnia Exchange router.
      * It also whitelists the creator and the launcher contract to bypass certain restrictions.
      * @param name The name of the token.
      * @param symbol The symbol of the token.
      * @param _creator The address of the token creator.
-     * @param _router The address of the Uniswap V2 router.
+     * @param _router The address of the Somnia Exchange V2 router.
      * @param _config The address of the token configuration contract.
      * @param bondingCurveConfig The bonding curve parameters.
      */
@@ -94,7 +94,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ReentrancyGuard, Pausable {
         creator = _creator;
         launcher = msg.sender;
         config = _config;
-        uniswapRouter = IUniswapV2Router02(_router);
+        dexRouter = ISomniaExchangeRouter02(_router);
         launchTime = block.timestamp;
 
         // Set bonding curve config (immutable)
@@ -556,7 +556,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ReentrancyGuard, Pausable {
         delete pendingWhaleIntents[msg.sender];
     }
 
-    // Graduate to Uniswap with protection against griefing
+    // Graduate to Somnia Exchange with protection against griefing
     function _graduate() internal {
         if (hasGraduated) revert AlreadyGraduated();
 
@@ -573,29 +573,22 @@ contract CarbonCoin is ICarbonCoin, ERC20, ReentrancyGuard, Pausable {
         _mint(address(this), remainingTokens);
 
         // Approve router to spend tokens
-        _approve(address(this), address(uniswapRouter), remainingTokens);
+        _approve(address(this), address(dexRouter), remainingTokens);
 
-        // Create pair
-        address factory = uniswapRouter.factory();
-        uniswapPair = IUniswapV2Factory(factory).createPair(
-            address(this),
-            uniswapRouter.WETH()
-        );
-
-        // Add liquidity
+        // Add liquidity (auto-creates pair)
         uint256 ethForLiquidity = realEthReserves;
 
-        try uniswapRouter.addLiquidityETH{value: ethForLiquidity}(
+        try dexRouter.addLiquidityETH{value: ethForLiquidity}(
             address(this),
             remainingTokens,
             (remainingTokens * 95) / 100, // 5% slippage tolerance
             (ethForLiquidity * 95) / 100,
             creator, // Send LP Tokens to Creator  OR   address(0), // Burn LP tokens
-            block.timestamp + 300
-        ) returns (uint256 amountToken, uint256 amountETH, uint256) {
+            block.timestamp + 60
+        ) returns (uint amountToken, uint amountETH, uint) {
             emit Graduated(
                 address(this),
-                uniswapPair,
+                dexPair,
                 amountToken,
                 amountETH,
                 getCurrentPrice(),

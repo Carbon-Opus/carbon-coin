@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_uniswapRouter",
+        "name": "_dexRouter",
         "type": "address"
       }
     ],
@@ -328,6 +328,19 @@
   },
   {
     "inputs": [],
+    "name": "dexRouter",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getStats",
     "outputs": [
       {
@@ -541,19 +554,6 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "uniswapRouter",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {

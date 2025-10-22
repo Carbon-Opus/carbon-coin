@@ -4,9 +4,16 @@ const { utils, constants } = require('ethers');
 // 50312 - Somnia Testnet (Shannon)
 
 const globals = {
-  routers: {
+  addresses: {
+    // Somnia Mainnet
+    5031: {
+      WETH: '0x046EDe9564A72571df6F5e44d0405360c0f4dCab', // WSOMI
+      router: '0xCdE9aFDca1AdAb5b5C6E4F9e16c9802C88Dc7e1A', // Somnia Exchange (Router V02)
+    },
+    // Somnia Testnet
     50312: {
-      UniversalRouter: '0xb98c15a0dC1e271132e341250703c7e94c059e8D',
+      WETH: '0x046EDe9564A72571df6F5e44d0405360c0f4dCab', // WSOMI
+      router: '0xb98c15a0dC1e271132e341250703c7e94c059e8D', // Somnia Exchange (Router V02)
     },
   },
 

@@ -38,7 +38,7 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
   constructor() Ownable() {
     defaultFeeConfig = FeeConfig({
       buyFee: 30,  // 0.3%
-      sellFee: 0,  // 0%
+      sellFee: 30, // 0.3%
       maxFee: 300  // 3% max
     });
 

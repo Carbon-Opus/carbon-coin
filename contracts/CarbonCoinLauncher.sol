@@ -44,8 +44,8 @@ import { CarbonCoin } from "./CarbonCoin.sol";
 contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, Ownable {
   /// @notice The address of the CarbonCoinConfig contract, which provides default configurations for new tokens.
   address public configAddress;
-  /// @notice The address of the Uniswap router, which is used for creating liquidity pairs.
-  address public immutable uniswapRouter;
+  /// @notice The address of the DEX router, which is used for creating liquidity pairs.
+  address public immutable dexRouter;
   /// @notice The fee for creating a new token.
   uint256 public creationFee = 0.0001 ether;
   /// @notice The maximum number of tokens that a single address can create.
@@ -68,12 +68,12 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
 
   /**
    * @notice The constructor for the CarbonCoinLauncher contract.
-   * @param _uniswapRouter The address of the Uniswap router.
+   * @param _dexRouter The address of the DEX router.
    */
-  constructor(address _configAddress, address _uniswapRouter) Ownable() ReentrancyGuard() Pausable() {
-    if (_configAddress == address(0) || _uniswapRouter == address(0)) revert InvalidParameters();
+  constructor(address _configAddress, address _dexRouter) Ownable() ReentrancyGuard() Pausable() {
+    if (_configAddress == address(0) || _dexRouter == address(0)) revert InvalidParameters();
     configAddress = _configAddress;
-    uniswapRouter = _uniswapRouter;
+    dexRouter = _dexRouter;
   }
 
   /**
@@ -95,7 +95,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
         name,
         symbol,
         msg.sender, // Creator
-        uniswapRouter,
+        dexRouter,
         configAddress,
         curveConfig
       );
@@ -249,7 +249,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
       tokens[tokenAddress].graduated = true;
 
       CarbonCoin token = CarbonCoin(payable(tokenAddress));
-      address pair = token.uniswapPair();
+      address pair = token.dexPair();
 
       emit TokenGraduated(tokenAddress, pair, block.timestamp);
     }

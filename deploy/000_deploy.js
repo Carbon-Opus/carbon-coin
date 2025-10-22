@@ -15,6 +15,7 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const useExistingConfigContract = isHardhat(network) ? '' : '0x29BAf302f9FB7cB9fE4cB04CEFE17a1faF2d9E7E';
   const useExistingLauncherContract = isHardhat(network) ? '' : '0x538203da70651B577135a27479ceDc0A26F32539';
+  const useExistingOpusContract = isHardhat(network) ? '' : '0xa0E550754C283B2c0943DeD4cBf23098740Bc1d0';
 
   log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   log('Carbon Opus - Carbon Coin - Contract Deployment');
@@ -30,9 +31,9 @@ module.exports = async (hre) => {
 
   //////////////////////////////////////////////////////////////
   // TEMP VERIFY
-  // const constructorArgs = [];
-  // const tmpCarbonCoinConfig = await ethers.getContractAt('CarbonCoinConfig', useExistingConfigContract);
-  // await verifyContract('CarbonCoinConfig', tmpCarbonCoinConfig, constructorArgs);
+  // const constructorArgs = ['https://api.carbonopus.com/metadata/{id}.json'];
+  // const tmpContract = await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
+  // await verifyContract('CarbonOpus', tmpContract, constructorArgs);
   // return;
   //
   //////////////////////////////////////////////////////////////
@@ -89,6 +90,33 @@ module.exports = async (hre) => {
     carbonCoinLauncher = await ethers.getContract('CarbonCoinLauncher');
   } else {
     carbonCoinLauncher = await ethers.getContractAt('CarbonCoinLauncher', useExistingLauncherContract);
+  }
+
+  // Deploy & Verify CarbonOpus
+  if (useExistingOpusContract.length === 0) {
+    log('  Deploying CarbonOpus...');
+    const constructorArgs = [
+      'https://api.carbonopus.com/metadata/{id}.json',
+    ];
+    await deploy('CarbonOpus', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+
+    if (!isHardhat(network)) {
+      setTimeout(async () => {
+        await verifyContract('CarbonOpus', await ethers.getContract('CarbonOpus'), constructorArgs);
+      }, 1000);
+    }
+  }
+
+  // Get Deployed CarbonOpus
+  let carbonOpus;
+  if (useExistingOpusContract.length === 0) {
+    carbonOpus = await ethers.getContract('CarbonOpus');
+  } else {
+    carbonOpus = await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
   }
 
   // Configure Newly Deployed CarbonCoinLauncher

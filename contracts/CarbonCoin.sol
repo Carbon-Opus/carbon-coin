@@ -26,8 +26,8 @@ pragma solidity 0.8.27;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";

@@ -35,7 +35,7 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
   CircuitBreakerConfig public defaultCircuitBreakerConfig;
   WhaleLimitConfig public defaultWhaleLimitConfig;
 
-  constructor() Ownable() {
+  constructor() Ownable(msg.sender) {
     defaultFeeConfig = FeeConfig({
       buyFee: 30,  // 0.3%
       sellFee: 30, // 0.3%

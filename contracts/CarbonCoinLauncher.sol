@@ -24,9 +24,9 @@
 
 pragma solidity 0.8.27;
 
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
+import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
@@ -70,7 +70,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
    * @notice The constructor for the CarbonCoinLauncher contract.
    * @param _dexRouter The address of the DEX router.
    */
-  constructor(address _configAddress, address _dexRouter) Ownable() ReentrancyGuard() Pausable() {
+  constructor(address _configAddress, address _dexRouter) Ownable(msg.sender) ReentrancyGuard() Pausable() {
     if (_configAddress == address(0) || _dexRouter == address(0)) revert InvalidParameters();
     configAddress = _configAddress;
     dexRouter = _dexRouter;

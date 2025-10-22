@@ -1,9 +1,7 @@
-# web3-packs-v2
-Web3 Packs V2
+# CarbonOpus - CarbonCoin
 
-### Usage:
+## CarbonOpus - ERC-1155 NFTs for Music Ownership
 
-- nvm use
-- yarn
-- yarn test
-- yarn deploy &lt;network&gt;
+## CarbonCoin - ERC-20 Token to Represent Artists and Creators
+
+## CarbonCoinLauncher - Contract to Launch CarbonCoins

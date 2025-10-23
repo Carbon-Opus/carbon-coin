@@ -55,7 +55,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
         if (song.artist == address(0)) revert SongDoesNotExist(tokenId);
         if (msg.value != song.price) revert IncorrectPrice(song.price, msg.value);
 
-        uint256 protocolAmount = (msg.value * protocolFee) / 10000; // 1% protocol fee
+        uint256 protocolAmount = (msg.value * protocolFee) / 10000;
         uint256 referralAmount = (msg.value * song.referralPct) / 10000;
         uint256 artistAmount = msg.value - referralAmount - protocolAmount;
 
@@ -65,6 +65,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
         } else {
             // If no referrer or referrer is the buyer, artist gets the referral amount
             artistAmount += referralAmount;
+            referralAmount = 0;
         }
         rewards[song.artist] += artistAmount;
 

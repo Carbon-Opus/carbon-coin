@@ -13,6 +13,7 @@ module.exports = async (hre) => {
   console.log(`Using chainId: ${chainId}, network name: ${network.name}`);
 
   const dexRouter = globals.addresses[chainId].router;
+  const nftUri = globals.opusNftUri;
   const useExistingConfigContract = isHardhat(network) ? '' : '0x29BAf302f9FB7cB9fE4cB04CEFE17a1faF2d9E7E';
   const useExistingLauncherContract = isHardhat(network) ? '' : '0x538203da70651B577135a27479ceDc0A26F32539';
   const useExistingOpusContract = isHardhat(network) ? '' : '0xa0E550754C283B2c0943DeD4cBf23098740Bc1d0';
@@ -31,7 +32,7 @@ module.exports = async (hre) => {
 
   //////////////////////////////////////////////////////////////
   // TEMP VERIFY
-  // const constructorArgs = ['https://api.carbonopus.com/metadata/{id}.json'];
+  // const constructorArgs = [ nftUri ];
   // const tmpContract = await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
   // await verifyContract('CarbonOpus', tmpContract, constructorArgs);
   // return;
@@ -96,7 +97,7 @@ module.exports = async (hre) => {
   if (useExistingOpusContract.length === 0) {
     log('  Deploying CarbonOpus...');
     const constructorArgs = [
-      'https://api.carbonopus.com/metadata/{id}.json',
+      nftUri,
     ];
     await deploy('CarbonOpus', {
       from: deployer,

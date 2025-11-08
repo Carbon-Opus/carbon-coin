@@ -19,7 +19,7 @@ const globals = {
 
   // Standard Parameters
   tokenCreationFee: utils.parseUnits('0.0001', 18),
-  maxTokensPerCreator: 1,
+  maxTokensPerCreator: 10,
   opusNftUri: 'https://api.carbonopus.com/metadata/{id}.json',
 
   // ABIs

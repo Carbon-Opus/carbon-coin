@@ -37,9 +37,10 @@ interface ICarbonOpus {
     error TransferFailed();
     error NotArtist(address sender, uint256 tokenId);
     error ReferralPercentTooHigh(uint256 newPct);
+    error NotAuthorized(address sender);
     error InvalidFee(uint256 newFee);
     error InvalidAddress(address addr);
-    error NotAuthorized(address sender);
+    error InputArrayLengthMismatch();
 
     event RewardsClaimed(address indexed account, uint256 amount);
     event RewardsDistributed(address indexed artist, address indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
@@ -52,9 +53,10 @@ interface ICarbonOpus {
     event TreasuryUpdated(address indexed newTreasury);
     event PriceScaleManagerUpdated(address indexed newManager);
 
-    function mintMusic(uint256 price, uint256 referralPct) external;
-    function purchaseMusic(uint256 tokenId, address referrer) external payable;
-    function claimRewards() external;
+    function mintMusic(address receiver, uint256 price, uint256 referralPct) external;
+    function purchaseMusic(address receiver, uint256 tokenId, address referrer) external payable;
+    function purchaseBatch(address receiver, uint256[] memory tokenIds, address[] memory referrers) external payable;
+    function claimRewards(address payable receiver) external;
     function musicBalance(address user) external view returns (uint256[] memory, uint256[] memory);
 
     function updateSongPrice(uint256 tokenId, uint256 newPrice) external;

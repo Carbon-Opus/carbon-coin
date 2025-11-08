@@ -19,7 +19,8 @@
     "coverage": "hardhat --show-stack-traces coverage --temp coverage_build",
     "gas": "REPORT_GAS=true hardhat test",
     "start": "hardhat node --port 8545",
-    "deploy": "hardhat deploy --tags CarbonCoinLauncher --network"
+    "deploy": "hardhat deploy --tags CarbonCoinLauncher --network",
+    "mock": "hardhat deploy --tags ERC20Mintable --network"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",

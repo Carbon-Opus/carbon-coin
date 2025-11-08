@@ -43,14 +43,14 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
         protocolFee = 100; // 1% fee (100 basis points
     }
 
-    function mintMusic(uint256 price, uint256 referralPct) external {
+    function mintMusic(address receiver, uint256 price, uint256 referralPct) external {
         uint256 tokenId = _nextTokenId++;
-        songs[tokenId] = Song(msg.sender, price, referralPct);
-        _mint(msg.sender, tokenId, 1, "");
-        emit SongMinted(tokenId, msg.sender, price, referralPct);
+        songs[tokenId] = Song(receiver, price, referralPct);
+        _mint(receiver, tokenId, 1, "");
+        emit SongMinted(tokenId, receiver, price, referralPct);
     }
 
-    function purchaseMusic(uint256 tokenId, address referrer) external payable {
+    function purchaseMusic(address receiver, uint256 tokenId, address referrer) external payable {
         Song storage song = songs[tokenId];
         if (song.artist == address(0)) revert SongDoesNotExist(tokenId);
         if (msg.value != song.price) revert IncorrectPrice(song.price, msg.value);
@@ -60,7 +60,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
         uint256 artistAmount = msg.value - referralAmount - protocolAmount;
 
         rewards[_treasury] += protocolAmount;
-        if (referrer != address(0) && referrer != msg.sender) {
+        if (referrer != address(0) && referrer != receiver) {
             rewards[referrer] += referralAmount;
         } else {
             // If no referrer or referrer is the buyer, artist gets the referral amount
@@ -70,18 +70,58 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
         rewards[song.artist] += artistAmount;
 
         emit RewardsDistributed(song.artist, referrer, artistAmount, referralAmount, protocolAmount);
-        emit SongPurchased(tokenId, msg.sender, referrer, msg.value);
+        emit SongPurchased(tokenId, receiver, referrer, msg.value);
 
-        _mint(msg.sender, tokenId, 1, "");
+        _mint(receiver, tokenId, 1, "");
     }
 
-    function claimRewards() external {
-        uint256 amount = rewards[msg.sender];
-        if (amount == 0) revert NoRewardsToClaim(msg.sender);
-        rewards[msg.sender] = 0;
-        (bool success, ) = msg.sender.call{value: amount}("");
+    function purchaseBatch(address receiver, uint256[] memory tokenIds, address[] memory referrers) external payable {
+        if (tokenIds.length != referrers.length) revert InputArrayLengthMismatch();
+
+        uint256 totalCost = 0;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            Song storage song = songs[tokenIds[i]];
+            if (song.artist == address(0)) revert SongDoesNotExist(tokenIds[i]);
+            totalCost += song.price;
+        }
+
+        if (msg.value != totalCost) revert IncorrectPrice(totalCost, msg.value);
+
+        uint256[] memory amounts = new uint256[](tokenIds.length);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            address referrer = referrers[i];
+            Song storage song = songs[tokenId];
+
+            uint256 protocolAmount = (song.price * protocolFee) / 10000;
+            uint256 referralAmount = (song.price * song.referralPct) / 10000;
+            uint256 artistAmount = song.price - referralAmount - protocolAmount;
+
+            rewards[_treasury] += protocolAmount;
+            if (referrer != address(0) && referrer != receiver) {
+                rewards[referrer] += referralAmount;
+            } else {
+                artistAmount += referralAmount;
+                referralAmount = 0;
+            }
+            rewards[song.artist] += artistAmount;
+
+            emit RewardsDistributed(song.artist, referrer, artistAmount, referralAmount, protocolAmount);
+            emit SongPurchased(tokenId, receiver, referrer, song.price);
+
+            amounts[i] = 1;
+        }
+
+        _mintBatch(receiver, tokenIds, amounts, "");
+    }
+
+    function claimRewards(address payable receiver) external {
+        uint256 amount = rewards[receiver];
+        if (amount == 0) revert NoRewardsToClaim(receiver);
+        rewards[receiver] = 0;
+        (bool success, ) = receiver.call{value: amount}("");
         if (!success) revert TransferFailed();
-        emit RewardsClaimed(msg.sender, amount);
+        emit RewardsClaimed(receiver, amount);
     }
 
     function musicBalance(address user) external view returns (uint256[] memory, uint256[] memory) {

@@ -1,15 +1,16 @@
-# CarbonOpus: CarbonCoin Launcher & Token Contracts
+# CarbonOpus: CarbonCoin Launcher, Token, & Music NFT Contracts
 
-This repository contains the Solidity smart contracts for the CarbonOpus ecosystem, a platform for launching and trading new tokens (creator-coins) on a bonding curve.
+This repository contains the Solidity smart contracts for the CarbonOpus ecosystem, a platform for launching and trading new tokens (creator-coins) on a bonding curve, and for minting and selling music as NFTs.
 
 ## Overview
 
-The CarbonOpus system is designed to provide a fair, transparent, and bot-resistant launch for new crypto tokens. It consists of two primary components:
+The CarbonOpus system is designed to provide a fair, transparent, and bot-resistant launch for new crypto tokens, alongside a marketplace for music NFTs. It consists of three primary components:
 
 1.  **`CarbonCoinLauncher.sol`**: A factory contract that allows anyone to deploy their own `CarbonCoin` token for a small fee.
 2.  **`CarbonCoin.sol`**: The ERC20-compliant token contract that includes a built-in bonding curve for initial price discovery. Once a token achieves a certain liquidity threshold, it "graduates" by migrating its liquidity to a decentralized exchange (DEX).
+3.  **`CarbonOpus.sol`**: An ERC-1155 contract for minting and selling music as NFTs, with built-in royalty and referral systems.
 
-This system aims to democratize token creation while providing robust mechanisms to protect against common launch issues like sniping bots and price manipulation.
+This system aims to democratize token creation and music distribution while providing robust mechanisms to protect against common launch issues and ensure fair compensation for artists.
 
 ---
 
@@ -45,6 +46,19 @@ Each token created by the launcher is an instance of this contract. It has a two
     3.  All ETH reserves and the newly minted tokens are used to create a new liquidity pool on a designated DEX (e.g., Somnia Exchange).
     4.  The LP (Liquidity Provider) tokens are transferred to the original creator of the coin.
 -   **Post-Graduation**: All future trading occurs on the DEX.
+
+### `CarbonOpus.sol` (The Music NFT Marketplace)
+
+This ERC-1155 contract allows artists to mint and sell their music as NFTs.
+
+-   **Purpose**:
+    -   Enables artists to mint their music, setting a price and a referral percentage.
+    -   Allows users to purchase these music NFTs, with editions being created upon purchase.
+    -   Automatically handles royalty distribution from sales to the artist, a referrer (if applicable), and the protocol treasury.
+-   **Key Functions**:
+    -   `mintMusic(receiver, price, referralPct)`: For artists to create a new song NFT.
+    -   `purchaseMusic(receiver, tokenId, referrer)`: For users to buy an edition of a song.
+    -   `claimRewards(receiver)`: For artists and referrers to withdraw their earnings.
 
 ---
 
@@ -104,6 +118,7 @@ The `CarbonCoin` contract includes several features designed to ensure a fair an
 ├── contracts/         # Solidity source code
 │   ├── CarbonCoin.sol
 │   ├── CarbonCoinLauncher.sol
+│   ├── CarbonOpus.sol
 │   └── interface/
 ├── deploy/            # Deployment scripts
 ├── test/              # Hardhat tests

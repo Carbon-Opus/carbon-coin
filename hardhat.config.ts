@@ -132,7 +132,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: [ 'CarbonCoin', 'CarbonCoinConfig', 'CarbonCoinLauncher' ],
+    only: [ 'CarbonOpus', 'CarbonCoin', 'CarbonCoinConfig', 'CarbonCoinLauncher' ],
     except: [],
   },
   sourcify: { enabled: true },

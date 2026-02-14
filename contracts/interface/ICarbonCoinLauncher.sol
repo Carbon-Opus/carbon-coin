@@ -41,30 +41,31 @@ interface ICarbonCoinLauncher {
     address indexed creator,
     string name,
     string symbol,
-    uint256 timestamp,
-    uint256 creationFee
+    uint256 timestamp
   );
   event TokenGraduated(
     address indexed tokenAddress,
-    address indexed dexPair,
     uint256 timestamp
   );
-  event CreationFeeUpdated(uint256 oldFee, uint256 newFee, uint256 timestamp);
   event MaxTokensPerCreatorUpdated(uint256 oldMax, uint256 newMax, uint256 timestamp);
   event LauncherPaused(uint256 timestamp);
   event LauncherUnpaused(uint256 timestamp);
   event FeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
+  event ControllerUpdated(address indexed newController);
+  event FeeReceived(address indexed from, uint256 amount, uint256 timestamp);
 
   error Unauthorized();
   error InsufficientFee();
   error TooManyTokens();
   error InvalidParameters();
+  error InvalidAddress(address addr);
 
   function createToken(
     string memory name,
     string memory symbol,
+    address creatorAddress,
     ICarbonCoin.BondingCurveConfig memory curveConfig
-  ) external payable returns (address);
+  ) external returns (address);
 
   // function getAllTokens() external view returns (address[] memory);
 
@@ -76,17 +77,9 @@ interface ICarbonCoinLauncher {
 
   // function getRecentTokens(uint256 count) external view returns (address[] memory);
 
-  function setCreationFee(uint256 _fee) external;
-
   function setMaxTokensPerCreator(uint256 _max) external;
 
   function withdraw() external;
 
-  function markTokenGraduated(address tokenAddress) external;
-
-  function getStats() external view returns (
-    uint256 _totalTokensCreated,
-    uint256 _totalFeesCollected,
-    uint256 _creationFee
-  );
+  // function markTokenGraduated(address tokenAddress) external;
 }

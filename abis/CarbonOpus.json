@@ -5,6 +5,11 @@
         "internalType": "string",
         "name": "uri",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "usdcTokenAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -158,9 +163,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
       }
     ],
     "name": "NoRewardsToClaim",
@@ -273,6 +278,38 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "newController",
+        "type": "address"
+      }
+    ],
+    "name": "ControllerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "MemberAddressUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
         "type": "address"
       },
@@ -284,19 +321,6 @@
       }
     ],
     "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newManager",
-        "type": "address"
-      }
-    ],
-    "name": "PriceScaleManagerUpdated",
     "type": "event"
   },
   {
@@ -315,6 +339,12 @@
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
       {
         "indexed": true,
         "internalType": "address",
@@ -336,15 +366,15 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "artist",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -379,9 +409,9 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "artist",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -396,7 +426,7 @@
         "type": "uint256"
       }
     ],
-    "name": "SongMinted",
+    "name": "SongCreated",
     "type": "event"
   },
   {
@@ -448,15 +478,15 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "buyer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -565,19 +595,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "TreasuryUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "string",
         "name": "value",
@@ -644,12 +661,45 @@
   {
     "inputs": [
       {
-        "internalType": "address payable",
-        "name": "receiver",
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "memberAddress",
         "type": "address"
       }
     ],
     "name": "claimRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "memberAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralPct",
+        "type": "uint256"
+      }
+    ],
+    "name": "createMusic",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -682,30 +732,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "referralPct",
-        "type": "uint256"
-      }
-    ],
-    "name": "mintMusic",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
+        "name": "memberAddress",
         "type": "address"
       }
     ],
@@ -720,6 +747,19 @@
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -754,8 +794,13 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       },
       {
@@ -764,21 +809,26 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "address[]",
+        "internalType": "bytes32[]",
         "name": "referrers",
-        "type": "address[]"
+        "type": "bytes32[]"
       }
     ],
     "name": "purchaseBatch",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       },
       {
@@ -787,14 +837,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "name": "purchaseMusic",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -807,9 +857,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "name": "rewards",
@@ -892,24 +942,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "scaleSongPrice",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -949,9 +981,9 @@
     "name": "songs",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "artist",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
@@ -987,6 +1019,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -1003,11 +1048,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newManager",
+        "name": "newController",
         "type": "address"
       }
     ],
-    "name": "updatePriceScaleManager",
+    "name": "updateController",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1064,19 +1109,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "updateTreasury",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -1088,6 +1120,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdcToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

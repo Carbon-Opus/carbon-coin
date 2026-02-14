@@ -30,39 +30,44 @@ import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 
 contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
   // Default configurations
-  FeeConfig public defaultFeeConfig;
-  AntiBotConfig public defaultAntiBotConfig;
-  CircuitBreakerConfig public defaultCircuitBreakerConfig;
-  WhaleLimitConfig public defaultWhaleLimitConfig;
+  FeeConfig internal defaultFeeConfig;
+  AntiBotConfig internal defaultAntiBotConfig;
+  CircuitBreakerConfig internal defaultCircuitBreakerConfig;
+  WhaleLimitConfig internal defaultWhaleLimitConfig;
+  address internal carbonCoinDex;
 
   constructor() Ownable(msg.sender) {
     defaultFeeConfig = FeeConfig({
-      buyFee: 30,  // 0.3%
-      sellFee: 30, // 0.3%
-      maxFee: 300  // 3% max
+      buyFee: 100,  // 1%
+      sellFee: 100, // 1%
+      maxFee: 500   // 5% max
     });
 
     defaultAntiBotConfig = AntiBotConfig({
-      antiBotDuration: 60,        // 60 seconds
-      maxBuyAmountEarly: 1 ether, // Max 1 ETH during launch
-      maxWalletPercentage: 300,   // 3% of supply
-      cooldownPeriod: 10,         // 10 seconds between buys
-      minBuyAmount: 0.001 ether   // Prevent dust attacks
+      antiBotDuration: 120,               // 120 seconds
+      maxBuyAmountEarly: 100 * (10 ** 6), // Max 100 USDC during launch
+      maxWalletPercentage: 200,           // 2% of supply
+      cooldownPeriod: 15,                 // 15 seconds between buys
+      minBuyAmount: 1 * (10 ** 6)         // Prevent dust attacks
     });
 
     defaultCircuitBreakerConfig = CircuitBreakerConfig({
-      maxPriceImpact: 1000,           // 10%
+      maxPriceImpact: 500,                  // 5%
       volatilityWindow: 5 minutes,
-      maxVolatilityMoves: 5,
-      circuitBreakerDuration: 10 minutes
+      maxVolatilityMoves: 3,
+      circuitBreakerDuration: 15 minutes
     });
 
     defaultWhaleLimitConfig = WhaleLimitConfig({
-      whaleThreshold: 10 ether,   // 10 ETH+ is whale
-      whaleDelay: 2 minutes,      // 2 min delay
-      maxTradeSize: 30 ether,     // Max 30 ETH per trade
-      maxSellPercentage: 300      // Max 3% of supply per sell
+      whaleThreshold: 1000 * (10 ** 6), // 1000 USDC+ is whale
+      whaleDelay: 5 minutes,            // 5 min delay
+      maxTradeSize: 2500 * (10 ** 6),   // Max 2500 USDC per trade
+      maxSellPercentage: 200            // Max 2% of supply per sell
     });
+  }
+
+  function getCarbonCoinDex() external view returns (address) {
+    return carbonCoinDex;
   }
 
   function getFeeConfig() public view returns (FeeConfig memory) {
@@ -79,6 +84,12 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
 
   function getWhaleLimitConfig() public view returns (WhaleLimitConfig memory) {
     return defaultWhaleLimitConfig;
+  }
+
+  function updateDexAddress(address _dex) external onlyOwner {
+    require(_dex != address(0), "Invalid DEX address");
+    carbonCoinDex = _dex;
+    emit DefaultConfigUpdated("Dex", block.timestamp);
   }
 
   function updateDefaultFeeConfig(FeeConfig memory newConfig) external onlyOwner {

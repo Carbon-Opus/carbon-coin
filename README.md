@@ -35,7 +35,7 @@ Each token created by the launcher is an instance of this contract. It has a two
 
 -   **Price Discovery**: All buys and sells happen directly with the contract's bonding curve. The price is determined algorithmically based on the ratio of ETH reserves to the token supply.
 -   **Trading Functions**: `buy(minTokensOut)` and `sell(tokensIn, minEthOut)`.
--   **Fees**: Small fees are applied to buys and sells to reward the token creator and contribute to the liquidity pool.
+-   **Fees**: Small fees are applied to buys and sells which are collected by the launcher contract to support the platform ecosystem.
 
 #### Phase 2: DEX Graduation
 
@@ -49,16 +49,17 @@ Each token created by the launcher is an instance of this contract. It has a two
 
 ### `CarbonOpus.sol` (The Music NFT Marketplace)
 
-This ERC-1155 contract allows artists to mint and sell their music as NFTs.
+This ERC-1155 contract allows artists to sell their music as NFTs using USDC. It uses a `memberId` system to track artists and their creations independent of their wallet addresses.
 
 -   **Purpose**:
-    -   Enables artists to mint their music, setting a price and a referral percentage.
-    -   Allows users to purchase these music NFTs, with editions being created upon purchase.
-    -   Automatically handles royalty distribution from sales to the artist, a referrer (if applicable), and the protocol treasury.
+    -   **Restricted Minting**: Enables the platform (via a controller) to mint music NFTs on behalf of artists.
+    -   **Public Purchasing**: Allows users to purchase editions of these music NFTs with USDC.
+    -   **Automated Rewards**: Handles royalty distribution to the artist, referrers, and protocol treasury in USDC.
 -   **Key Functions**:
-    -   `mintMusic(receiver, price, referralPct)`: For artists to create a new song NFT.
-    -   `purchaseMusic(receiver, tokenId, referrer)`: For users to buy an edition of a song.
-    -   `claimRewards(receiver)`: For artists and referrers to withdraw their earnings.
+    -   `createMusic(memberId, memberAddress, price, referralPct)`: Restricted function for the platform controller to mint new music.
+    -   `purchaseMusic(memberId, memberAddress, tokenId, referrer)`: Public function for users to buy a song edition.
+    -   `purchaseBatch(memberId, memberAddress, tokenIds, referrers)`: Allows users to buy multiple song editions in a single transaction.
+    -   `claimRewards(memberId)`: Allows artists and referrers to withdraw their USDC earnings.
 
 ---
 

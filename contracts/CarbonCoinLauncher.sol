@@ -44,10 +44,10 @@ import { CarbonCoin } from "./CarbonCoin.sol";
 contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, Ownable {
   /// @notice The address of the CarbonCoinConfig contract, which provides default configurations for new tokens.
   address public configAddress;
-  /// @notice The address of the DEX router, which is used for creating liquidity pairs.
-  address public immutable dexRouter;
-  /// @notice The fee for creating a new token.
-  uint256 public creationFee = 0.0001 ether;
+  /// @notice The address of the USDC token for payments.
+  address public usdcAddress;
+  /// @notice The address of the controller of the contract.
+  address internal _controller;
   /// @notice The maximum number of tokens that a single address can create.
   uint256 public maxTokensPerCreator = 1;
 
@@ -60,20 +60,27 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   /// @notice An array of all the token addresses that have been created.
   // address[] public allTokens;
 
-  // Revenue tracking
-  /// @notice The total amount of fees collected from token creations.
-  uint256 public totalFeesCollected;
   /// @notice The total number of tokens that have been created.
   uint256 public totalTokensCreated;
 
   /**
    * @notice The constructor for the CarbonCoinLauncher contract.
-   * @param _dexRouter The address of the DEX router.
+   * @param _configAddress The address of the CarbonCoinConfig contract.
+   * @param _usdcAddress The address of the USDC token.
    */
-  constructor(address _configAddress, address _dexRouter) Ownable(msg.sender) ReentrancyGuard() Pausable() {
-    if (_configAddress == address(0) || _dexRouter == address(0)) revert InvalidParameters();
+  constructor(address _configAddress, address _usdcAddress) Ownable(msg.sender) ReentrancyGuard() Pausable() {
+    if (_configAddress == address(0) || _usdcAddress == address(0)) revert InvalidParameters();
     configAddress = _configAddress;
-    dexRouter = _dexRouter;
+    usdcAddress = _usdcAddress;
+    _controller = msg.sender;
+  }
+
+  receive() external payable {
+    emit FeeReceived(msg.sender, msg.value, block.timestamp);
+  }
+
+  function getFeeBalance() public view returns (uint256) {
+    return address(this).balance;
   }
 
   /**
@@ -85,17 +92,17 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     function createToken(
       string memory name,
       string memory symbol,
+      address creatorAddress,
       ICarbonCoin.BondingCurveConfig memory curveConfig
-    ) public payable nonReentrant whenNotPaused returns (address) {
-      if (msg.value < creationFee) revert InsufficientFee();
-      if (bytes(name).length == 0 || bytes(symbol).length == 0) revert InvalidParameters();
-      if (tokensCreatedByAddress[msg.sender] >= maxTokensPerCreator) revert TooManyTokens();
+    ) public nonReentrant whenNotPaused returns (address) {
+      if (msg.sender != _controller) revert Unauthorized();
+      if (tokensCreatedByAddress[creatorAddress] >= maxTokensPerCreator) revert TooManyTokens();
 
       CarbonCoin token = new CarbonCoin(
         name,
         symbol,
-        msg.sender, // Creator
-        dexRouter,
+        creatorAddress,
+        usdcAddress,
         configAddress,
         curveConfig
       );
@@ -104,7 +111,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
 
       tokens[tokenAddress] = TokenInfo({
         tokenAddress: tokenAddress,
-        creator: msg.sender,
+        creator: creatorAddress,
         createdAt: block.timestamp,
         graduated: false,
         name: name,
@@ -112,27 +119,17 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
       });
 
       // allTokens.push(tokenAddress);
-      // tokensByCreator[msg.sender].push(tokenAddress);
-      tokensCreatedByAddress[msg.sender]++;
-
-      totalFeesCollected += msg.value;
+      // tokensByCreator[creatorAddress].push(tokenAddress);
+      tokensCreatedByAddress[creatorAddress]++;
       totalTokensCreated++;
 
       emit TokenCreated(
         tokenAddress,
-        msg.sender,
+        creatorAddress,
         name,
         symbol,
-        block.timestamp,
-        creationFee
+        block.timestamp
       );
-
-      // Refund excess ETH
-      if (msg.value > creationFee) {
-        (bool success, ) = payable(msg.sender).call{value: msg.value - creationFee}("");
-        require(success, "Refund failed");
-      }
-
       return tokenAddress;
     }
 
@@ -187,18 +184,6 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   //   return recent;
   // }
 
-  // Admin functions
-  /**
-   * @notice Sets the fee for creating a new token.
-   * @param _fee The new creation fee.
-   */
-  function setCreationFee(uint256 _fee) external onlyOwner {
-    require(_fee <= 0.1 ether, "Fee too high");
-    uint256 oldFee = creationFee;
-    creationFee = _fee;
-    emit CreationFeeUpdated(oldFee, _fee, block.timestamp);
-  }
-
   /**
    * @notice Sets the maximum number of tokens that a single address can create.
    * @param _max The new maximum number of tokens.
@@ -208,6 +193,12 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     uint256 oldMax = maxTokensPerCreator;
     maxTokensPerCreator = _max;
     emit MaxTokensPerCreatorUpdated(oldMax, _max, block.timestamp);
+  }
+
+  function updateController(address newController) external onlyOwner {
+    if (newController == address(0)) revert InvalidAddress(newController);
+    _controller = newController;
+    emit ControllerUpdated(newController);
   }
 
   /**
@@ -247,25 +238,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     );
     if (tokens[tokenAddress].tokenAddress != address(0)) {
       tokens[tokenAddress].graduated = true;
-
-      CarbonCoin token = CarbonCoin(payable(tokenAddress));
-      address pair = token.dexPair();
-
-      emit TokenGraduated(tokenAddress, pair, block.timestamp);
+      emit TokenGraduated(tokenAddress, block.timestamp);
     }
-  }
-
-  /**
-   * @notice Gets statistics about the contract.
-   * @return _totalTokensCreated The total number of tokens created.
-   * @return _totalFeesCollected The total fees collected.
-   * @return _creationFee The current creation fee.
-   */
-  function getStats() external view returns (
-    uint256 _totalTokensCreated,
-    uint256 _totalFeesCollected,
-    uint256 _creationFee
-  ) {
-    return (totalTokensCreated, totalFeesCollected, creationFee);
   }
 }

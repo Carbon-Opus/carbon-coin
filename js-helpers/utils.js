@@ -33,6 +33,7 @@ const chainIdByName = (chainName) => {
     case 'mainnet': return 1;
     case 'hardhat': return 34443;
     case 'coverage': return 31337;
+    case 'somnia': return 5031;
     case 'somniatestnet': return 50312;
     default: return 0;
   }
@@ -42,6 +43,7 @@ const chainNameById = (chainId) => {
   switch (parseInt(chainId, 10)) {
     case 1: return 'Mainnet';
     case 31337: return 'Hardhat';
+    case 5031: return 'Somnia Mainnet';
     case 50312: return 'Somnia Testnet';
     default: return 'Unknown';
   }
@@ -50,6 +52,7 @@ const chainNameById = (chainId) => {
 const chainTypeById = (chainId) => {
   switch (parseInt(chainId, 10)) {
     case 1:
+    case 5031:
       return {isProd: true, isTestnet: false, isHardhat: false};
     case 50312:
       return {isProd: false, isTestnet: true, isHardhat: false};

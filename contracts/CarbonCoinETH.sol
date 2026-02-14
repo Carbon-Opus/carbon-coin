@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// CarbonCoin.sol
+// CarbonCoinETH.sol
 // Copyright (c) 2025 CarbonOpus
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,47 +26,29 @@ pragma solidity 0.8.27;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
-import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
-import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
+import { ICarbonCoinETH } from "./interface/ICarbonCoinETH.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
-import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
 
-interface IERC20Permit {
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-}
 
-contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausable {
+contract CarbonCoinETH is ICarbonCoinETH, ERC20, ReentrancyGuard, Pausable {
     // Bonding curve parameters (immutable after deployment)
-    uint256 public immutable VIRTUAL_USDC;
+    uint256 public immutable VIRTUAL_ETH;
     uint256 public immutable VIRTUAL_TOKENS;
     uint256 public immutable CREATOR_RESERVE_SUPPLY;
     uint256 public immutable MAX_SUPPLY;
     uint256 public immutable GRADUATION_THRESHOLD;
 
     // State variables
-    uint256 public realUsdcReserves;
+    uint256 public realEthReserves;
     uint256 public realTokenSupply;
     uint256 public immutable launchTime;
     address public immutable creator;
     address public immutable config;
     address public immutable launcher;
     bool public hasGraduated;
-
-    // USDC token integration
-    IERC20 public immutable USDC;
 
     PriceSnapshot[] public recentPrices;
     uint256 public circuitBreakerTriggeredAt;
@@ -83,30 +65,17 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     uint256 public lastGraduationAttempt;
     uint256 public constant GRADUATION_COOLDOWN = 1 hours;
 
-    // Events specific to USDC and sponsored transactions
-    event SponsoredBuy(
-        address indexed buyer,
-        uint256 usdcAmount,
-        uint256 tokensOut,
-        bytes32 indexed uuid,
-        uint256 timestamp
-    );
-    event SponsoredSell(
-        address indexed seller,
-        uint256 tokensIn,
-        uint256 usdcOut,
-        bytes32 indexed uuid,
-        uint256 timestamp
-    );
+    ISomniaExchangeRouter02 public immutable dexRouter;
+    address public dexPair;
 
     /**
-     * @notice Constructor for the CarbonCoinUSDC contract.
-     * @dev Initializes the token with its name, symbol, creator, USDC address, and Somnia Exchange router.
+     * @notice Constructor for the CarbonCoin contract.
+     * @dev Initializes the token with its name, symbol, creator, and Somnia Exchange router.
      * It also whitelists the creator and the launcher contract to bypass certain restrictions.
      * @param name The name of the token.
      * @param symbol The symbol of the token.
      * @param _creator The address of the token creator.
-     * @param _usdc The address of the USDC token contract.
+     * @param _router The address of the Somnia Exchange V2 router.
      * @param _config The address of the token configuration contract.
      * @param bondingCurveConfig The bonding curve parameters.
      */
@@ -114,23 +83,23 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         string memory name,
         string memory symbol,
         address _creator,
-        address _usdc,
+        address _router,
         address _config,
         BondingCurveConfig memory bondingCurveConfig
-    ) ERC20(name, symbol) ERC20Permit(name) {
+    ) ERC20(name, symbol) {
         // Validate inputs
         require(_creator != address(0), "Invalid creator");
-        require(_usdc != address(0), "Invalid USDC address");
+        require(_router != address(0), "Invalid router");
         require(_config != address(0), "Invalid config");
 
         creator = _creator;
         launcher = msg.sender;
         config = _config;
-        USDC = IERC20(_usdc);
+        dexRouter = ISomniaExchangeRouter02(_router);
         launchTime = block.timestamp;
 
         // Set bonding curve config (immutable)
-        VIRTUAL_USDC = bondingCurveConfig.virtualUsdc;
+        VIRTUAL_ETH = bondingCurveConfig.virtualEth;
         VIRTUAL_TOKENS = bondingCurveConfig.virtualTokens;
         CREATOR_RESERVE_SUPPLY = bondingCurveConfig.creatorReserve;
         MAX_SUPPLY = bondingCurveConfig.maxSupply;
@@ -149,13 +118,17 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         // Emit deployment event for indexing
         emit TokenDeployed(
             address(this),
-            creator,
+            _creator,
             name,
             symbol,
-            MAX_SUPPLY + CREATOR_RESERVE_SUPPLY,
+            MAX_SUPPLY,
             GRADUATION_THRESHOLD,
             block.timestamp
         );
+    }
+
+    receive() external payable {
+        revert("Use buy() function");
     }
 
     /**
@@ -173,100 +146,87 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     /**
-     * @notice Get the current token price in USDC.
+     * @notice Get the current token price in ETH.
      * @dev Calculates the price based on the bonding curve's virtual and real reserves.
-     * @return The current price of one token in USDC (with 6 decimals for USDC).
+     * @return The current price of one token in ETH.
      */
     function getCurrentPrice() public view returns (uint256) {
-        uint256 totalUsdc = VIRTUAL_USDC + realUsdcReserves;
+        uint256 totalEth = VIRTUAL_ETH + realEthReserves;
         uint256 totalTokens = VIRTUAL_TOKENS - realTokenSupply;
-        // USDC has 6 decimals, so we use 10**6 instead of 10**18
-        return (totalUsdc * 10**6) / totalTokens;
+        return (totalEth * 10**18) / totalTokens;
     }
 
     /**
-     * @notice Calculate the amount of tokens received for a given USDC input.
+     * @notice Calculate the amount of tokens received for a given ETH input.
      * @dev The calculation is based on the bonding curve formula and includes the buy fee.
-     * @param usdcIn The amount of USDC to be spent.
+     * @param ethIn The amount of ETH to be spent.
      * @return The amount of tokens that will be received.
      */
-    function calculateTokensOut(uint256 usdcIn) public view returns (uint256) {
-        if (usdcIn == 0) return 0;
+    function calculateTokensOut(uint256 ethIn) public view returns (uint256) {
+        if (ethIn == 0) return 0;
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
 
-        uint256 usdcAfterFee = (usdcIn * (10000 - feeConfig.buyFee)) / 10000;
+        uint256 ethAfterFee = (ethIn * (10000 - feeConfig.buyFee)) / 10000;
 
-        uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
-        uint256 newTotalUsdc = VIRTUAL_USDC + realUsdcReserves + usdcAfterFee;
-        uint256 newTotalTokens = k / newTotalUsdc;
+        uint256 k = (VIRTUAL_ETH + realEthReserves) * (VIRTUAL_TOKENS - realTokenSupply);
+        uint256 newTotalEth = VIRTUAL_ETH + realEthReserves + ethAfterFee;
+        uint256 newTotalTokens = k / newTotalEth;
         uint256 newRealSupply = VIRTUAL_TOKENS - newTotalTokens;
 
         return newRealSupply - realTokenSupply;
     }
 
     /**
-     * @notice Calculate the amount of USDC needed to buy a specific amount of tokens.
+     * @notice Calculate the amount of ETH needed to buy a specific amount of tokens.
      * @dev The calculation is based on the bonding curve formula and includes the buy fee.
      * @param tokensOut The desired amount of tokens.
-     * @return The amount of USDC required to purchase the specified tokens.
+     * @return The amount of ETH required to purchase the specified tokens.
      */
-    function calculateUsdcIn(uint256 tokensOut) public view returns (uint256) {
+    function calculateEthIn(uint256 tokensOut) public view returns (uint256) {
         if (tokensOut == 0) return 0;
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
 
-        uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
+        uint256 k = (VIRTUAL_ETH + realEthReserves) * (VIRTUAL_TOKENS - realTokenSupply);
         uint256 newRealSupply = realTokenSupply + tokensOut;
         uint256 newTotalTokens = VIRTUAL_TOKENS - newRealSupply;
-        uint256 newTotalUsdc = k / newTotalTokens;
-        uint256 newUsdcReserves = newTotalUsdc - VIRTUAL_USDC;
-        uint256 usdcNeeded = newUsdcReserves - realUsdcReserves;
+        uint256 newTotalEth = k / newTotalTokens;
+        uint256 newEthReserves = newTotalEth - VIRTUAL_ETH;
+        uint256 ethNeeded = newEthReserves - realEthReserves;
 
-        return (usdcNeeded * 10000) / (10000 - feeConfig.buyFee);
+        return (ethNeeded * 10000) / (10000 - feeConfig.buyFee);
     }
 
     /**
-     * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
+     * @notice Calculate the amount of ETH received when selling a specific amount of tokens.
      * @dev The calculation is based on the bonding curve formula and includes the sell fee.
      * @param tokensIn The amount of tokens to be sold.
-     * @return The amount of USDC that will be received.
+     * @return The amount of ETH that will be received.
      */
-    function calculateUsdcOut(uint256 tokensIn) public view returns (uint256) {
+    function calculateEthOut(uint256 tokensIn) public view returns (uint256) {
         if (tokensIn == 0) return 0;
         if (tokensIn > realTokenSupply) return 0;
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
 
-        uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
+        uint256 k = (VIRTUAL_ETH + realEthReserves) * (VIRTUAL_TOKENS - realTokenSupply);
         uint256 newRealSupply = realTokenSupply - tokensIn;
         uint256 newTotalTokens = VIRTUAL_TOKENS - newRealSupply;
-        uint256 newTotalUsdc = k / newTotalTokens;
-        uint256 newUsdcReserves = newTotalUsdc - VIRTUAL_USDC;
-        uint256 usdcOut = realUsdcReserves - newUsdcReserves;
+        uint256 newTotalEth = k / newTotalTokens;
+        uint256 newEthReserves = newTotalEth - VIRTUAL_ETH;
+        uint256 ethOut = realEthReserves - newEthReserves;
 
-        return (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
+        return (ethOut * (10000 - feeConfig.sellFee)) / 10000;
     }
 
     /**
-     * @notice Allows a user to buy tokens with USDC using permit (gasless signature).
-     * @dev This is the standard buy function where users pay their own gas.
-     * Uses EIP-2612 permit to avoid separate approval transaction.
-     * @param usdcAmount The amount of USDC to spend.
-     * @param minTokensOut The minimum number of tokens the user is willing to accept.
-     * @param deadline The permit signature deadline.
-     * @param v The recovery byte of the signature.
-     * @param r Half of the ECDSA signature pair.
-     * @param s Half of the ECDSA signature pair.
+     * @notice Allows a user to buy tokens with ETH.
+     * @dev This function is the main entry point for purchasing tokens. It includes anti-bot, circuit breaker, and trade size checks.
+     * If the trade is identified as a whale trade, it is delegated to the _handleWhaleBuy function.
+     * @param minTokensOut The minimum number of tokens the user is willing to accept for their ETH.
      */
-    function buyWithPermit(
-        uint256 usdcAmount,
-        uint256 minTokensOut,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external nonReentrant whenNotPaused {
+    function buy(uint256 minTokensOut) external payable nonReentrant whenNotPaused {
         // Inlined antiBotProtection modifier
         require(msg.sender == tx.origin, "Contract call not allowed");
         require(!isBlacklisted[msg.sender], "Blacklisted");
@@ -274,7 +234,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
 
         if (block.timestamp < launchTime + botConfig.antiBotDuration) {
-            require(usdcAmount <= botConfig.maxBuyAmountEarly || whitelist[msg.sender], "Buy amount too high");
+            require(msg.value <= botConfig.maxBuyAmountEarly || whitelist[msg.sender], "Buy amount too high");
         }
 
         if (!whitelist[msg.sender]) {
@@ -298,97 +258,35 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         // Inlined tradeSizeCheck modifier
         ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
         if (!whitelist[msg.sender]) {
-            require(usdcAmount <= whaleConfig.maxTradeSize, "Trade size too large");
+            require(msg.value <= whaleConfig.maxTradeSize, "Trade size too large");
         }
 
         if (hasGraduated) revert AlreadyGraduated();
-        if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
 
-        // Execute permit
-        IERC20Permit(address(USDC)).permit(msg.sender, address(this), usdcAmount, deadline, v, r, s);
-
-        // Transfer USDC from user to contract
-        require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
+        if (msg.value < botConfig.minBuyAmount) revert InvalidAmount();
 
         // Check if this is a whale trade
-        bool isWhaleTrade = usdcAmount >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
+        bool isWhaleTrade = msg.value >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
 
         if (isWhaleTrade) {
-            _handleWhaleBuy(msg.sender, usdcAmount, minTokensOut);
+            _handleWhaleBuy(msg.value, minTokensOut);
             return;
         }
 
-        _executeBuy(msg.sender, usdcAmount, minTokensOut);
-    }
-
-    /**
-     * @notice Allows a user to buy tokens with USDC (standard approval required).
-     * @dev Alternative to buyWithPermit for wallets that don't support permit or for pre-approved USDC.
-     * @param usdcAmount The amount of USDC to spend.
-     * @param minTokensOut The minimum number of tokens the user is willing to accept.
-     */
-    function buy(uint256 usdcAmount, uint256 minTokensOut) external nonReentrant whenNotPaused {
-        // Inlined antiBotProtection modifier
-        require(msg.sender == tx.origin, "Contract call not allowed");
-        require(!isBlacklisted[msg.sender], "Blacklisted");
-
-        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-
-        if (block.timestamp < launchTime + botConfig.antiBotDuration) {
-            require(usdcAmount <= botConfig.maxBuyAmountEarly || whitelist[msg.sender], "Buy amount too high");
-        }
-
-        if (!whitelist[msg.sender]) {
-            if (lastBuyTime[msg.sender] != 0) {
-                require(block.timestamp >= lastBuyTime[msg.sender] + botConfig.cooldownPeriod, "Cooldown active");
-            }
-        }
-        lastBuyTime[msg.sender] = block.timestamp;
-
-        // Inlined circuitBreakerCheck modifier
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        if (circuitBreakerTriggeredAt > 0) {
-            if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
-                revert CircuitBreakerActive();
-            } else {
-                circuitBreakerTriggeredAt = 0;
-                emit CircuitBreakerReset(block.timestamp);
-            }
-        }
-
-        // Inlined tradeSizeCheck modifier
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        if (!whitelist[msg.sender]) {
-            require(usdcAmount <= whaleConfig.maxTradeSize, "Trade size too large");
-        }
-
-        if (hasGraduated) revert AlreadyGraduated();
-        if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
-
-        // Transfer USDC from user to contract (requires prior approval)
-        require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
-
-        // Check if this is a whale trade
-        bool isWhaleTrade = usdcAmount >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
-
-        if (isWhaleTrade) {
-            _handleWhaleBuy(msg.sender, usdcAmount, minTokensOut);
-            return;
-        }
-
-        _executeBuy(msg.sender, usdcAmount, minTokensOut);
+        _executeBuy(msg.sender, msg.value, minTokensOut);
     }
 
     /**
      * @notice Internal function to execute a token purchase.
-     * @dev This function handles the core logic of a buy transaction.
+     * @dev This function handles the core logic of a buy transaction, including calculating tokens out, checking for slippage and max supply,
+     * updating reserves, minting tokens, and handling fees.
      * @param buyer The address of the user purchasing tokens.
-     * @param usdcAmount The amount of USDC being spent.
+     * @param ethAmount The amount of ETH being spent.
      * @param minTokensOut The minimum number of tokens the user is willing to accept.
      */
-    function _executeBuy(address buyer, uint256 usdcAmount, uint256 minTokensOut) internal {
+    function _executeBuy(address buyer, uint256 ethAmount, uint256 minTokensOut) internal {
         uint256 priceBefore = getCurrentPrice();
-        uint256 tokensOut = calculateTokensOut(usdcAmount);
+        uint256 tokensOut = calculateTokensOut(ethAmount);
         if (tokensOut < minTokensOut) revert SlippageTooHigh();
         if (realTokenSupply + tokensOut > MAX_SUPPLY) revert ExceedsMaxSupply();
 
@@ -402,16 +300,16 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             if (balanceOf(buyer) + tokensOut > maxWallet) revert ExceedsMaxWallet();
         }
 
-        uint256 usdcAfterFee = (usdcAmount * (10000 - feeConfig.buyFee)) / 10000;
-        uint256 fee = usdcAmount - usdcAfterFee;
+        uint256 ethAfterFee = (ethAmount * (10000 - feeConfig.buyFee)) / 10000;
+        uint256 fee = ethAmount - ethAfterFee;
 
-        realUsdcReserves += usdcAfterFee;
+        realEthReserves += ethAfterFee;
         realTokenSupply += tokensOut;
 
         uint256 priceAfter = getCurrentPrice();
 
         // Check price impact (skip for small buys and whitelisted)
-        if (!whitelist[buyer] && usdcAmount >= 1000 * 10**6) { // 1000 USDC (6 decimals)
+        if (!whitelist[buyer] && ethAmount >= 1 ether) {
             uint256 priceImpact = ((priceAfter - priceBefore) * 10000) / priceBefore;
 
             if (priceImpact > cbConfig.maxPriceImpact) {
@@ -432,58 +330,58 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         // Send fee to launcher
         if (fee > 0) {
-            require(USDC.transfer(launcher, fee), "Fee transfer failed");
+            (bool success, ) = payable(launcher).call{value: fee}("");
+            require(success, "Fee transfer failed");
         }
 
         emit TokensPurchased(
             buyer,
-            usdcAmount,
+            ethAmount,
             tokensOut,
             priceAfter,
-            realUsdcReserves,
+            realEthReserves,
             realTokenSupply,
             block.timestamp
         );
 
         // Emit periodic price updates for charting
-        emit PriceUpdate(priceAfter, realUsdcReserves, realTokenSupply, block.timestamp);
+        emit PriceUpdate(priceAfter, realEthReserves, realTokenSupply, block.timestamp);
 
         // Check if graduation threshold reached
-        if (realUsdcReserves >= GRADUATION_THRESHOLD) {
+        if (realEthReserves >= GRADUATION_THRESHOLD) {
             _graduate();
         }
     }
 
     /**
      * @notice Internal function to handle whale buy transactions.
-     * @dev This function enforces a cooldown period and an intent-to-trade mechanism for large buy orders.
-     * @param buyer The address of the buyer.
-     * @param usdcAmount The amount of USDC being spent.
+     * @dev This function enforces a cooldown period and an intent-to-trade mechanism for large buy orders to prevent manipulation.
+     * @param ethAmount The amount of ETH being spent.
      * @param minTokensOut The minimum number of tokens the user is willing to accept.
      */
-    function _handleWhaleBuy(address buyer, uint256 usdcAmount, uint256 minTokensOut) internal {
+    function _handleWhaleBuy(uint256 ethAmount, uint256 minTokensOut) internal {
         ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
 
         // Check if whale has cooldown active
-        if (lastWhaleTradeTime[buyer] > 0) {
-            if (block.timestamp < lastWhaleTradeTime[buyer] + whaleConfig.whaleDelay) {
+        if (lastWhaleTradeTime[msg.sender] > 0) {
+            if (block.timestamp < lastWhaleTradeTime[msg.sender] + whaleConfig.whaleDelay) {
                 revert WhaleDelayActive();
             }
         }
 
         // Check if there's a pending intent
-        WhaleIntent storage intent = pendingWhaleIntents[buyer];
+        WhaleIntent storage intent = pendingWhaleIntents[msg.sender];
 
         if (intent.intentTime == 0) {
             // No intent exists, register one
-            intent.amount = usdcAmount;
+            intent.amount = ethAmount;
             intent.intentTime = block.timestamp;
             intent.isBuy = true;
             intent.executed = false;
 
             emit WhaleIntentRegistered(
-                buyer,
-                usdcAmount,
+                msg.sender,
+                ethAmount,
                 true,
                 block.timestamp + whaleConfig.whaleDelay,
                 block.timestamp
@@ -500,27 +398,28 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         // Verify intent matches current trade
         require(intent.isBuy, "Intent is for sell, not buy");
         require(!intent.executed, "Intent already executed");
-        require(intent.amount == usdcAmount, "Amount must match intent");
+        require(intent.amount == ethAmount, "Amount must match intent");
 
         // Execute the trade
         intent.executed = true;
-        lastWhaleTradeTime[buyer] = block.timestamp;
+        lastWhaleTradeTime[msg.sender] = block.timestamp;
 
-        emit WhaleTradeExecuted(buyer, usdcAmount, true, block.timestamp);
+        emit WhaleTradeExecuted(msg.sender, ethAmount, true, block.timestamp);
 
-        _executeBuy(buyer, usdcAmount, minTokensOut);
+        _executeBuy(msg.sender, ethAmount, minTokensOut);
 
         // Clean up intent
-        delete pendingWhaleIntents[buyer];
+        delete pendingWhaleIntents[msg.sender];
     }
 
     /**
-     * @notice Allows a user to sell tokens for USDC.
-     * @dev This function is the main entry point for selling tokens.
+     * @notice Allows a user to sell tokens for ETH.
+     * @dev This function is the main entry point for selling tokens. It includes checks for graduation, amount, and balance.
+     * It also enforces sell limits and delegates to _handleWhaleSell if the trade is large enough.
      * @param tokensIn The amount of tokens to sell.
-     * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
+     * @param minEthOut The minimum amount of ETH the user is willing to accept.
      */
-    function sell(uint256 tokensIn, uint256 minUsdcOut) external nonReentrant whenNotPaused {
+    function sell(uint256 tokensIn, uint256 minEthOut) external nonReentrant whenNotPaused {
         // Inlined circuitBreakerCheck modifier
         ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
         if (circuitBreakerTriggeredAt > 0) {
@@ -544,39 +443,41 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             if (tokensIn > maxSellAmount) revert SellAmountTooLarge();
         }
 
-        uint256 usdcOut = calculateUsdcOut(tokensIn);
+        uint256 ethOut = calculateEthOut(tokensIn);
 
         // Check if this is a whale trade
-        bool isWhaleTrade = usdcOut >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
+        bool isWhaleTrade = ethOut >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
 
         if (isWhaleTrade) {
-            _handleWhaleSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
+            _handleWhaleSell(tokensIn, minEthOut, ethOut);
             return;
         }
 
-        _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
+        _executeSell(msg.sender, tokensIn, minEthOut, ethOut);
     }
 
     /**
      * @notice Internal function to execute a token sale.
-     * @dev This function handles the core logic of a sell transaction.
+     * @dev This function handles the core logic of a sell transaction, including checking for slippage and liquidity,
+     * updating reserves, burning tokens, and transferring ETH to the seller and fees to the launcher.
+     * It also checks for price impact and tracks volatility.
      * @param seller The address of the user selling tokens.
      * @param tokensIn The amount of tokens being sold.
-     * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
-     * @param usdcOut The calculated amount of USDC to be received.
+     * @param minEthOut The minimum amount of ETH the user is willing to accept.
+     * @param ethOut The calculated amount of ETH to be received.
      */
-    function _executeSell(address seller, uint256 tokensIn, uint256 minUsdcOut, uint256 usdcOut) internal {
-        if (usdcOut < minUsdcOut) revert SlippageTooHigh();
-        if (usdcOut > realUsdcReserves) revert InsufficientLiquidity();
+    function _executeSell(address seller, uint256 tokensIn, uint256 minEthOut, uint256 ethOut) internal {
+        if (ethOut < minEthOut) revert SlippageTooHigh();
+        if (ethOut > realEthReserves) revert InsufficientLiquidity();
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
         ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
 
         uint256 priceBefore = getCurrentPrice();
-        uint256 usdcAfterFee = (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
-        uint256 fee = usdcOut - usdcAfterFee;
+        uint256 ethAfterFee = (ethOut * (10000 - feeConfig.sellFee)) / 10000;
+        uint256 fee = ethOut - ethAfterFee;
 
-        realUsdcReserves -= usdcOut;
+        realEthReserves -= ethOut;
         realTokenSupply -= tokensIn;
 
         uint256 priceAfter = getCurrentPrice();
@@ -601,42 +502,41 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         _burn(seller, tokensIn);
 
-        require(USDC.transfer(seller, usdcAfterFee), "USDC transfer failed");
+        (bool success1, ) = payable(seller).call{value: ethAfterFee}("");
+        require(success1, "ETH transfer failed");
 
         // Send fee to launcher
         if (fee > 0) {
-            require(USDC.transfer(launcher, fee), "Fee transfer failed");
+            (bool success2, ) = payable(launcher).call{value: fee}("");
+            require(success2, "Fee transfer failed");
         }
 
         emit TokensSold(
             seller,
             tokensIn,
-            usdcOut,
+            ethOut,
             priceAfter,
-            realUsdcReserves,
+            realEthReserves,
             realTokenSupply,
             block.timestamp
         );
 
         // Emit periodic price updates for charting
-        emit PriceUpdate(priceAfter, realUsdcReserves, realTokenSupply, block.timestamp);
+        emit PriceUpdate(priceAfter, realEthReserves, realTokenSupply, block.timestamp);
     }
 
-    /**
-     * @notice Internal function to handle whale sell transactions.
-     */
-    function _handleWhaleSell(address seller, uint256 tokensIn, uint256 minUsdcOut, uint256 usdcOut) internal {
+    function _handleWhaleSell(uint256 tokensIn, uint256 minEthOut, uint256 ethOut) internal {
         ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
 
         // Check if whale has cooldown active
-        if (lastWhaleTradeTime[seller] > 0) {
-            if (block.timestamp < lastWhaleTradeTime[seller] + whaleConfig.whaleDelay) {
+        if (lastWhaleTradeTime[msg.sender] > 0) {
+            if (block.timestamp < lastWhaleTradeTime[msg.sender] + whaleConfig.whaleDelay) {
                 revert WhaleDelayActive();
             }
         }
 
         // Check if there's a pending intent
-        WhaleIntent storage intent = pendingWhaleIntents[seller];
+        WhaleIntent storage intent = pendingWhaleIntents[msg.sender];
 
         if (intent.intentTime == 0) {
             // No intent exists, register one
@@ -646,7 +546,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             intent.executed = false;
 
             emit WhaleIntentRegistered(
-                seller,
+                msg.sender,
                 tokensIn,
                 false,
                 block.timestamp + whaleConfig.whaleDelay,
@@ -668,20 +568,17 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         // Execute the trade
         intent.executed = true;
-        lastWhaleTradeTime[seller] = block.timestamp;
+        lastWhaleTradeTime[msg.sender] = block.timestamp;
 
-        emit WhaleTradeExecuted(seller, tokensIn, false, block.timestamp);
+        emit WhaleTradeExecuted(msg.sender, tokensIn, false, block.timestamp);
 
-        _executeSell(seller, tokensIn, minUsdcOut, usdcOut);
+        _executeSell(msg.sender, tokensIn, minEthOut, ethOut);
 
         // Clean up intent
-        delete pendingWhaleIntents[seller];
+        delete pendingWhaleIntents[msg.sender];
     }
 
-    /**
-     * @notice Graduate to Somnia Exchange with USDC/Token pair.
-     * @dev Creates a USDC/Token liquidity pool instead of ETH/Token.
-     */
+    // Graduate to Somnia Exchange with protection against griefing
     function _graduate() internal {
         if (hasGraduated) revert AlreadyGraduated();
 
@@ -691,42 +588,48 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         }
         lastGraduationAttempt = block.timestamp;
 
-        // Graduated!
         hasGraduated = true;
 
         // Mint remaining tokens for liquidity
         uint256 remainingTokens = MAX_SUPPLY - realTokenSupply;
         _mint(address(this), remainingTokens);
 
-        address dexAddress = ICarbonCoinConfig(config).getCarbonCoinDex();
+        // Approve router to spend tokens
+        _approve(address(this), address(dexRouter), remainingTokens);
 
-        // Approve router to spend tokens and USDC
-        _approve(address(this), dexAddress, remainingTokens);
-        USDC.approve(dexAddress, realUsdcReserves);
+        // Add liquidity (auto-creates pair)
+        uint256 ethForLiquidity = realEthReserves;
 
-        // Deploy Liquidity
-        (uint256 amountA, uint256 amountB, uint256 liquidity) = ICarbonCoinDex(dexAddress)
-          .deployLiquidity(creator, address(this), remainingTokens, realUsdcReserves);
-
-        // Mark token graduated in launcher
-        // ICarbonCoinLauncher(launcher).markTokenGraduated(address(this));
-
-        // Emit Graduation Event
-        emit Graduated(
+        try dexRouter.addLiquidityETH{value: ethForLiquidity}(
             address(this),
-            amountB, // tokens
-            amountA, // USDC
-            getCurrentPrice(),
-            block.timestamp
-        );
+            remainingTokens,
+            (remainingTokens * 95) / 100, // 5% slippage tolerance
+            (ethForLiquidity * 95) / 100,
+            creator, // Send LP Tokens to Creator  OR   address(0), // Burn LP tokens
+            block.timestamp + 60
+        ) returns (uint amountToken, uint amountETH, uint) {
+            emit Graduated(
+                address(this),
+                dexPair,
+                amountToken,
+                amountETH,
+                getCurrentPrice(),
+                block.timestamp
+            );
 
-        // Final liquidity snapshot
-        emit LiquiditySnapshot(amountA, amountB, liquidity, block.timestamp);
+            // Final liquidity snapshot
+            emit LiquiditySnapshot(0, 0, block.timestamp);
+        } catch {
+            // If graduation fails, revert state
+            hasGraduated = false;
+            _burn(address(this), remainingTokens);
+            revert("Graduation failed");
+        }
     }
 
     // Manual graduation with cooldown (emergency only)
     function forceGraduate() external onlyAuthorized {
-        if (realUsdcReserves < GRADUATION_THRESHOLD) revert InsufficientLiquidity();
+        if (realEthReserves < GRADUATION_THRESHOLD) revert InsufficientLiquidity();
         _graduate();
     }
 
@@ -767,11 +670,12 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         if (hasGraduated) revert AlreadyGraduated();
         require(paused(), "Must be paused first");
 
-        uint256 balance = USDC.balanceOf(address(this));
-        require(USDC.transfer(launcher, balance), "Withdrawal failed");
+        uint256 balance = address(this).balance;
+        (bool success, ) = payable(launcher).call{value: balance}("");
+        require(success, "Withdrawal failed");
 
         emit EmergencyWithdraw(launcher, balance, block.timestamp);
-        emit LiquiditySnapshot(0, 0, 0, block.timestamp);
+        emit LiquiditySnapshot(0, 0, block.timestamp);
     }
 
     // Circuit breaker internal functions
@@ -947,12 +851,12 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     function getReserves() external view returns (
-        uint256 usdcReserves,
+        uint256 ethReserves,
         uint256 tokenSupply,
-        uint256 virtualUsdc,
+        uint256 virtualEth,
         uint256 virtualTokens
     ) {
-        return (realUsdcReserves, realTokenSupply, VIRTUAL_USDC, VIRTUAL_TOKENS);
+        return (realEthReserves, realTokenSupply, VIRTUAL_ETH, VIRTUAL_TOKENS);
     }
 
     function _owner() internal view returns (address) {
@@ -978,6 +882,63 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     modifier onlyAuthorized() {
         if (msg.sender != launcher && msg.sender != _owner() && msg.sender != creator) revert Unauthorized();
         _;
+    }
+
+    modifier circuitBreakerCheck() {
+        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
+
+        // Check if circuit breaker is active
+        if (circuitBreakerTriggeredAt > 0) {
+            if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
+                revert CircuitBreakerActive();
+            } else {
+                // Reset circuit breaker
+                circuitBreakerTriggeredAt = 0;
+                emit CircuitBreakerReset(block.timestamp);
+            }
+        }
+        _;
+    }
+
+    modifier tradeSizeCheck(uint256 ethAmount, bool isBuy) {
+        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+        // Skip checks for whitelisted addresses
+        if (!whitelist[msg.sender]) {
+            // Check max trade size
+            if (isBuy && ethAmount > whaleConfig.maxTradeSize) {
+                revert TradeSizeTooLarge();
+            }
+        }
+        _;
+    }
+
+    modifier antiBotProtection(uint256 ethAmount) {
+        // Check if caller is a contract (basic check)
+        if (msg.sender != tx.origin) revert ContractCallNotAllowed();
+
+        // Check blacklist
+        if (isBlacklisted[msg.sender]) revert Blacklisted();
+
+        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
+
+        // Early launch restrictions (first 60 seconds)
+        if (block.timestamp < launchTime + botConfig.antiBotDuration) {
+            if (ethAmount > botConfig.maxBuyAmountEarly && !whitelist[msg.sender]) {
+                revert BuyAmountTooHigh();
+            }
+        }
+
+        // Cooldown between buys (skip for whitelisted)
+        if (!whitelist[msg.sender]) {
+            if (lastBuyTime[msg.sender] != 0 &&
+                block.timestamp < lastBuyTime[msg.sender] + botConfig.cooldownPeriod) {
+                revert CooldownActive();
+            }
+        }
+
+        _;
+
+        lastBuyTime[msg.sender] = block.timestamp;
     }
 
     /**

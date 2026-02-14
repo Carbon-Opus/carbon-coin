@@ -26,14 +26,14 @@ pragma solidity 0.8.27;
 
 interface ICarbonOpus {
     struct Song {
-        address artist;
+        bytes32 memberId;
         uint256 price;
         uint256 referralPct;
     }
 
     error SongDoesNotExist(uint256 tokenId);
     error IncorrectPrice(uint256 expected, uint256 actual);
-    error NoRewardsToClaim(address account);
+    error NoRewardsToClaim(bytes32 memberId);
     error TransferFailed();
     error NotArtist(address sender, uint256 tokenId);
     error ReferralPercentTooHigh(uint256 newPct);
@@ -42,28 +42,26 @@ interface ICarbonOpus {
     error InvalidAddress(address addr);
     error InputArrayLengthMismatch();
 
-    event RewardsClaimed(address indexed account, uint256 amount);
-    event RewardsDistributed(address indexed artist, address indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
-    event SongMinted(uint256 indexed tokenId, address indexed artist, uint256 price, uint256 referralPct);
-    event SongPurchased(uint256 indexed tokenId, address indexed buyer, address indexed referrer, uint256 price);
+    event RewardsClaimed(bytes32 indexed memberId, address indexed account, uint256 amount);
+    event RewardsDistributed(bytes32 indexed artist, bytes32 indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
+    event SongCreated(uint256 indexed tokenId, bytes32 indexed artist, uint256 price, uint256 referralPct);
+    event SongPurchased(uint256 indexed tokenId, bytes32 indexed buyer, bytes32 indexed referrer, uint256 price);
     event SongPriceUpdated(uint256 indexed tokenId, uint256 newPrice);
     event SongReferralPctUpdated(uint256 indexed tokenId, uint256 newPct);
     event SongPriceScaled(uint256 indexed tokenId, uint256 newPrice);
     event ProtocolFeeUpdated(uint256 newFee);
-    event TreasuryUpdated(address indexed newTreasury);
-    event PriceScaleManagerUpdated(address indexed newManager);
+    event ControllerUpdated(address indexed newController);
+    event MemberAddressUpdated(bytes32 indexed memberId, address indexed newAddress);
 
-    function mintMusic(address receiver, uint256 price, uint256 referralPct) external;
-    function purchaseMusic(address receiver, uint256 tokenId, address referrer) external payable;
-    function purchaseBatch(address receiver, uint256[] memory tokenIds, address[] memory referrers) external payable;
-    function claimRewards(address payable receiver) external;
-    function musicBalance(address user) external view returns (uint256[] memory, uint256[] memory);
+    function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
+    function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
+    function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external;
+    function claimRewards(bytes32 memberId, address memberAddress) external;
+    function musicBalance(address memberAddress) external view returns (uint256[] memory, uint256[] memory);
 
     function updateSongPrice(uint256 tokenId, uint256 newPrice) external;
     function updateSongReferralPct(uint256 tokenId, uint256 newPct) external;
     function updateProtocolFee(uint256 newFee) external;
-    function updateTreasury(address newTreasury) external;
-    function updatePriceScaleManager(address newManager) external;
-    function scaleSongPrice(uint256 tokenId, uint256 newPrice) external;
+    function updateController(address newController) external;
     function setURI(string memory newUri) external;
 }

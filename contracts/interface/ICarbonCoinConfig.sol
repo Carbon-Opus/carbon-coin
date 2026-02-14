@@ -24,8 +24,6 @@
 
 pragma solidity 0.8.27;
 
-import { ICarbonCoin } from "./ICarbonCoin.sol";
-
 interface ICarbonCoinConfig {
   struct FeeConfig {
     uint256 buyFee;
@@ -58,13 +56,11 @@ interface ICarbonCoinConfig {
   event DefaultConfigUpdated(string configType, uint256 timestamp);
 
   function updateDefaultFeeConfig(FeeConfig memory newConfig) external;
-
   function updateDefaultAntiBotConfig(AntiBotConfig memory newConfig) external;
-
   function updateDefaultCircuitBreakerConfig(CircuitBreakerConfig memory newConfig) external;
-
   function updateDefaultWhaleLimitConfig(WhaleLimitConfig memory newConfig) external;
 
+  function getCarbonCoinDex() external view returns (address);
   function getFeeConfig() external view returns (FeeConfig memory);
   function getAntiBotConfig() external view returns (AntiBotConfig memory);
   function getCircuitBreakerConfig() external view returns (CircuitBreakerConfig memory);

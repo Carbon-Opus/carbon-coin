@@ -31,6 +31,11 @@
   },
   {
     "inputs": [],
+    "name": "CreatorCannotSellBeforeGraduation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ExceedsMaxSupply",
     "type": "error"
   },
@@ -225,6 +230,31 @@
       }
     ],
     "name": "CircuitBreakerTriggered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "CreatorReserveMinted",
     "type": "event"
   },
   {
@@ -817,6 +847,19 @@
   },
   {
     "inputs": [],
+    "name": "getBondingCurveMaxSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getCircuitBreakerStatus",
     "outputs": [
       {
@@ -878,6 +921,19 @@
       {
         "internalType": "uint256",
         "name": "virtualTokens",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTotalMaxSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],

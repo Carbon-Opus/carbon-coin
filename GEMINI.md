@@ -148,81 +148,181 @@ When the contract's ETH balance (`realEthReserves`) reaches the `GRADUATION_THRE
 
 ## 4. `CarbonOpus` - The Music NFT Marketplace
 
-The `CarbonOpus` contract is an ERC-1155 NFT marketplace designed for artists to sell their music.
+The `CarbonOpus` contract is an ERC-1155 NFT marketplace designed for artists to sell their music. It uses a USDC token for all payment and reward transactions and a `memberId` system to track artists and their creations independent of their current wallet address.
 
 ### Key Purpose
 
--   To allow artists to mint their music as NFTs.
--   To enable users to purchase these music NFTs.
--   To distribute royalties from sales to artists and referrers.
--   To collect a protocol fee on each transaction.
+-   To allow artists to mint their music as NFTs. **Minting is restricted to the platform controller** (on behalf of the artist).
+-   To enable public users to purchase these music NFTs using USDC.
+-   To distribute royalties from sales to artists and referrers in USDC.
+-   To collect a protocol fee on each transaction in USDC.
 
 ### Dapp Integration: Minting and Purchasing Music
 
-#### **Minting a Song (for Artists)**
+#### **Creating a Song (Restricted Mint)**
 
-An artist can mint a new song NFT by calling `mintMusic`:
+New songs are created via the `createMusic` function. **This function is restricted to the contract's `controller`**. In the CarbonOpus platform, when an artist uploads a song, the platform (acting as the controller) calls this function to mint the NFT to the artist's address.
 
 ```solidity
-function mintMusic(address receiver, uint256 price, uint256 referralPct) external;
+function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
 ```
 
 -   **Parameters:**
-    -   `receiver`: The address that will own the newly minted song (usually the artist).
-    -   `price`: The price in ETH for one edition of the song.
-    -   `referralPct`: The percentage of the sale price (in basis points) that will be given to a referrer.
--   **Event:** The `SongMinted` event is emitted, which a Dapp can use to track new songs.
+    -   `memberId`: The artist's unique identifier (managed by the platform).
+    -   `memberAddress`: The artist's wallet address where the NFT will be minted.
+    -   `price`: The price in USDC for one edition of the song.
+    -   `referralPct`: The percentage of the sale price (in basis points, e.g., 500 = 5%) that will be given to a referrer.
+-   **Events:** `SongCreated`, `MemberAddressUpdated`.
 
-#### **Purchasing a Song**
+#### **Managing Member Identity**
 
-A user can purchase a song NFT by calling `purchaseMusic`:
+The platform can update the association between a `memberId` and a wallet address. This is also restricted to the `controller`.
 
 ```solidity
-function purchaseMusic(address receiver, uint256 tokenId, address referrer) external payable;
+function updateMemberMapping(bytes32 memberId, address memberAddress) external;
+```
+
+#### **Purchasing a Song (Public)**
+
+Any user can purchase a song NFT by calling `purchaseMusic`. This requires approving the `CarbonOpus` contract to spend the user's USDC.
+
+```solidity
+function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
 ```
 
 -   **Parameters:**
-    -   `receiver`: The address that will receive the purchased NFT.
+    -   `memberId`: The buyer's unique identifier.
+    -   `memberAddress`: The buyer's wallet address.
     -   `tokenId`: The ID of the song to purchase.
-    -   `referrer`: An optional address of a user who referred the sale.
--   **Value:** The caller must send ETH equal to the song's `price`.
--   **Events:**
-    -   `SongPurchased`: Indicates a successful purchase.
-    -   `RewardsDistributed`: Details how the payment was split between the artist, referrer, and protocol.
+    -   `referrer`: An optional `memberId` of a user who referred the sale.
+-   **Events:** `SongPurchased`, `RewardsDistributed`.
 
 #### **Batch Purchasing**
 
 Users can buy multiple songs in one transaction using `purchaseBatch`:
 
 ```solidity
-function purchaseBatch(address receiver, uint256[] memory tokenIds, address[] memory referrers) external payable;
+function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external;
 ```
 
 ### Managing Songs and Rewards
 
-#### **For Artists:**
+#### **For Artists (Song Owners):**
 
--   `updateSongPrice(uint256 tokenId, uint256 newPrice)`: Allows an artist to change the price of their song.
--   `updateSongReferralPct(uint256 tokenId, uint256 newPct)`: Allows an artist to change the referral percentage.
+-   `updateSongPrice(uint256 tokenId, uint256 newPrice)`: Allows the artist (owner of the `memberId` associated with the song) to change the price in USDC.
+-   `updateSongReferralPct(uint256 tokenId, uint256 newPct)`: Allows the artist to change the referral percentage.
 
 #### **For All Users:**
 
--   `claimRewards(address payable receiver)`: Allows any user (artist or referrer) to withdraw their accumulated ETH rewards.
--   `rewards(address user)`: A public mapping to check a user's claimable rewards.
--   `musicBalance(address user)`: Returns the token IDs and balances of songs owned by a user.
+-   `claimRewards(bytes32 memberId)`: Allows any user (artist or referrer) to withdraw their accumulated USDC rewards to their registered wallet address.
+-   `rewards(bytes32 memberId)`: Public mapping to check a user's claimable USDC balance.
+-   `musicBalance(bytes32 memberId)`: Returns the token IDs and balances of songs owned by a user's wallet.
 
 ### Administrative Functions
 
-These functions are restricted to the contract owner or a designated manager:
+These functions are restricted to the contract `owner` or `controller`:
 
--   `updateProtocolFee(uint256 newFee)`: Change the protocol fee.
--   `updateTreasury(address newTreasury)`: Change the address where protocol fees are sent.
--   `updatePriceScaleManager(address newManager)`: Transfer the `priceScaleManager` role.
--   `scaleSongPrice(uint256 tokenId, uint256 newPrice)`: A privileged function for the `priceScaleManager` to update a song's price.
--   `setURI(string memory newUri)`: Update the base URI for the token metadata.
+-   `updateProtocolFee(uint256 newFee)`: Change the protocol fee (Owner).
+-   `updateTreasury(address newTreasury)`: Change the address where protocol fees are sent (Owner).
+-   `updateController(address newController)`: Transfer the `controller` role (Owner).
+-   `scaleSongPrice(uint256 tokenId, uint256 newPrice)`: A privileged function for the `controller` to update a song's price.
+-   `setURI(string memory newUri)`: Update the base URI for the token metadata (Owner).
 
 ### Tokenomics and Fees
 
 -   **Protocol Fee:** A percentage of every sale is sent to the treasury. The fee is set by `protocolFee` (in basis points).
 -   **Referral Fee:** A percentage of the sale, set by the artist, is awarded to a referrer.
 -   **Artist's Share:** The remainder of the sale price goes to the artist.
+
+### Constructor
+
+```solidity
+constructor(string memory uri, address usdcTokenAddress) public;
+```
+
+-   **Parameters:**
+    -   `uri`: The base URI for the token metadata.
+    -   `usdcTokenAddress`: The address of the USDC token contract.
+
+
+-------
+
+Setting Up Dune Analytics for Somnia Testnet
+
+Step 1: Verify Your Contract on Somnia Block Explorer
+
+  Before you can decode your contract on Dune, you should verify it on the Somnia Testnet explorer:
+
+  Go to the Somnia Testnet Block Explorer at https://shannon-explorer.somnia.network/
+  Find your deployed contract
+  Verify your contract by uploading the source code and ABI
+  This makes the ABI publicly available for Dune to fetch
+
+Step 2: Submit Your Contract for Decoding on Dune
+
+  To decode your contract, you'll need four pieces of information: the blockchain (Somnia), contract address, project name, and the contract's ABI Dune Docs.
+
+  Go to Dune's Contract Submission Page: Visit https://dune.com/contracts/new
+  Fill in the required information:
+
+  Blockchain: Select "Somnia" from the dropdown
+  Contract Address: Your smart contract address on Somnia Testnet
+  Project Name: Name of your project (e.g., "MyGameProject")
+  Contract Name: Name of the specific contract (e.g., "GameToken", "NFTMarketplace")
+  ABI: If your contract is verified on the chain's explorer, Dune will attempt to auto-fetch the ABI; otherwise, you'll need to enter it manually Dune Docs
+
+  Special Contract Types:
+
+  If your contract is a factory contract (creates other contracts), check the factory box to decode all instances
+  If it's a proxy contract, submit using the proxy address but with the implementation contract's ABI
+
+Step 3: Wait for Decoding
+
+  It usually takes about 24 hours to initially decode smart contracts Layer3. You can check if your contract has been decoded by querying the somnia.contracts table or using Dune's contract verification dashboard.
+
+Step 4: Create Queries and Dashboards
+
+  Once decoded, your contract data will be available in tables with this naming convention:
+
+  Events: [projectname]."contractName_evt_eventName"
+  Function calls: [projectname]."contractName_call_functionName"
+
+  Example queries you can create:
+    sql-- Track all transactions to your contract
+    SELECT * FROM somnia.transactions
+    WHERE "to" = 0xYourContractAddress
+    ORDER BY block_time DESC
+
+    -- Query decoded events (after decoding)
+    SELECT * FROM your_project."YourContract_evt_Transfer"
+    WHERE evt_block_time >= NOW() - INTERVAL '7' DAY
+
+    -- Monitor contract interactions
+    SELECT
+        evt_block_time,
+        evt_tx_hash,
+        "from",
+        "to",
+        value
+    FROM your_project."YourContract_evt_EventName"
+    ORDER BY evt_block_time DESC
+
+Step 5: Build Dashboards
+
+  Create a new dashboard on Dune
+  Add visualizations based on your queries
+  Track metrics like:
+
+    Transaction volume
+    Active users
+    Token transfers
+    Contract interactions over time
+    Gas usage patterns
+
+
+Dune Somnia Documentation: https://docs.dune.com/data-catalog/evm/somnia/overview
+Somnia Dashboard: https://dune.com/chains/somnia
+Contract Submission: https://dune.com/contracts/new
+Somnia Testnet Explorer: https://shannon-explorer.somnia.network/
+
+Since Somnia is now live on Dune with full chain history Layer3, you'll have access to all the data you need to build comprehensive analytics for your smart contract!

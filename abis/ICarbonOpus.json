@@ -45,9 +45,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
       }
     ],
     "name": "NoRewardsToClaim",
@@ -113,11 +113,30 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newManager",
+        "name": "newController",
         "type": "address"
       }
     ],
-    "name": "PriceScaleManagerUpdated",
+    "name": "ControllerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "MemberAddressUpdated",
     "type": "event"
   },
   {
@@ -136,6 +155,12 @@
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
       {
         "indexed": true,
         "internalType": "address",
@@ -157,15 +182,15 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "artist",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -200,9 +225,9 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "artist",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -217,7 +242,7 @@
         "type": "uint256"
       }
     ],
-    "name": "SongMinted",
+    "name": "SongCreated",
     "type": "event"
   },
   {
@@ -269,15 +294,15 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "buyer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -309,23 +334,15 @@
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "TreasuryUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       }
     ],
@@ -337,8 +354,13 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       },
       {
@@ -352,7 +374,7 @@
         "type": "uint256"
       }
     ],
-    "name": "mintMusic",
+    "name": "createMusic",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -361,7 +383,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "memberAddress",
         "type": "address"
       }
     ],
@@ -384,8 +406,13 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       },
       {
@@ -394,21 +421,26 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "address[]",
+        "internalType": "bytes32[]",
         "name": "referrers",
-        "type": "address[]"
+        "type": "bytes32[]"
       }
     ],
     "name": "purchaseBatch",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "receiver",
+        "name": "memberAddress",
         "type": "address"
       },
       {
@@ -417,30 +449,12 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "referrer",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "name": "purchaseMusic",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "scaleSongPrice",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -462,11 +476,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newManager",
+        "name": "newController",
         "type": "address"
       }
     ],
-    "name": "updatePriceScaleManager",
+    "name": "updateController",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -516,19 +530,6 @@
       }
     ],
     "name": "updateSongReferralPct",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "updateTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -31,6 +31,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "InvalidAddress",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "InvalidParameters",
     "type": "error"
@@ -76,15 +87,28 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldFee",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "newController",
+        "type": "address"
+      }
+    ],
+    "name": "ControllerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "newFee",
+        "name": "amount",
         "type": "uint256"
       },
       {
@@ -94,7 +118,7 @@
         "type": "uint256"
       }
     ],
-    "name": "CreationFeeUpdated",
+    "name": "FeeReceived",
     "type": "event"
   },
   {
@@ -237,12 +261,6 @@
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "creationFee",
-        "type": "uint256"
       }
     ],
     "name": "TokenCreated",
@@ -312,6 +330,11 @@
         "type": "string"
       },
       {
+        "internalType": "address",
+        "name": "creatorAddress",
+        "type": "address"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -347,20 +370,7 @@
         "type": "address"
       }
     ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "creationFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -378,21 +388,11 @@
   },
   {
     "inputs": [],
-    "name": "getStats",
+    "name": "getFeeBalance",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "_totalTokensCreated",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_totalFeesCollected",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_creationFee",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -461,19 +461,6 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
-      }
-    ],
-    "name": "setCreationFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -556,19 +543,6 @@
   },
   {
     "inputs": [],
-    "name": "totalFeesCollected",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "totalTokensCreated",
     "outputs": [
       {
@@ -601,10 +575,27 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newController",
+        "type": "address"
+      }
+    ],
+    "name": "updateController",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

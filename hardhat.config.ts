@@ -75,12 +75,15 @@ const config: HardhatUserConfig = {
     },
   },
   paths: {
-      sources: './contracts',
-      tests: './test',
-      cache: './cache',
-      artifacts: './build/contracts',
-      deploy: './deploy',
-      deployments: './deployments'
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './build/contracts',
+    deploy: './deploy',
+    deployments: './deployments'
+  },
+  mocha: {
+    timeout: 40000
   },
   networks: {
     hardhat: {
@@ -98,7 +101,39 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
+    // Sei mainnet configuration
+    seimainnet: {
+      url: 'https://evm-rpc.sei-apis.com',
+      accounts: {
+        mnemonic: mnemonic.testnet,
+        initialIndex: 0,
+        count: 10,
+      },
+      chainId: 1329, // Sei mainnet chain ID
+      // gasPrice: 2000000000 // 2 gwei = 2 nsei
+    },
+    // Sei testnet configuration
+    seitestnet: {
+      url: 'https://evm-rpc-testnet.sei-apis.com',
+      accounts: {
+        mnemonic: mnemonic.testnet,
+        initialIndex: 0,
+        count: 10,
+      },
+      chainId: 1328, // Sei testnet chain ID
+      gasPrice: 2000000000 // 2 gwei = 2 nsei
+    },
+    somnia: {
+      chainId: 5031,
+      url: "https://api.infra.mainnet.somnia.network/",
+      accounts: {
+        mnemonic: mnemonic.mainnet,
+        initialIndex: 0,
+        count: 10,
+      },
+    },
     somniaTestnet: {
+      chainId: 50312,
       url: "https://dream-rpc.somnia.network",
       accounts: {
         mnemonic: mnemonic.testnet,
@@ -109,9 +144,36 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
+      somnia: "empty",
       somniaTestnet: "empty",
+      sei: "dummy", // Sei explorers (Seitrace/Blockscout) don't require a real key
+      seiTestnet: "dummy",
     },
     customChains: [
+      {
+        network: "seimainnet",
+        chainId: 1329,
+        urls: {
+          apiURL: "https://seitrace.com/pacific-1/api",
+          browserURL: "https://seitrace.com",
+        },
+      },
+      {
+        network: "seitestnet",
+        chainId: 1328,
+        urls: {
+          apiURL: "https://seitrace.com/atlantic-2/api",
+          browserURL: "https://seitrace.com",
+        },
+      },
+      {
+        network: "somnia",
+        chainId: 5031,
+        urls: {
+          apiURL: "https://explorer.somnia.network/api",
+          browserURL: "https://explorer.somnia.network",
+        },
+      },
       {
         network: "somniaTestnet",
         chainId: 50312,
@@ -132,7 +194,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: [ 'CarbonOpus', 'CarbonCoin', 'CarbonCoinConfig', 'CarbonCoinLauncher' ],
+    only: [ 'CarbonOpus', 'CarbonCoin', 'CarbonCoinConfig', 'CarbonCoinLauncher', 'PermitAndTransfer', 'ERC20Mintable' ],
     except: [],
   },
   sourcify: { enabled: true },

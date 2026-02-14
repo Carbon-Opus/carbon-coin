@@ -1,0 +1,37 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PermitAndTransfer.sol": {
+      "content": "// PermitAndTransfer.sol\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ninterface IERC20Permit {\n  function permit(\n    address owner,\n    address spender,\n    uint256 value,\n    uint256 deadline,\n    uint8 v,\n    bytes32 r,\n    bytes32 s\n  ) external;\n\n  function transferFrom(address from, address to, uint256 amount) external returns (bool);\n}\n\ncontract PermitAndTransfer {\n  event PermitTransfer(bytes32 indexed senderId, address indexed token, address owner, address spender, uint256 value, bytes32 uuid);\n\n  function permitAndTransfer(\n    bytes32 senderId, // for filtering on Events\n    bytes32 uuid,     // for matching to a specific order\n    address token,    // usdc or other\n    address owner,\n    address to,\n    uint256 amount,\n    uint256 deadline,\n    uint8 v,\n    bytes32 r,\n    bytes32 s\n  ) external {\n    IERC20Permit(token).permit(owner, address(this), amount, deadline, v, r, s);\n    require(\n      IERC20Permit(token).transferFrom(owner, to, amount),\n      \"Transfer failed\"\n    );\n    emit PermitTransfer(senderId, token, owner, to, amount, uuid);\n  }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "viaIR": true,
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

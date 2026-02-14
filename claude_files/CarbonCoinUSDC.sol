@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// CarbonCoin.sol
+// CarbonCoinUSDC.sol
 // Copyright (c) 2025 CarbonOpus
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,9 +31,7 @@ import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC2
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
-import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
-import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
 
 interface IERC20Permit {
@@ -48,7 +46,7 @@ interface IERC20Permit {
     ) external;
 }
 
-contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausable {
+contract CarbonCoinUSDC is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausable {
     // Bonding curve parameters (immutable after deployment)
     uint256 public immutable VIRTUAL_USDC;
     uint256 public immutable VIRTUAL_TOKENS;
@@ -65,13 +63,15 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address public immutable launcher;
     bool public hasGraduated;
 
-    // USDC token integration
+    // USDC token and PermitAndTransfer integration
     IERC20 public immutable USDC;
+    // address public immutable permitAndTransferContract;
 
     PriceSnapshot[] public recentPrices;
     uint256 public circuitBreakerTriggeredAt;
     uint256 public volatilityMoveCount;
     uint256 public lastVolatilityReset;
+    // uint256 public creatorReserveTokens;
 
     mapping(address => uint256) public lastBuyTime;
     mapping(address => uint256) public lastWhaleTradeTime;
@@ -82,6 +82,9 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     // Emergency withdrawal protection
     uint256 public lastGraduationAttempt;
     uint256 public constant GRADUATION_COOLDOWN = 1 hours;
+
+    ISomniaExchangeRouter02 public immutable dexRouter;
+    address public dexPair;
 
     // Events specific to USDC and sponsored transactions
     event SponsoredBuy(
@@ -107,6 +110,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param symbol The symbol of the token.
      * @param _creator The address of the token creator.
      * @param _usdc The address of the USDC token contract.
+    //  * @param _permitAndTransfer The address of the PermitAndTransfer contract for gasless transactions.
+     * @param _router The address of the Somnia Exchange V2 router.
      * @param _config The address of the token configuration contract.
      * @param bondingCurveConfig The bonding curve parameters.
      */
@@ -115,22 +120,28 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         string memory symbol,
         address _creator,
         address _usdc,
+        // address _permitAndTransfer,
+        address _router,
         address _config,
         BondingCurveConfig memory bondingCurveConfig
     ) ERC20(name, symbol) ERC20Permit(name) {
         // Validate inputs
         require(_creator != address(0), "Invalid creator");
         require(_usdc != address(0), "Invalid USDC address");
+        // require(_permitAndTransfer != address(0), "Invalid PermitAndTransfer address");
+        require(_router != address(0), "Invalid router");
         require(_config != address(0), "Invalid config");
 
         creator = _creator;
         launcher = msg.sender;
         config = _config;
         USDC = IERC20(_usdc);
+        // permitAndTransferContract = _permitAndTransfer;
+        dexRouter = ISomniaExchangeRouter02(_router);
         launchTime = block.timestamp;
 
         // Set bonding curve config (immutable)
-        VIRTUAL_USDC = bondingCurveConfig.virtualUsdc;
+        VIRTUAL_USDC = bondingCurveConfig.virtualEth; // Renamed but same concept
         VIRTUAL_TOKENS = bondingCurveConfig.virtualTokens;
         CREATOR_RESERVE_SUPPLY = bondingCurveConfig.creatorReserve;
         MAX_SUPPLY = bondingCurveConfig.maxSupply;
@@ -145,14 +156,15 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         // Whitelist creator and launcher from restrictions
         whitelist[_creator] = true;
         whitelist[msg.sender] = true;
+        whitelist[_permitAndTransfer] = true; // Whitelist PermitAndTransfer contract
 
         // Emit deployment event for indexing
         emit TokenDeployed(
             address(this),
-            creator,
+            _creator,
             name,
             symbol,
-            MAX_SUPPLY + CREATOR_RESERVE_SUPPLY,
+            MAX_SUPPLY,
             GRADUATION_THRESHOLD,
             block.timestamp
         );
@@ -379,6 +391,63 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         _executeBuy(msg.sender, usdcAmount, minTokensOut);
     }
 
+    // /**
+    //  * @notice Executes a sponsored buy on behalf of a user (gas paid by backend).
+    //  * @dev This function is called by the backend after PermitAndTransfer has moved USDC.
+    //  * Only callable by permitAndTransferContract or authorized addresses.
+    //  * @param buyer The address receiving the tokens.
+    //  * @param usdcAmount The amount of USDC being spent.
+    //  * @param minTokensOut The minimum number of tokens to receive.
+    //  * @param uuid The unique order identifier for tracking.
+    //  */
+    // function executeSponsoredBuy(
+    //     address buyer,
+    //     uint256 usdcAmount,
+    //     uint256 minTokensOut,
+    //     bytes32 uuid
+    // ) external nonReentrant whenNotPaused {
+    //     require(
+    //         msg.sender == permitAndTransferContract ||
+    //         msg.sender == launcher ||
+    //         msg.sender == _owner(),
+    //         "Unauthorized"
+    //     );
+
+    //     // Inlined circuitBreakerCheck
+    //     ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
+    //     if (circuitBreakerTriggeredAt > 0) {
+    //         if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
+    //             revert CircuitBreakerActive();
+    //         } else {
+    //             circuitBreakerTriggeredAt = 0;
+    //             emit CircuitBreakerReset(block.timestamp);
+    //         }
+    //     }
+
+    //     if (hasGraduated) revert AlreadyGraduated();
+
+    //     ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
+    //     if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
+
+    //     // Note: USDC should already be in this contract from PermitAndTransfer
+    //     // We verify the balance increased
+    //     uint256 contractBalance = USDC.balanceOf(address(this));
+    //     require(contractBalance >= realUsdcReserves + usdcAmount, "Insufficient USDC received");
+
+    //     // Check if whale trade
+    //     ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+    //     bool isWhaleTrade = usdcAmount >= whaleConfig.whaleThreshold && !whitelist[buyer];
+
+    //     if (isWhaleTrade) {
+    //         _handleWhaleBuy(buyer, usdcAmount, minTokensOut);
+    //     } else {
+    //         _executeBuy(buyer, usdcAmount, minTokensOut);
+    //     }
+
+    //     uint256 tokensOut = calculateTokensOut(usdcAmount);
+    //     emit SponsoredBuy(buyer, usdcAmount, tokensOut, uuid, block.timestamp);
+    // }
+
     /**
      * @notice Internal function to execute a token purchase.
      * @dev This function handles the core logic of a buy transaction.
@@ -557,6 +626,64 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
     }
 
+    // /**
+    //  * @notice Executes a sponsored sell on behalf of a user (gas paid by backend).
+    //  * @dev This function is called by the backend to execute a sell with sponsored gas.
+    //  * @param seller The address selling the tokens.
+    //  * @param tokensIn The amount of tokens to sell.
+    //  * @param minUsdcOut The minimum amount of USDC to receive.
+    //  * @param uuid The unique order identifier for tracking.
+    //  */
+    // function executeSponsoredSell(
+    //     address seller,
+    //     uint256 tokensIn,
+    //     uint256 minUsdcOut,
+    //     bytes32 uuid
+    // ) external nonReentrant whenNotPaused {
+    //     require(
+    //         msg.sender == permitAndTransferContract ||
+    //         msg.sender == launcher ||
+    //         msg.sender == _owner(),
+    //         "Unauthorized"
+    //     );
+
+    //     // Inlined circuitBreakerCheck
+    //     ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
+    //     if (circuitBreakerTriggeredAt > 0) {
+    //         if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
+    //             revert CircuitBreakerActive();
+    //         } else {
+    //             circuitBreakerTriggeredAt = 0;
+    //             emit CircuitBreakerReset(block.timestamp);
+    //         }
+    //     }
+
+    //     if (hasGraduated) revert AlreadyGraduated();
+    //     if (tokensIn == 0) revert InvalidAmount();
+    //     if (balanceOf(seller) < tokensIn) revert InvalidAmount();
+
+    //     ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+
+    //     // Check sell limits (skip for whitelisted)
+    //     if (!whitelist[seller]) {
+    //         uint256 maxSellAmount = (realTokenSupply * whaleConfig.maxSellPercentage) / 10000;
+    //         if (tokensIn > maxSellAmount) revert SellAmountTooLarge();
+    //     }
+
+    //     uint256 usdcOut = calculateUsdcOut(tokensIn);
+
+    //     // Check if whale trade
+    //     bool isWhaleTrade = usdcOut >= whaleConfig.whaleThreshold && !whitelist[seller];
+
+    //     if (isWhaleTrade) {
+    //         _handleWhaleSell(seller, tokensIn, minUsdcOut, usdcOut);
+    //     } else {
+    //         _executeSell(seller, tokensIn, minUsdcOut, usdcOut);
+    //     }
+
+    //     emit SponsoredSell(seller, tokensIn, usdcOut, uuid, block.timestamp);
+    // }
+
     /**
      * @notice Internal function to execute a token sale.
      * @dev This function handles the core logic of a sell transaction.
@@ -691,37 +818,46 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         }
         lastGraduationAttempt = block.timestamp;
 
-        // Graduated!
         hasGraduated = true;
 
         // Mint remaining tokens for liquidity
         uint256 remainingTokens = MAX_SUPPLY - realTokenSupply;
         _mint(address(this), remainingTokens);
 
-        address dexAddress = ICarbonCoinConfig(config).getCarbonCoinDex();
-
         // Approve router to spend tokens and USDC
-        _approve(address(this), dexAddress, remainingTokens);
-        USDC.approve(dexAddress, realUsdcReserves);
+        _approve(address(this), address(dexRouter), remainingTokens);
+        USDC.approve(address(dexRouter), realUsdcReserves);
 
-        // Deploy Liquidity
-        (uint256 amountA, uint256 amountB, uint256 liquidity) = ICarbonCoinDex(dexAddress)
-          .deployLiquidity(creator, address(this), remainingTokens, realUsdcReserves);
+        // Add liquidity (auto-creates USDC/Token pair)
+        uint256 usdcForLiquidity = realUsdcReserves;
 
-        // Mark token graduated in launcher
-        // ICarbonCoinLauncher(launcher).markTokenGraduated(address(this));
-
-        // Emit Graduation Event
-        emit Graduated(
+        try dexRouter.addLiquidity(
+            address(USDC),
             address(this),
-            amountB, // tokens
-            amountA, // USDC
-            getCurrentPrice(),
-            block.timestamp
-        );
+            usdcForLiquidity,
+            remainingTokens,
+            (usdcForLiquidity * 95) / 100, // 5% slippage tolerance
+            (remainingTokens * 95) / 100,
+            creator, // Send LP Tokens to Creator  OR   address(0), // Burn LP tokens
+            block.timestamp + 60
+        ) returns (uint amountA, uint amountB, uint) {
+            emit Graduated(
+                address(this),
+                dexPair,
+                amountB, // tokens
+                amountA, // USDC
+                getCurrentPrice(),
+                block.timestamp
+            );
 
-        // Final liquidity snapshot
-        emit LiquiditySnapshot(amountA, amountB, liquidity, block.timestamp);
+            // Final liquidity snapshot
+            emit LiquiditySnapshot(0, 0, block.timestamp);
+        } catch {
+            // If graduation fails, revert state
+            hasGraduated = false;
+            _burn(address(this), remainingTokens);
+            revert("Graduation failed");
+        }
     }
 
     // Manual graduation with cooldown (emergency only)
@@ -771,7 +907,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         require(USDC.transfer(launcher, balance), "Withdrawal failed");
 
         emit EmergencyWithdraw(launcher, balance, block.timestamp);
-        emit LiquiditySnapshot(0, 0, 0, block.timestamp);
+        emit LiquiditySnapshot(0, 0, block.timestamp);
     }
 
     // Circuit breaker internal functions
@@ -957,6 +1093,10 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     function _owner() internal view returns (address) {
       return Ownable(config).owner();
+    }
+
+    function _getCreatorReservePct() internal view returns (uint256) {
+      return ICarbonCoinConfig(config).getCreatorReservePct();
     }
 
     function _getFeeConfig() internal view returns (ICarbonCoinConfig.FeeConfig memory) {

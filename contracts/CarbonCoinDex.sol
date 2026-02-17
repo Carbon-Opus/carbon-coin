@@ -31,14 +31,14 @@ import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
+import { ISomniaExchangeFactory } from "./interface/ISomniaExchangeFactory.sol";
 
 
-contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Pausable {
+contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   // USDC token integration
   IERC20 public immutable USDC;
-  address public immutable config;
-
-  ISomniaExchangeRouter02 public immutable dexRouter;
+  address public config;
+  ISomniaExchangeRouter02 public dexRouter;
 
   /**
    * @notice Constructor for the CarbonCoinDex contract.
@@ -50,7 +50,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Pausable {
     address _usdc,
     address _router,
     address _config
-  ) {
+  ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
     // Validate inputs
     require(_usdc != address(0), "Invalid USDC address");
     require(_router != address(0), "Invalid router");
@@ -92,10 +92,52 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Pausable {
         creator, // Send LP Tokens to Creator  OR   address(0), // Burn LP tokens
         block.timestamp + 60
     ) returns (uint amtA, uint amtB, uint amtC) {
+      // Get the pair address after deployment
+      address pair = ISomniaExchangeFactory(dexRouter.factory()).getPair(token, address(USDC));
+
+      // Emit Liquidity event
+      emit LiquidityDeployed(
+        token,
+        creator,
+        pair,
+        amountA,
+        amountB,
+        liquidity,
+        block.timestamp
+      );
       return (amtA, amtB, amtC);
     } catch {
       revert("Deploy Liquidity failed");
     }
+  }
+
+  /**
+   * @notice Pause the DEX
+   */
+  function pause() external onlyOwner {
+    _pause();
+    emit DexPaused(block.timestamp);
+  }
+
+  /**
+   * @notice Unpause the DEX
+   */
+  function unpause() external onlyOwner {
+    _unpause();
+    emit DexUnpaused(block.timestamp);
+  }
+
+  /**
+   * @notice Update the config address
+   */
+  function updateConfig(address newConfig) external onlyOwner {
+    config = newConfig;
+    emit ConfigUpdated(newConfig, block.timestamp);
+  }
+
+  function updateRouter(address newRouter) external onlyOwner {
+    dexRouter = ISomniaExchangeRouter02(newRouter);
+    emit RouterUpdated(newRouter, block.timestamp);
   }
 
   function _owner() internal view returns (address) {

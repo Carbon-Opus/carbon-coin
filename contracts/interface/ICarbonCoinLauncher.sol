@@ -81,5 +81,5 @@ interface ICarbonCoinLauncher {
 
   function withdraw() external;
 
-  // function markTokenGraduated(address tokenAddress) external;
+  function markTokenGraduated(address tokenAddress) external;
 }

@@ -191,12 +191,6 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "dexPair",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
         "name": "timestamp",
@@ -227,12 +221,27 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "virtualEth",
+            "name": "virtualUsdc",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
             "name": "virtualTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "creatorReserve",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquiditySupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "curveSupply",
             "type": "uint256"
           },
           {

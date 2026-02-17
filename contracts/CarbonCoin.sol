@@ -27,32 +27,22 @@ pragma solidity 0.8.27;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { IERC20Permit, ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
-import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
-
-interface IERC20Permit {
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-}
+import { ICarbonCoinProtection } from "./interface/ICarbonCoinProtection.sol";
 
 contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausable {
     // Bonding curve parameters (immutable after deployment)
     uint256 public immutable VIRTUAL_USDC;
     uint256 public immutable VIRTUAL_TOKENS;
     uint256 public immutable CREATOR_RESERVE_SUPPLY;
+    uint256 public immutable LIQUIDITY_SUPPLY;
+    uint256 public immutable CURVE_SUPPLY;
     uint256 public immutable MAX_SUPPLY;
     uint256 public immutable GRADUATION_THRESHOLD;
 
@@ -63,41 +53,15 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address public immutable creator;
     address public immutable config;
     address public immutable launcher;
+    address public immutable protection;
     bool public hasGraduated;
 
     // USDC token integration
     IERC20 public immutable USDC;
 
-    PriceSnapshot[] public recentPrices;
-    uint256 public circuitBreakerTriggeredAt;
-    uint256 public volatilityMoveCount;
-    uint256 public lastVolatilityReset;
-
-    mapping(address => uint256) public lastBuyTime;
-    mapping(address => uint256) public lastWhaleTradeTime;
-    mapping(address => WhaleIntent) public pendingWhaleIntents;
-    mapping(address => bool) public isBlacklisted;
-    mapping(address => bool) public whitelist;
-
     // Emergency withdrawal protection
     uint256 public lastGraduationAttempt;
     uint256 public constant GRADUATION_COOLDOWN = 1 hours;
-
-    // Events specific to USDC and sponsored transactions
-    event SponsoredBuy(
-        address indexed buyer,
-        uint256 usdcAmount,
-        uint256 tokensOut,
-        bytes32 indexed uuid,
-        uint256 timestamp
-    );
-    event SponsoredSell(
-        address indexed seller,
-        uint256 tokensIn,
-        uint256 usdcOut,
-        bytes32 indexed uuid,
-        uint256 timestamp
-    );
 
     /**
      * @notice Constructor for the CarbonCoinUSDC contract.
@@ -108,6 +72,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param _creator The address of the token creator.
      * @param _usdc The address of the USDC token contract.
      * @param _config The address of the token configuration contract.
+     * @param _protection The address of the token protection contract.
      * @param bondingCurveConfig The bonding curve parameters.
      */
     constructor(
@@ -116,16 +81,19 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         address _creator,
         address _usdc,
         address _config,
+        address _protection,
         BondingCurveConfig memory bondingCurveConfig
     ) ERC20(name, symbol) ERC20Permit(name) {
         // Validate inputs
         require(_creator != address(0), "Invalid creator");
         require(_usdc != address(0), "Invalid USDC address");
         require(_config != address(0), "Invalid config");
+        require(_protection != address(0), "Invalid protection");
 
         creator = _creator;
         launcher = msg.sender;
         config = _config;
+        protection = _protection;
         USDC = IERC20(_usdc);
         launchTime = block.timestamp;
 
@@ -133,6 +101,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         VIRTUAL_USDC = bondingCurveConfig.virtualUsdc;
         VIRTUAL_TOKENS = bondingCurveConfig.virtualTokens;
         CREATOR_RESERVE_SUPPLY = bondingCurveConfig.creatorReserve;
+        LIQUIDITY_SUPPLY = bondingCurveConfig.liquiditySupply;
+        CURVE_SUPPLY = bondingCurveConfig.curveSupply;
         MAX_SUPPLY = bondingCurveConfig.maxSupply;
         GRADUATION_THRESHOLD = bondingCurveConfig.graduationThreshold;
 
@@ -142,17 +112,13 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             emit CreatorReserveMinted(_creator, CREATOR_RESERVE_SUPPLY, block.timestamp);
         }
 
-        // Whitelist creator and launcher from restrictions
-        whitelist[_creator] = true;
-        whitelist[msg.sender] = true;
-
         // Emit deployment event for indexing
         emit TokenDeployed(
             address(this),
             creator,
             name,
             symbol,
-            MAX_SUPPLY + CREATOR_RESERVE_SUPPLY,
+            MAX_SUPPLY,
             GRADUATION_THRESHOLD,
             block.timestamp
         );
@@ -162,14 +128,23 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @notice Get total supply including creator reserve
      */
     function getTotalMaxSupply() external view returns (uint256) {
-        return MAX_SUPPLY + CREATOR_RESERVE_SUPPLY;
+        return MAX_SUPPLY;
     }
 
     /**
      * @notice Get bonding curve supply (excludes creator reserve)
      */
     function getBondingCurveMaxSupply() external view returns (uint256) {
-        return MAX_SUPPLY;
+        return CURVE_SUPPLY;
+    }
+
+    /**
+     * @notice Get the liquidity supply for the bonding curve.
+     * @dev This determines how much of the total supply is allocated to liquidity vs creator reserve.
+     * @return The liquidity supply amount.
+     */
+    function getLiquiditySupply() external view returns (uint256) {
+        return LIQUIDITY_SUPPLY;
     }
 
     /**
@@ -180,7 +155,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     function getCurrentPrice() public view returns (uint256) {
         uint256 totalUsdc = VIRTUAL_USDC + realUsdcReserves;
         uint256 totalTokens = VIRTUAL_TOKENS - realTokenSupply;
-        // USDC has 6 decimals, so we use 10**6 instead of 10**18
         return (totalUsdc * 10**6) / totalTokens;
     }
 
@@ -194,7 +168,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         if (usdcIn == 0) return 0;
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
-
         uint256 usdcAfterFee = (usdcIn * (10000 - feeConfig.buyFee)) / 10000;
 
         uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
@@ -267,55 +240,29 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         bytes32 r,
         bytes32 s
     ) external nonReentrant whenNotPaused {
-        // Inlined antiBotProtection modifier
-        require(msg.sender == tx.origin, "Contract call not allowed");
-        require(!isBlacklisted[msg.sender], "Blacklisted");
+        // Protection checks
+        ICarbonCoinProtection(protection).checkAntiBotProtection(address(this), msg.sender, usdcAmount, true);
+        ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
+        ICarbonCoinProtection(protection).checkTradeSizeLimit(address(this), msg.sender, usdcAmount);
 
         ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-
-        if (block.timestamp < launchTime + botConfig.antiBotDuration) {
-            require(usdcAmount <= botConfig.maxBuyAmountEarly || whitelist[msg.sender], "Buy amount too high");
-        }
-
-        if (!whitelist[msg.sender]) {
-            if (lastBuyTime[msg.sender] != 0) {
-                require(block.timestamp >= lastBuyTime[msg.sender] + botConfig.cooldownPeriod, "Cooldown active");
-            }
-        }
-        lastBuyTime[msg.sender] = block.timestamp;
-
-        // Inlined circuitBreakerCheck modifier
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        if (circuitBreakerTriggeredAt > 0) {
-            if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
-                revert CircuitBreakerActive();
-            } else {
-                circuitBreakerTriggeredAt = 0;
-                emit CircuitBreakerReset(block.timestamp);
-            }
-        }
-
-        // Inlined tradeSizeCheck modifier
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        if (!whitelist[msg.sender]) {
-            require(usdcAmount <= whaleConfig.maxTradeSize, "Trade size too large");
-        }
-
         if (hasGraduated) revert AlreadyGraduated();
         if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
 
         // Execute permit
         IERC20Permit(address(USDC)).permit(msg.sender, address(this), usdcAmount, deadline, v, r, s);
-
-        // Transfer USDC from user to contract
         require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
 
-        // Check if this is a whale trade
-        bool isWhaleTrade = usdcAmount >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
+        // Check whale intent
+        (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
+            address(this),
+            msg.sender,
+            usdcAmount,
+            true
+        );
 
-        if (isWhaleTrade) {
-            _handleWhaleBuy(msg.sender, usdcAmount, minTokensOut);
-            return;
+        if (requiresIntent && !canProceed) {
+            revert WhaleIntentRequired();
         }
 
         _executeBuy(msg.sender, usdcAmount, minTokensOut);
@@ -328,52 +275,27 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param minTokensOut The minimum number of tokens the user is willing to accept.
      */
     function buy(uint256 usdcAmount, uint256 minTokensOut) external nonReentrant whenNotPaused {
-        // Inlined antiBotProtection modifier
-        require(msg.sender == tx.origin, "Contract call not allowed");
-        require(!isBlacklisted[msg.sender], "Blacklisted");
+        // Protection checks
+        ICarbonCoinProtection(protection).checkAntiBotProtection(address(this), msg.sender, usdcAmount, true);
+        ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
+        ICarbonCoinProtection(protection).checkTradeSizeLimit(address(this), msg.sender, usdcAmount);
 
         ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-
-        if (block.timestamp < launchTime + botConfig.antiBotDuration) {
-            require(usdcAmount <= botConfig.maxBuyAmountEarly || whitelist[msg.sender], "Buy amount too high");
-        }
-
-        if (!whitelist[msg.sender]) {
-            if (lastBuyTime[msg.sender] != 0) {
-                require(block.timestamp >= lastBuyTime[msg.sender] + botConfig.cooldownPeriod, "Cooldown active");
-            }
-        }
-        lastBuyTime[msg.sender] = block.timestamp;
-
-        // Inlined circuitBreakerCheck modifier
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        if (circuitBreakerTriggeredAt > 0) {
-            if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
-                revert CircuitBreakerActive();
-            } else {
-                circuitBreakerTriggeredAt = 0;
-                emit CircuitBreakerReset(block.timestamp);
-            }
-        }
-
-        // Inlined tradeSizeCheck modifier
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        if (!whitelist[msg.sender]) {
-            require(usdcAmount <= whaleConfig.maxTradeSize, "Trade size too large");
-        }
-
         if (hasGraduated) revert AlreadyGraduated();
         if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
 
-        // Transfer USDC from user to contract (requires prior approval)
         require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
 
-        // Check if this is a whale trade
-        bool isWhaleTrade = usdcAmount >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
+        // Check whale intent
+        (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
+            address(this),
+            msg.sender,
+            usdcAmount,
+            true
+        );
 
-        if (isWhaleTrade) {
-            _handleWhaleBuy(msg.sender, usdcAmount, minTokensOut);
-            return;
+        if (requiresIntent && !canProceed) {
+            revert WhaleIntentRequired();
         }
 
         _executeBuy(msg.sender, usdcAmount, minTokensOut);
@@ -389,18 +311,11 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     function _executeBuy(address buyer, uint256 usdcAmount, uint256 minTokensOut) internal {
         uint256 priceBefore = getCurrentPrice();
         uint256 tokensOut = calculateTokensOut(usdcAmount);
+
         if (tokensOut < minTokensOut) revert SlippageTooHigh();
-        if (realTokenSupply + tokensOut > MAX_SUPPLY) revert ExceedsMaxSupply();
+        if (realTokenSupply + tokensOut > CURVE_SUPPLY) revert ExceedsMaxSupply();
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
-        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-
-        // Check max wallet before minting (skip for whitelisted)
-        if (!whitelist[buyer]) {
-            uint256 maxWallet = (MAX_SUPPLY * botConfig.maxWalletPercentage) / 10000;
-            if (balanceOf(buyer) + tokensOut > maxWallet) revert ExceedsMaxWallet();
-        }
 
         uint256 usdcAfterFee = (usdcAmount * (10000 - feeConfig.buyFee)) / 10000;
         uint256 fee = usdcAmount - usdcAfterFee;
@@ -410,27 +325,21 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         uint256 priceAfter = getCurrentPrice();
 
-        // Check price impact (skip for small buys and whitelisted)
-        if (!whitelist[buyer] && usdcAmount >= 1000 * 10**6) { // 1000 USDC (6 decimals)
-            uint256 priceImpact = ((priceAfter - priceBefore) * 10000) / priceBefore;
-
-            if (priceImpact > cbConfig.maxPriceImpact) {
-                emit HighPriceImpact(buyer, priceImpact, block.timestamp);
-
-                // Trigger circuit breaker for extreme impact
-                if (priceImpact > cbConfig.maxPriceImpact * 2) {
-                    _triggerCircuitBreaker("Excessive price impact");
-                    revert PriceImpactTooHigh();
-                }
-            }
-        }
+        // Check price impact through protection contract
+        ICarbonCoinProtection(protection).checkPriceImpact(
+            address(this),
+            buyer,
+            priceBefore,
+            priceAfter,
+            usdcAmount,
+            true
+        );
 
         // Track volatility
-        _trackVolatility(priceAfter);
+        ICarbonCoinProtection(protection).trackVolatility(address(this), priceAfter, priceBefore);
 
         _mint(buyer, tokensOut);
 
-        // Send fee to launcher
         if (fee > 0) {
             require(USDC.transfer(launcher, fee), "Fee transfer failed");
         }
@@ -445,73 +354,11 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             block.timestamp
         );
 
-        // Emit periodic price updates for charting
         emit PriceUpdate(priceAfter, realUsdcReserves, realTokenSupply, block.timestamp);
 
-        // Check if graduation threshold reached
         if (realUsdcReserves >= GRADUATION_THRESHOLD) {
             _graduate();
         }
-    }
-
-    /**
-     * @notice Internal function to handle whale buy transactions.
-     * @dev This function enforces a cooldown period and an intent-to-trade mechanism for large buy orders.
-     * @param buyer The address of the buyer.
-     * @param usdcAmount The amount of USDC being spent.
-     * @param minTokensOut The minimum number of tokens the user is willing to accept.
-     */
-    function _handleWhaleBuy(address buyer, uint256 usdcAmount, uint256 minTokensOut) internal {
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-
-        // Check if whale has cooldown active
-        if (lastWhaleTradeTime[buyer] > 0) {
-            if (block.timestamp < lastWhaleTradeTime[buyer] + whaleConfig.whaleDelay) {
-                revert WhaleDelayActive();
-            }
-        }
-
-        // Check if there's a pending intent
-        WhaleIntent storage intent = pendingWhaleIntents[buyer];
-
-        if (intent.intentTime == 0) {
-            // No intent exists, register one
-            intent.amount = usdcAmount;
-            intent.intentTime = block.timestamp;
-            intent.isBuy = true;
-            intent.executed = false;
-
-            emit WhaleIntentRegistered(
-                buyer,
-                usdcAmount,
-                true,
-                block.timestamp + whaleConfig.whaleDelay,
-                block.timestamp
-            );
-
-            revert WhaleIntentRequired();
-        }
-
-        // Intent exists, check if enough time has passed
-        if (block.timestamp < intent.intentTime + whaleConfig.whaleDelay) {
-            revert WhaleIntentNotReady();
-        }
-
-        // Verify intent matches current trade
-        require(intent.isBuy, "Intent is for sell, not buy");
-        require(!intent.executed, "Intent already executed");
-        require(intent.amount == usdcAmount, "Amount must match intent");
-
-        // Execute the trade
-        intent.executed = true;
-        lastWhaleTradeTime[buyer] = block.timestamp;
-
-        emit WhaleTradeExecuted(buyer, usdcAmount, true, block.timestamp);
-
-        _executeBuy(buyer, usdcAmount, minTokensOut);
-
-        // Clean up intent
-        delete pendingWhaleIntents[buyer];
     }
 
     /**
@@ -521,37 +368,24 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
      */
     function sell(uint256 tokensIn, uint256 minUsdcOut) external nonReentrant whenNotPaused {
-        // Inlined circuitBreakerCheck modifier
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        if (circuitBreakerTriggeredAt > 0) {
-            if (block.timestamp < circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {
-                revert CircuitBreakerActive();
-            } else {
-                circuitBreakerTriggeredAt = 0;
-                emit CircuitBreakerReset(block.timestamp);
-            }
-        }
+        ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
 
         if (hasGraduated) revert AlreadyGraduated();
         if (tokensIn == 0) revert InvalidAmount();
         if (balanceOf(msg.sender) < tokensIn) revert InvalidAmount();
 
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-
-        // Check sell limits (skip for whitelisted)
-        if (!whitelist[msg.sender]) {
-            uint256 maxSellAmount = (realTokenSupply * whaleConfig.maxSellPercentage) / 10000;
-            if (tokensIn > maxSellAmount) revert SellAmountTooLarge();
-        }
-
         uint256 usdcOut = calculateUsdcOut(tokensIn);
 
-        // Check if this is a whale trade
-        bool isWhaleTrade = usdcOut >= whaleConfig.whaleThreshold && !whitelist[msg.sender];
+        // Check whale intent
+        (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
+            address(this),
+            msg.sender,
+            usdcOut,
+            false
+        );
 
-        if (isWhaleTrade) {
-            _handleWhaleSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
-            return;
+        if (requiresIntent && !canProceed) {
+            revert WhaleIntentRequired();
         }
 
         _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
@@ -570,7 +404,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         if (usdcOut > realUsdcReserves) revert InsufficientLiquidity();
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
 
         uint256 priceBefore = getCurrentPrice();
         uint256 usdcAfterFee = (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
@@ -581,29 +414,23 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         uint256 priceAfter = getCurrentPrice();
 
-        // Check price impact for large sells
-        if (!whitelist[seller]) {
-            uint256 priceImpact = ((priceBefore - priceAfter) * 10000) / priceBefore;
-
-            if (priceImpact > cbConfig.maxPriceImpact) {
-                emit HighPriceImpact(seller, priceImpact, block.timestamp);
-
-                // Trigger circuit breaker for extreme impact
-                if (priceImpact > cbConfig.maxPriceImpact * 2) {
-                    _triggerCircuitBreaker("Excessive negative price impact");
-                    revert PriceImpactTooHigh();
-                }
-            }
-        }
+        // Check price impact
+        ICarbonCoinProtection(protection).checkPriceImpact(
+            address(this),
+            seller,
+            priceBefore,
+            priceAfter,
+            usdcOut,
+            false
+        );
 
         // Track volatility
-        _trackVolatility(priceAfter);
+        ICarbonCoinProtection(protection).trackVolatility(address(this), priceAfter, priceBefore);
 
         _burn(seller, tokensIn);
 
         require(USDC.transfer(seller, usdcAfterFee), "USDC transfer failed");
 
-        // Send fee to launcher
         if (fee > 0) {
             require(USDC.transfer(launcher, fee), "Fee transfer failed");
         }
@@ -618,64 +445,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             block.timestamp
         );
 
-        // Emit periodic price updates for charting
         emit PriceUpdate(priceAfter, realUsdcReserves, realTokenSupply, block.timestamp);
-    }
-
-    /**
-     * @notice Internal function to handle whale sell transactions.
-     */
-    function _handleWhaleSell(address seller, uint256 tokensIn, uint256 minUsdcOut, uint256 usdcOut) internal {
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-
-        // Check if whale has cooldown active
-        if (lastWhaleTradeTime[seller] > 0) {
-            if (block.timestamp < lastWhaleTradeTime[seller] + whaleConfig.whaleDelay) {
-                revert WhaleDelayActive();
-            }
-        }
-
-        // Check if there's a pending intent
-        WhaleIntent storage intent = pendingWhaleIntents[seller];
-
-        if (intent.intentTime == 0) {
-            // No intent exists, register one
-            intent.amount = tokensIn;
-            intent.intentTime = block.timestamp;
-            intent.isBuy = false;
-            intent.executed = false;
-
-            emit WhaleIntentRegistered(
-                seller,
-                tokensIn,
-                false,
-                block.timestamp + whaleConfig.whaleDelay,
-                block.timestamp
-            );
-
-            revert WhaleIntentRequired();
-        }
-
-        // Intent exists, check if enough time has passed
-        if (block.timestamp < intent.intentTime + whaleConfig.whaleDelay) {
-            revert WhaleIntentNotReady();
-        }
-
-        // Verify intent matches current trade
-        require(!intent.isBuy, "Intent is for buy, not sell");
-        require(!intent.executed, "Intent already executed");
-        require(intent.amount == tokensIn, "Amount must match intent");
-
-        // Execute the trade
-        intent.executed = true;
-        lastWhaleTradeTime[seller] = block.timestamp;
-
-        emit WhaleTradeExecuted(seller, tokensIn, false, block.timestamp);
-
-        _executeSell(seller, tokensIn, minUsdcOut, usdcOut);
-
-        // Clean up intent
-        delete pendingWhaleIntents[seller];
     }
 
     /**
@@ -685,42 +455,33 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     function _graduate() internal {
         if (hasGraduated) revert AlreadyGraduated();
 
-        // Prevent rapid graduation attempts (griefing protection)
         if (block.timestamp < lastGraduationAttempt + GRADUATION_COOLDOWN) {
             revert GraduationCooldownActive();
         }
         lastGraduationAttempt = block.timestamp;
 
-        // Graduated!
         hasGraduated = true;
 
-        // Mint remaining tokens for liquidity
-        uint256 remainingTokens = MAX_SUPPLY - realTokenSupply;
-        _mint(address(this), remainingTokens);
+        _mint(address(this), LIQUIDITY_SUPPLY);
 
         address dexAddress = ICarbonCoinConfig(config).getCarbonCoinDex();
 
-        // Approve router to spend tokens and USDC
-        _approve(address(this), dexAddress, remainingTokens);
+        _approve(address(this), dexAddress, LIQUIDITY_SUPPLY);
         USDC.approve(dexAddress, realUsdcReserves);
 
-        // Deploy Liquidity
         (uint256 amountA, uint256 amountB, uint256 liquidity) = ICarbonCoinDex(dexAddress)
-          .deployLiquidity(creator, address(this), remainingTokens, realUsdcReserves);
+            .deployLiquidity(creator, address(this), LIQUIDITY_SUPPLY, realUsdcReserves);
 
-        // Mark token graduated in launcher
-        // ICarbonCoinLauncher(launcher).markTokenGraduated(address(this));
+        ICarbonCoinLauncher(launcher).markTokenGraduated(address(this));
 
-        // Emit Graduation Event
         emit Graduated(
             address(this),
-            amountB, // tokens
-            amountA, // USDC
+            amountB,
+            amountA,
             getCurrentPrice(),
             block.timestamp
         );
 
-        // Final liquidity snapshot
         emit LiquiditySnapshot(amountA, amountB, liquidity, block.timestamp);
     }
 
@@ -728,26 +489,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     function forceGraduate() external onlyAuthorized {
         if (realUsdcReserves < GRADUATION_THRESHOLD) revert InsufficientLiquidity();
         _graduate();
-    }
-
-    // Admin functions for anti-bot management
-    function blacklistAddress(address account, bool blacklisted) external onlyAuthorized {
-        isBlacklisted[account] = blacklisted;
-        emit AddressBlacklisted(account, blacklisted, block.timestamp);
-        if (blacklisted) {
-            emit BotDetected(account, "Manually blacklisted", block.timestamp);
-        }
-    }
-
-    function addToWhitelist(address account) external onlyAuthorized {
-        whitelist[account] = true;
-        emit AddressWhitelisted(account, true, block.timestamp);
-    }
-
-    function removeFromWhitelist(address account) external onlyAuthorized {
-        require(account != creator && account != launcher, "Cannot remove core addresses");
-        whitelist[account] = false;
-        emit AddressWhitelisted(account, false, block.timestamp);
     }
 
     // Emergency pause (can only be called before graduation)
@@ -774,178 +515,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         emit LiquiditySnapshot(0, 0, 0, block.timestamp);
     }
 
-    // Circuit breaker internal functions
-    function _triggerCircuitBreaker(string memory reason) internal {
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        circuitBreakerTriggeredAt = block.timestamp;
-        emit CircuitBreakerTriggered(reason, block.timestamp, cbConfig.circuitBreakerDuration);
-    }
-
-    function _trackVolatility(uint256 currentPrice) internal {
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-
-        // Reset counter if window expired
-        if (block.timestamp > lastVolatilityReset + cbConfig.volatilityWindow) {
-            volatilityMoveCount = 0;
-            lastVolatilityReset = block.timestamp;
-            // Clear old price snapshots
-            delete recentPrices;
-        }
-
-        // Record price snapshot
-        recentPrices.push(PriceSnapshot({
-            price: currentPrice,
-            timestamp: block.timestamp
-        }));
-
-        uint256 pricesLength = recentPrices.length;
-        // Check for significant price moves
-        if (pricesLength > 1) {
-            uint256 lastPrice = recentPrices[pricesLength - 2].price;
-            uint256 priceChange = currentPrice > lastPrice
-                ? ((currentPrice - lastPrice) * 10000) / lastPrice
-                : ((lastPrice - currentPrice) * 10000) / lastPrice;
-
-            // Count moves greater than 5%
-            if (priceChange > 500) {
-                volatilityMoveCount++;
-
-                if (volatilityMoveCount >= cbConfig.maxVolatilityMoves) {
-                    emit VolatilityWarning(volatilityMoveCount, block.timestamp);
-                    _triggerCircuitBreaker("Excessive volatility detected");
-                }
-            }
-        }
-    }
-
-    // Manual circuit breaker control
-    function triggerCircuitBreaker(string memory reason) external onlyAuthorized {
-        _triggerCircuitBreaker(reason);
-    }
-
-    function resetCircuitBreaker() external onlyAuthorized {
-        circuitBreakerTriggeredAt = 0;
-        volatilityMoveCount = 0;
-        lastVolatilityReset = block.timestamp;
-        delete recentPrices;
-        emit CircuitBreakerReset(block.timestamp);
-    }
-
-    function getCircuitBreakerStatus() external view returns (
-        bool isActive,
-        uint256 triggeredAt,
-        uint256 timeRemaining,
-        uint256 volatilityMoves
-    ) {
-        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();
-        uint256 _circuitBreakerTriggeredAt = circuitBreakerTriggeredAt;
-
-        isActive = _circuitBreakerTriggeredAt > 0 &&
-                   block.timestamp < _circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration;
-        triggeredAt = _circuitBreakerTriggeredAt;
-
-        if (isActive) {
-            timeRemaining = (_circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) - block.timestamp;
-        } else {
-            timeRemaining = 0;
-        }
-
-        volatilityMoves = volatilityMoveCount;
-    }
-
-    // Whale trade management
-    function cancelWhaleIntent() external {
-        WhaleIntent storage intent = pendingWhaleIntents[msg.sender];
-        if (intent.intentTime == 0) revert NoWhaleIntentFound();
-        require(!intent.executed, "Intent already executed");
-
-        delete pendingWhaleIntents[msg.sender];
-        emit WhaleIntentCancelled(msg.sender, block.timestamp);
-    }
-
-    function getWhaleIntent(address trader) external view returns (
-        uint256 amount,
-        uint256 intentTime,
-        uint256 executeAfter,
-        bool isBuy,
-        bool executed,
-        bool canExecute
-    ) {
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        WhaleIntent memory intent = pendingWhaleIntents[trader];
-        amount = intent.amount;
-        intentTime = intent.intentTime;
-        executeAfter = intent.intentTime + whaleConfig.whaleDelay;
-        isBuy = intent.isBuy;
-        executed = intent.executed;
-        canExecute = !intent.executed &&
-                     intent.intentTime > 0 &&
-                     block.timestamp >= intent.intentTime + whaleConfig.whaleDelay;
-    }
-
-    function getWhaleCooldown(address trader) external view returns (
-        uint256 lastTradeTime,
-        uint256 nextTradeAvailable,
-        bool canTradeNow
-    ) {
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        lastTradeTime = lastWhaleTradeTime[trader];
-
-        if (lastTradeTime == 0) {
-            canTradeNow = true;
-            nextTradeAvailable = block.timestamp;
-        } else {
-            uint256 availableAt = lastTradeTime + whaleConfig.whaleDelay;
-            canTradeNow = block.timestamp >= availableAt;
-            nextTradeAvailable = canTradeNow ? block.timestamp : availableAt;
-        }
-    }
-
-    function getTradeLimits() external view returns (
-        uint256 _maxTradeSize,
-        uint256 _maxSellPercentage,
-        uint256 _whaleThreshold,
-        uint256 _whaleDelay,
-        uint256 currentMaxSellTokens
-    ) {
-        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
-        return (
-            whaleConfig.maxTradeSize,
-            whaleConfig.maxSellPercentage,
-            whaleConfig.whaleThreshold,
-            whaleConfig.whaleDelay,
-            (realTokenSupply * whaleConfig.maxSellPercentage) / 10000
-        );
-    }
-
-    function getAntiBotInfo() external view returns (
-        uint256 _launchTime,
-        uint256 _timeSinceLaunch,
-        bool _antiBotActive,
-        uint256 _maxBuyEarly,
-        uint256 _cooldownPeriod,
-        uint256 _maxWalletPercentage
-    ) {
-        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-        return (
-            launchTime,
-            block.timestamp - launchTime,
-            block.timestamp < launchTime + botConfig.antiBotDuration,
-            botConfig.maxBuyAmountEarly,
-            botConfig.cooldownPeriod,
-            botConfig.maxWalletPercentage
-        );
-    }
-
-    function getUserCooldown(address user) external view returns (uint256) {
-        if (whitelist[user]) return 0;
-        if (lastBuyTime[user] == 0) return 0;
-        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
-        uint256 elapsed = block.timestamp - lastBuyTime[user];
-        if (elapsed >= botConfig.cooldownPeriod) return 0;
-        return botConfig.cooldownPeriod - elapsed;
-    }
-
     function getReserves() external view returns (
         uint256 usdcReserves,
         uint256 tokenSupply,
@@ -965,14 +534,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     function _getAntiBotConfig() internal view returns (ICarbonCoinConfig.AntiBotConfig memory) {
       return ICarbonCoinConfig(config).getAntiBotConfig();
-    }
-
-    function _getCircuitBreakerConfig() internal view returns (ICarbonCoinConfig.CircuitBreakerConfig memory) {
-      return ICarbonCoinConfig(config).getCircuitBreakerConfig();
-    }
-
-    function _getWhaleLimitConfig() internal view returns (ICarbonCoinConfig.WhaleLimitConfig memory) {
-      return ICarbonCoinConfig(config).getWhaleLimitConfig();
     }
 
     modifier onlyAuthorized() {

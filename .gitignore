@@ -127,3 +127,4 @@ Cargo.lock
 # VSCode settings
 .vscode/
 *.code-workspace
+claude_files/

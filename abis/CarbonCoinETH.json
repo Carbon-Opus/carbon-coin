@@ -18,7 +18,7 @@
       },
       {
         "internalType": "address",
-        "name": "_usdc",
+        "name": "_router",
         "type": "address"
       },
       {
@@ -27,15 +27,10 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "_protection",
-        "type": "address"
-      },
-      {
         "components": [
           {
             "internalType": "uint256",
-            "name": "virtualUsdc",
+            "name": "virtualEth",
             "type": "uint256"
           },
           {
@@ -50,16 +45,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "liquiditySupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "curveSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "maxSupply",
             "type": "uint256"
           },
@@ -69,7 +54,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ICarbonCoin.BondingCurveConfig",
+        "internalType": "struct ICarbonCoinETH.BondingCurveConfig",
         "name": "bondingCurveConfig",
         "type": "tuple"
       }
@@ -84,34 +69,32 @@
   },
   {
     "inputs": [],
-    "name": "CreatorCannotSellBeforeGraduation",
+    "name": "Blacklisted",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "ECDSAInvalidSignature",
+    "name": "BuyAmountTooHigh",
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "length",
-        "type": "uint256"
-      }
-    ],
-    "name": "ECDSAInvalidSignatureLength",
+    "inputs": [],
+    "name": "CircuitBreakerActive",
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
-    ],
-    "name": "ECDSAInvalidSignatureS",
+    "inputs": [],
+    "name": "ContractCallNotAllowed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CooldownActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CreatorCannotSellBeforeGraduation",
     "type": "error"
   },
   {
@@ -201,33 +184,6 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      }
-    ],
-    "name": "ERC2612ExpiredSignature",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "signer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "ERC2612InvalidSigner",
-    "type": "error"
-  },
-  {
     "inputs": [],
     "name": "EnforcedPause",
     "type": "error"
@@ -239,7 +195,22 @@
   },
   {
     "inputs": [],
+    "name": "ExceedsMaxWallet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExcessiveVolatility",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ExpectedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FeeExceedsMaximum",
     "type": "error"
   },
   {
@@ -253,29 +224,13 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "currentNonce",
-        "type": "uint256"
-      }
-    ],
-    "name": "InvalidAccountNonce",
-    "type": "error"
-  },
-  {
     "inputs": [],
     "name": "InvalidAmount",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidShortString",
+    "name": "NoWhaleIntentFound",
     "type": "error"
   },
   {
@@ -285,7 +240,17 @@
   },
   {
     "inputs": [],
+    "name": "PriceImpactTooHigh",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SellAmountTooLarge",
     "type": "error"
   },
   {
@@ -294,14 +259,8 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "str",
-        "type": "string"
-      }
-    ],
-    "name": "StringTooLong",
+    "inputs": [],
+    "name": "TradeSizeTooLarge",
     "type": "error"
   },
   {
@@ -311,8 +270,68 @@
   },
   {
     "inputs": [],
+    "name": "WhaleDelayActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "WhaleIntentNotReady",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "WhaleIntentRequired",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "blacklisted",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AddressBlacklisted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "whitelisted",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AddressWhitelisted",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -345,6 +364,69 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "suspect",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "BotDetected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "CircuitBreakerReset",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "CircuitBreakerTriggered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "creator",
         "type": "address"
       },
@@ -362,12 +444,6 @@
       }
     ],
     "name": "CreatorReserveMinted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [],
-    "name": "EIP712DomainChanged",
     "type": "event"
   },
   {
@@ -405,6 +481,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "pair",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "liquidityTokens",
@@ -413,7 +495,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "liquidityUsdc",
+        "name": "liquidityEth",
         "type": "uint256"
       },
       {
@@ -436,21 +518,40 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "usdcSupply",
+        "name": "priceImpact",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "HighPriceImpact",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethReserves",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "tokenSupply",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "liquidity",
         "type": "uint256"
       },
       {
@@ -488,7 +589,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "usdcReserves",
+        "name": "ethReserves",
         "type": "uint256"
       },
       {
@@ -568,7 +669,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "usdcAmount",
+        "name": "ethIn",
         "type": "uint256"
       },
       {
@@ -586,7 +687,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "realUsdcReserves",
+        "name": "realEthReserves",
         "type": "uint256"
       },
       {
@@ -623,7 +724,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "usdcOut",
+        "name": "ethOut",
         "type": "uint256"
       },
       {
@@ -635,7 +736,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "realUsdcReserves",
+        "name": "realEthReserves",
         "type": "uint256"
       },
       {
@@ -719,6 +820,112 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "moveCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "VolatilityWarning",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "WhaleIntentCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "executeAfter",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "WhaleIntentRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "WhaleTradeExecuted",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "CREATOR_RESERVE_SUPPLY",
     "outputs": [
@@ -726,32 +933,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "CURVE_SUPPLY",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DOMAIN_SEPARATOR",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -785,19 +966,6 @@
   },
   {
     "inputs": [],
-    "name": "LIQUIDITY_SUPPLY",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MAX_SUPPLY",
     "outputs": [
       {
@@ -811,12 +979,12 @@
   },
   {
     "inputs": [],
-    "name": "USDC",
+    "name": "VIRTUAL_ETH",
     "outputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -836,16 +1004,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "VIRTUAL_USDC",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "addToWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -918,10 +1086,23 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "usdcAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       },
+      {
+        "internalType": "bool",
+        "name": "blacklisted",
+        "type": "bool"
+      }
+    ],
+    "name": "blacklistAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "minTokensOut",
@@ -930,64 +1111,7 @@
     ],
     "name": "buy",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "usdcAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minTokensOut",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
-    ],
-    "name": "buyWithPermit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "usdcIn",
-        "type": "uint256"
-      }
-    ],
-    "name": "calculateTokensOut",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -998,7 +1122,7 @@
         "type": "uint256"
       }
     ],
-    "name": "calculateUsdcIn",
+    "name": "calculateEthIn",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1017,7 +1141,46 @@
         "type": "uint256"
       }
     ],
-    "name": "calculateUsdcOut",
+    "name": "calculateEthOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "ethIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateTokensOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "cancelWhaleIntent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "circuitBreakerTriggeredAt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1069,42 +1232,25 @@
   },
   {
     "inputs": [],
-    "name": "eip712Domain",
+    "name": "dexPair",
     "outputs": [
       {
-        "internalType": "bytes1",
-        "name": "fields",
-        "type": "bytes1"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "version",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "chainId",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
-        "name": "verifyingContract",
+        "name": "",
         "type": "address"
-      },
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dexRouter",
+    "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "salt",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "extensions",
-        "type": "uint256[]"
+        "internalType": "contract ISomniaExchangeRouter02",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1126,11 +1272,77 @@
   },
   {
     "inputs": [],
+    "name": "getAntiBotInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_launchTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_timeSinceLaunch",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_antiBotActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxBuyEarly",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_cooldownPeriod",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxWalletPercentage",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getBondingCurveMaxSupply",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCircuitBreakerStatus",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "triggeredAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timeRemaining",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "volatilityMoves",
         "type": "uint256"
       }
     ],
@@ -1152,24 +1364,11 @@
   },
   {
     "inputs": [],
-    "name": "getLiquiditySupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getReserves",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "usdcReserves",
+        "name": "ethReserves",
         "type": "uint256"
       },
       {
@@ -1179,7 +1378,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "virtualUsdc",
+        "name": "virtualEth",
         "type": "uint256"
       },
       {
@@ -1206,6 +1405,131 @@
   },
   {
     "inputs": [],
+    "name": "getTradeLimits",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxTradeSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxSellPercentage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_whaleThreshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_whaleDelay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentMaxSellTokens",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserCooldown",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      }
+    ],
+    "name": "getWhaleCooldown",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lastTradeTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nextTradeAvailable",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "canTradeNow",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      }
+    ],
+    "name": "getWhaleIntent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "intentTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "executeAfter",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "executed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "canExecute",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "hasGraduated",
     "outputs": [
       {
@@ -1218,8 +1542,78 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isBlacklisted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lastBuyTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "lastGraduationAttempt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastVolatilityReset",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lastWhaleTradeTime",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1270,25 +1664,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "nonces",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "pause",
     "outputs": [],
@@ -1312,53 +1687,44 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
       }
     ],
-    "name": "permit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "pendingWhaleIntents",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "intentTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "executed",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "protection",
+    "name": "realEthReserves",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1378,16 +1744,47 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "realUsdcReserves",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
+    "name": "recentPrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "removeFromWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "resetCircuitBreaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1399,7 +1796,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "minUsdcOut",
+        "name": "minEthOut",
         "type": "uint256"
       }
     ],
@@ -1488,10 +1885,59 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "triggerCircuitBreaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "volatilityMoveCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "whitelist",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

@@ -102,7 +102,7 @@ const config: HardhatUserConfig = {
       },
     },
     // Sei mainnet configuration
-    seimainnet: {
+    seiMainnet: {
       url: 'https://evm-rpc.sei-apis.com',
       accounts: {
         mnemonic: mnemonic.testnet,
@@ -113,7 +113,7 @@ const config: HardhatUserConfig = {
       // gasPrice: 2000000000 // 2 gwei = 2 nsei
     },
     // Sei testnet configuration
-    seitestnet: {
+    seiTestnet: {
       url: 'https://evm-rpc-testnet.sei-apis.com',
       accounts: {
         mnemonic: mnemonic.testnet,
@@ -151,7 +151,7 @@ const config: HardhatUserConfig = {
     },
     customChains: [
       {
-        network: "seimainnet",
+        network: "seiMainnet",
         chainId: 1329,
         urls: {
           apiURL: "https://seitrace.com/pacific-1/api",
@@ -159,7 +159,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "seitestnet",
+        network: "seiTestnet",
         chainId: 1328,
         urls: {
           apiURL: "https://seitrace.com/atlantic-2/api",
@@ -194,7 +194,16 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: [ 'CarbonOpus', 'CarbonCoin', 'CarbonCoinConfig', 'CarbonCoinLauncher', 'PermitAndTransfer', 'ERC20Mintable' ],
+    only: [
+      'CarbonOpus',
+      'CarbonCoin',
+      'CarbonCoinConfig',
+      'CarbonCoinLauncher',
+      'CarbonCoinProtection',
+      'CarbonCoinDex',
+      'PermitAndTransfer',
+      'ERC20Mintable',
+    ],
     except: [],
   },
   sourcify: { enabled: true },

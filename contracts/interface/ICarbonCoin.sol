@@ -29,20 +29,10 @@ interface ICarbonCoin {
     uint256 virtualUsdc;
     uint256 virtualTokens;
     uint256 creatorReserve;
+    uint256 liquiditySupply;
+    uint256 curveSupply;
     uint256 maxSupply;
     uint256 graduationThreshold;
-  }
-
-  struct PriceSnapshot {
-    uint256 price;
-    uint256 timestamp;
-  }
-
-  struct WhaleIntent {
-    uint256 amount;
-    uint256 intentTime;
-    bool isBuy;
-    bool executed;
   }
 
   // Trading events
@@ -84,23 +74,9 @@ interface ICarbonCoin {
   );
 
   // Admin events
-  event BotDetected(address indexed suspect, string reason, uint256 timestamp);
-  event AddressBlacklisted(address indexed account, bool blacklisted, uint256 timestamp);
-  event AddressWhitelisted(address indexed account, bool whitelisted, uint256 timestamp);
   event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
-
-  // Circuit breaker events
-  event CircuitBreakerTriggered(string reason, uint256 timestamp, uint256 duration);
-  event CircuitBreakerReset(uint256 timestamp);
-  event HighPriceImpact(address indexed trader, uint256 priceImpact, uint256 timestamp);
-  event VolatilityWarning(uint256 moveCount, uint256 timestamp);
-
-  // Whale protection events
-  event WhaleIntentRegistered(address indexed trader, uint256 amount, bool isBuy, uint256 executeAfter, uint256 timestamp);
-  event WhaleIntentCancelled(address indexed trader, uint256 timestamp);
-  event WhaleTradeExecuted(address indexed trader, uint256 amount, bool isBuy, uint256 timestamp);
 
   // State tracking events
   event PriceUpdate(uint256 price, uint256 usdcReserves, uint256 tokenSupply, uint256 timestamp);
@@ -114,22 +90,8 @@ interface ICarbonCoin {
   error InsufficientLiquidity();
   error AlreadyGraduated();
   error NotGraduated();
-  error CooldownActive();
-  error ExceedsMaxWallet();
-  error Blacklisted();
-  error ContractCallNotAllowed();
-  error BuyAmountTooHigh();
-  error FeeExceedsMaximum();
   error GraduationCooldownActive();
-  error CircuitBreakerActive();
-  error PriceImpactTooHigh();
-  error ExcessiveVolatility();
-  error TradeSizeTooLarge();
-  error WhaleDelayActive();
   error WhaleIntentRequired();
-  error WhaleIntentNotReady();
-  error NoWhaleIntentFound();
-  error SellAmountTooLarge();
   error CreatorCannotSellBeforeGraduation();
 
   /**
@@ -207,50 +169,6 @@ interface ICarbonCoin {
    * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
    */
   function sell(uint256 tokensIn, uint256 minUsdcOut) external;
-
-  function getCircuitBreakerStatus() external view returns (
-    bool isActive,
-    uint256 triggeredAt,
-    uint256 timeRemaining,
-    uint256 volatilityMoves
-  );
-
-  // Whale trade management
-  function cancelWhaleIntent() external;
-
-  function getWhaleIntent(address trader) external view returns (
-    uint256 amount,
-    uint256 intentTime,
-    uint256 executeAfter,
-    bool isBuy,
-    bool executed,
-    bool canExecute
-  );
-
-  function getWhaleCooldown(address trader) external view returns (
-    uint256 lastTradeTime,
-    uint256 nextTradeAvailable,
-    bool canTradeNow
-  );
-
-  function getTradeLimits() external view returns (
-    uint256 _maxTradeSize,
-    uint256 _maxSellPercentage,
-    uint256 _whaleThreshold,
-    uint256 _whaleDelay,
-    uint256 currentMaxSellTokens
-  );
-
-  function getAntiBotInfo() external view returns (
-    uint256 _launchTime,
-    uint256 _timeSinceLaunch,
-    bool _antiBotActive,
-    uint256 _maxBuyEarly,
-    uint256 _cooldownPeriod,
-    uint256 _maxWalletPercentage
-  );
-
-  function getUserCooldown(address user) external view returns (uint256);
 
   function getReserves() external view returns (
     uint256 usdcReserves,

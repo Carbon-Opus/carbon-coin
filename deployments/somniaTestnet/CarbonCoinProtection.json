@@ -1,0 +1,1486 @@
+{
+  "address": "0x3F59dAd9FcC50726dF2aF8f366bDa5a1d701e743",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "CircuitBreakerActive",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoWhaleIntentFound",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PriceImpactTooHigh",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "WhaleDelayActive",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "WhaleIntentNotReady",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "WhaleIntentRequired",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "blacklisted",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "AddressBlacklisted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "whitelisted",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "AddressWhitelisted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "BotDetected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "CircuitBreakerReset",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "duration",
+          "type": "uint256"
+        }
+      ],
+      "name": "CircuitBreakerTriggered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newConfig",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ConfigUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "impact",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "HighPriceImpact",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newLauncher",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "LauncherUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "moveCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "VolatilityWarning",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WhaleIntentCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "executeAfter",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WhaleIntentRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WhaleTradeExecuted",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "addToWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "blacklisted",
+          "type": "bool"
+        }
+      ],
+      "name": "blacklistAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "cancelWhaleIntent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        }
+      ],
+      "name": "checkAntiBotProtection",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "checkCircuitBreaker",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "priceBefore",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "priceAfter",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tradeSize",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        }
+      ],
+      "name": "checkPriceImpact",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "checkTradeSizeLimit",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        }
+      ],
+      "name": "checkWhaleIntent",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "requiresIntent",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "canProceed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "config",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getCircuitBreakerStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "triggeredAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timeRemaining",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "volatilityMoves",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserCooldown",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        }
+      ],
+      "name": "getWhaleCooldown",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lastTradeTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nextTradeAvailable",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "canTradeNow",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        }
+      ],
+      "name": "getWhaleIntent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "intentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "executeAfter",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "canExecute",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "name": "initializeToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "isBlacklisted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastBuyTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastWhaleTradeTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "launcher",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "pendingWhaleIntents",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "intentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isBuy",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "removeFromWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "resetCircuitBreaker",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "resetCircuitBreakerIfExpired",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "tokenStates",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "launchTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "circuitBreakerTriggeredAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "volatilityMoveCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastVolatilityReset",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "currentPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "trackVolatility",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "triggerCircuitBreaker",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newConfig",
+          "type": "address"
+        }
+      ],
+      "name": "updateConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newLauncher",
+          "type": "address"
+        }
+      ],
+      "name": "updateLauncher",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "whitelist",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xf80e71244033e089553fad93f50f3fc9fa75aa3c99e34d901f2b59ad75f3f7a0",
+  "receipt": {
+    "to": "0x0000000000000000000000000000000000000000",
+    "from": "0x2BB8CBAd36D52708a43DE36a9Aa2782fFa0470F1",
+    "contractAddress": "0x3F59dAd9FcC50726dF2aF8f366bDa5a1d701e743",
+    "transactionIndex": 0,
+    "gasUsed": "27022503",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000000000080000000008000000000000000000000000000000000000000000000000000000000000000000000000800000000001000000000000000000020000000000000000020000000000000001000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000001000000000000000000000000",
+    "blockHash": "0x87ab251a9e4dd00a1fbd39c7240e49628f4b716fcfe730aaec0b714aa559e2fe",
+    "transactionHash": "0xf80e71244033e089553fad93f50f3fc9fa75aa3c99e34d901f2b59ad75f3f7a0",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 309541212,
+        "transactionHash": "0xf80e71244033e089553fad93f50f3fc9fa75aa3c99e34d901f2b59ad75f3f7a0",
+        "address": "0x3F59dAd9FcC50726dF2aF8f366bDa5a1d701e743",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000002bb8cbad36d52708a43de36a9aa2782ffa0470f1"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x87ab251a9e4dd00a1fbd39c7240e49628f4b716fcfe730aaec0b714aa559e2fe"
+      }
+    ],
+    "blockNumber": 309541212,
+    "cumulativeGasUsed": "0",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "1366c90bca31aee26cda6506b55cc882",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"CircuitBreakerActive\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoWhaleIntentFound\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PriceImpactTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Unauthorized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WhaleDelayActive\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WhaleIntentNotReady\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WhaleIntentRequired\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"blacklisted\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"AddressBlacklisted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"whitelisted\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"AddressWhitelisted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"BotDetected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"CircuitBreakerReset\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"name\":\"CircuitBreakerTriggered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newConfig\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"ConfigUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"impact\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"HighPriceImpact\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newLauncher\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"LauncherUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"moveCount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"VolatilityWarning\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"WhaleIntentCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"executeAfter\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"WhaleIntentRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"WhaleTradeExecuted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"addToWhitelist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"blacklisted\",\"type\":\"bool\"}],\"name\":\"blacklistAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"cancelWhaleIntent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"}],\"name\":\"checkAntiBotProtection\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"checkCircuitBreaker\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"priceBefore\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"priceAfter\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"tradeSize\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"}],\"name\":\"checkPriceImpact\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"checkTradeSizeLimit\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"}],\"name\":\"checkWhaleIntent\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"requiresIntent\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"canProceed\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"config\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getCircuitBreakerStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"triggeredAt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timeRemaining\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"volatilityMoves\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"getUserCooldown\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getWhaleCooldown\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"lastTradeTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"nextTradeAvailable\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"canTradeNow\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getWhaleIntent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"intentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"executeAfter\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"executed\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"canExecute\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"}],\"name\":\"initializeToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isBlacklisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"lastBuyTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"lastWhaleTradeTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"launcher\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"pendingWhaleIntents\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"intentTime\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isBuy\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"executed\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"removeFromWhitelist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"resetCircuitBreaker\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"resetCircuitBreakerIfExpired\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"tokenStates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"launchTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"circuitBreakerTriggeredAt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"volatilityMoveCount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lastVolatilityReset\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"currentPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"trackVolatility\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"triggerCircuitBreaker\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newConfig\",\"type\":\"address\"}],\"name\":\"updateConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newLauncher\",\"type\":\"address\"}],\"name\":\"updateLauncher\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"whitelist\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Handles anti-bot, whale limits, circuit breakers for multiple tokens\",\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"checkWhaleIntent(address,address,uint256,bool)\":{\"returns\":{\"canProceed\":\"Whether the trade can proceed\",\"requiresIntent\":\"Whether a whale intent is required\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"CarbonCoinProtection\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"checkAntiBotProtection(address,address,uint256,bool)\":{\"notice\":\"Check if anti-bot protection should be applied\"},\"checkCircuitBreaker(address)\":{\"notice\":\"Check circuit breaker status\"},\"checkPriceImpact(address,address,uint256,uint256,uint256,bool)\":{\"notice\":\"Check price impact and trigger circuit breaker if excessive\"},\"checkTradeSizeLimit(address,address,uint256)\":{\"notice\":\"Check trade size limits\"},\"checkWhaleIntent(address,address,uint256,bool)\":{\"notice\":\"Check if whale intent is required and handle it\"},\"initializeToken(address,address)\":{\"notice\":\"Initialize protection for a new token\"},\"resetCircuitBreakerIfExpired(address)\":{\"notice\":\"Reset circuit breaker if expired\"},\"trackVolatility(address,uint256,uint256)\":{\"notice\":\"Track price volatility and trigger circuit breaker if needed\"}},\"notice\":\"Centralized protection mechanism for all CarbonCoin tokens\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/CarbonCoinProtection.sol\":\"CarbonCoinProtection\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/CarbonCoinProtection.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n// CarbonCoinProtection.sol\\n// Copyright (c) 2025 CarbonOpus\\n//\\n// Permission is hereby granted, free of charge, to any person obtaining a copy\\n// of this software and associated documentation files (the \\\"Software\\\"), to deal\\n// in the Software without restriction, including without limitation the rights\\n// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\\n// copies of the Software, and to permit persons to whom the Software is\\n// furnished to do so, subject to the following conditions:\\n//\\n// The above copyright notice and this permission notice shall be included in all\\n// copies or substantial portions of the Software.\\n//\\n// THE SOFTWARE IS PROVIDED \\\"AS IS\\\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\\n// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\\n// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE\\n// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\\n// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\\n// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\\n// SOFTWARE.\\n//\\n\\npragma solidity 0.8.27;\\n\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { ICarbonCoinConfig } from \\\"./interface/ICarbonCoinConfig.sol\\\";\\nimport { ICarbonCoinProtection } from \\\"./interface/ICarbonCoinProtection.sol\\\";\\n\\n/**\\n * @title CarbonCoinProtection\\n * @notice Centralized protection mechanism for all CarbonCoin tokens\\n * @dev Handles anti-bot, whale limits, circuit breakers for multiple tokens\\n */\\ncontract CarbonCoinProtection is ICarbonCoinProtection, Ownable {\\n    // Token address => Protection state\\n    mapping(address => TokenProtectionState) public tokenStates;\\n\\n    // Token => User => Last buy time\\n    mapping(address => mapping(address => uint256)) public lastBuyTime;\\n\\n    // Token => User => Last whale trade time\\n    mapping(address => mapping(address => uint256)) public lastWhaleTradeTime;\\n\\n    // Token => User => Whale intent\\n    mapping(address => mapping(address => WhaleIntent)) public pendingWhaleIntents;\\n\\n    // Token => User => Blacklisted\\n    mapping(address => mapping(address => bool)) public isBlacklisted;\\n\\n    // Token => User => Whitelisted\\n    mapping(address => mapping(address => bool)) public whitelist;\\n\\n    address public config;\\n    address public launcher;\\n\\n    constructor() Ownable(msg.sender) {}\\n\\n    /**\\n     * @notice Initialize protection for a new token\\n     */\\n    function initializeToken(address token, address creator) external {\\n        require(msg.sender == launcher, \\\"Only launcher can call\\\");\\n\\n        TokenProtectionState storage state = tokenStates[token];\\n        state.launchTime = block.timestamp;\\n\\n        // Whitelist creator and launcher\\n        whitelist[token][creator] = true;\\n        whitelist[token][launcher] = true;\\n    }\\n\\n    /**\\n     * @notice Check if anti-bot protection should be applied\\n     */\\n    function checkAntiBotProtection(\\n        address token,\\n        address user,\\n        uint256 amount,\\n        bool isBuy\\n    ) external {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n        require(tx.origin == user, \\\"Contract call not allowed\\\");\\n        require(!isBlacklisted[token][user], \\\"Blacklisted\\\");\\n\\n        if (!isBuy) return; // Only apply to buys\\n\\n        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        // Check early buy limits\\n        if (block.timestamp < state.launchTime + botConfig.antiBotDuration) {\\n            require(amount <= botConfig.maxBuyAmountEarly || whitelist[token][user], \\\"Buy amount too high\\\");\\n        }\\n\\n        // Check cooldown\\n        if (!whitelist[token][user]) {\\n            if (lastBuyTime[token][user] != 0) {\\n                require(block.timestamp >= lastBuyTime[token][user] + botConfig.cooldownPeriod, \\\"Cooldown active\\\");\\n            }\\n        }\\n\\n        lastBuyTime[token][user] = block.timestamp;\\n    }\\n\\n    /**\\n     * @notice Check circuit breaker status\\n     */\\n    function checkCircuitBreaker(address token) external view {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        if (state.circuitBreakerTriggeredAt > 0) {\\n            if (block.timestamp < state.circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {\\n                revert CircuitBreakerActive();\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Reset circuit breaker if expired\\n     */\\n    function resetCircuitBreakerIfExpired(address token) external {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        if (state.circuitBreakerTriggeredAt > 0) {\\n            if (block.timestamp >= state.circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) {\\n                state.circuitBreakerTriggeredAt = 0;\\n                emit CircuitBreakerReset(token, block.timestamp);\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Check trade size limits\\n     */\\n    function checkTradeSizeLimit(address token, address user, uint256 amount) external view {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        if (whitelist[token][user]) return;\\n\\n        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();\\n        require(amount <= whaleConfig.maxTradeSize, \\\"Trade size too large\\\");\\n    }\\n\\n    /**\\n     * @notice Check if whale intent is required and handle it\\n     * @return requiresIntent Whether a whale intent is required\\n     * @return canProceed Whether the trade can proceed\\n     */\\n    function checkWhaleIntent(\\n        address token,\\n        address user,\\n        uint256 amount,\\n        bool isBuy\\n    ) external returns (bool requiresIntent, bool canProceed) {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();\\n\\n        // Not a whale trade if whitelisted or below threshold\\n        if (whitelist[token][user] || amount < whaleConfig.whaleThreshold) {\\n            return (false, true);\\n        }\\n\\n        // Check cooldown\\n        if (lastWhaleTradeTime[token][user] > 0) {\\n            if (block.timestamp < lastWhaleTradeTime[token][user] + whaleConfig.whaleDelay) {\\n                revert WhaleDelayActive();\\n            }\\n        }\\n\\n        WhaleIntent storage intent = pendingWhaleIntents[token][user];\\n\\n        // No intent exists\\n        if (intent.intentTime == 0) {\\n            intent.amount = amount;\\n            intent.intentTime = block.timestamp;\\n            intent.isBuy = isBuy;\\n            intent.executed = false;\\n\\n            emit WhaleIntentRegistered(\\n                token,\\n                user,\\n                amount,\\n                isBuy,\\n                block.timestamp + whaleConfig.whaleDelay,\\n                block.timestamp\\n            );\\n\\n            return (true, false);\\n        }\\n\\n        // Intent exists but not ready\\n        if (block.timestamp < intent.intentTime + whaleConfig.whaleDelay) {\\n            revert WhaleIntentNotReady();\\n        }\\n\\n        // Verify intent\\n        require(intent.isBuy == isBuy, \\\"Intent type mismatch\\\");\\n        require(!intent.executed, \\\"Intent already executed\\\");\\n        require(intent.amount == amount, \\\"Amount must match intent\\\");\\n\\n        // Mark as executed\\n        intent.executed = true;\\n        lastWhaleTradeTime[token][user] = block.timestamp;\\n\\n        emit WhaleTradeExecuted(token, user, amount, isBuy, block.timestamp);\\n\\n        // Clean up\\n        delete pendingWhaleIntents[token][user];\\n\\n        return (true, true);\\n    }\\n\\n    /**\\n     * @notice Track price volatility and trigger circuit breaker if needed\\n     */\\n    function trackVolatility(\\n        address token,\\n        uint256 currentPrice,\\n        uint256 /* priceBefore */\\n    ) external {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        // Reset counter if window expired\\n        if (block.timestamp > state.lastVolatilityReset + cbConfig.volatilityWindow) {\\n            state.volatilityMoveCount = 0;\\n            state.lastVolatilityReset = block.timestamp;\\n            delete state.recentPrices;\\n        }\\n\\n        // Record price snapshot\\n        state.recentPrices.push(PriceSnapshot({\\n            price: currentPrice,\\n            timestamp: block.timestamp\\n        }));\\n\\n        uint256 pricesLength = state.recentPrices.length;\\n\\n        // Check for significant price moves\\n        if (pricesLength > 1) {\\n            uint256 lastPrice = state.recentPrices[pricesLength - 2].price;\\n            uint256 priceChange = currentPrice > lastPrice\\n                ? ((currentPrice - lastPrice) * 10000) / lastPrice\\n                : ((lastPrice - currentPrice) * 10000) / lastPrice;\\n\\n            // Count moves greater than 5%\\n            if (priceChange > 500) {\\n                state.volatilityMoveCount++;\\n\\n                if (state.volatilityMoveCount >= cbConfig.maxVolatilityMoves) {\\n                    emit VolatilityWarning(token, state.volatilityMoveCount, block.timestamp);\\n                    _triggerCircuitBreaker(token, \\\"Excessive volatility detected\\\");\\n                }\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Check price impact and trigger circuit breaker if excessive\\n     */\\n    function checkPriceImpact(\\n        address token,\\n        address user,\\n        uint256 priceBefore,\\n        uint256 priceAfter,\\n        uint256 tradeSize,\\n        bool isBuy\\n    ) external {\\n        require(msg.sender == token, \\\"Only token can call\\\");\\n\\n        if (whitelist[token][user]) return;\\n\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n\\n        // Only check for significant trades (1000+ USDC)\\n        if (tradeSize < 1000 * 10**6) return;\\n\\n        uint256 priceImpact;\\n        if (isBuy) {\\n            priceImpact = ((priceAfter - priceBefore) * 10000) / priceBefore;\\n        } else {\\n            priceImpact = ((priceBefore - priceAfter) * 10000) / priceBefore;\\n        }\\n\\n        if (priceImpact > cbConfig.maxPriceImpact) {\\n            emit HighPriceImpact(token, user, priceImpact, block.timestamp);\\n\\n            // Trigger circuit breaker for extreme impact\\n            if (priceImpact > cbConfig.maxPriceImpact * 2) {\\n                _triggerCircuitBreaker(token, \\\"Excessive price impact\\\");\\n                revert PriceImpactTooHigh();\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Internal function to trigger circuit breaker\\n     */\\n    function _triggerCircuitBreaker(address token, string memory reason) internal {\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        state.circuitBreakerTriggeredAt = block.timestamp;\\n        emit CircuitBreakerTriggered(token, reason, block.timestamp, cbConfig.circuitBreakerDuration);\\n    }\\n\\n    function cancelWhaleIntent(address token, address user) external {\\n        require(msg.sender == user || msg.sender == owner(), \\\"Unauthorized\\\");\\n\\n        WhaleIntent storage intent = pendingWhaleIntents[token][user];\\n        if (intent.intentTime == 0) revert NoWhaleIntentFound();\\n        require(!intent.executed, \\\"Intent already executed\\\");\\n\\n        delete pendingWhaleIntents[token][user];\\n        emit WhaleIntentCancelled(token, user, block.timestamp);\\n    }\\n\\n    // View functions\\n    function getCircuitBreakerStatus(address token) external view returns (\\n        bool isActive,\\n        uint256 triggeredAt,\\n        uint256 timeRemaining,\\n        uint256 volatilityMoves\\n    ) {\\n        ICarbonCoinConfig.CircuitBreakerConfig memory cbConfig = _getCircuitBreakerConfig();\\n        TokenProtectionState storage state = tokenStates[token];\\n\\n        isActive = state.circuitBreakerTriggeredAt > 0 &&\\n                   block.timestamp < state.circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration;\\n        triggeredAt = state.circuitBreakerTriggeredAt;\\n\\n        if (isActive) {\\n            timeRemaining = (state.circuitBreakerTriggeredAt + cbConfig.circuitBreakerDuration) - block.timestamp;\\n        } else {\\n            timeRemaining = 0;\\n        }\\n\\n        volatilityMoves = state.volatilityMoveCount;\\n    }\\n\\n    function getWhaleIntent(address token, address trader) external view returns (\\n        uint256 amount,\\n        uint256 intentTime,\\n        uint256 executeAfter,\\n        bool isBuy,\\n        bool executed,\\n        bool canExecute\\n    ) {\\n        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();\\n        WhaleIntent memory intent = pendingWhaleIntents[token][trader];\\n\\n        amount = intent.amount;\\n        intentTime = intent.intentTime;\\n        executeAfter = intent.intentTime + whaleConfig.whaleDelay;\\n        isBuy = intent.isBuy;\\n        executed = intent.executed;\\n        canExecute = !intent.executed &&\\n                     intent.intentTime > 0 &&\\n                     block.timestamp >= intent.intentTime + whaleConfig.whaleDelay;\\n    }\\n\\n    function getWhaleCooldown(address token, address trader) external view returns (\\n        uint256 lastTradeTime,\\n        uint256 nextTradeAvailable,\\n        bool canTradeNow\\n    ) {\\n        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();\\n        lastTradeTime = lastWhaleTradeTime[token][trader];\\n\\n        if (lastTradeTime == 0) {\\n            canTradeNow = true;\\n            nextTradeAvailable = block.timestamp;\\n        } else {\\n            uint256 availableAt = lastTradeTime + whaleConfig.whaleDelay;\\n            canTradeNow = block.timestamp >= availableAt;\\n            nextTradeAvailable = canTradeNow ? block.timestamp : availableAt;\\n        }\\n    }\\n\\n    function getUserCooldown(address token, address user) external view returns (uint256) {\\n        if (whitelist[token][user]) return 0;\\n        if (lastBuyTime[token][user] == 0) return 0;\\n\\n        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();\\n        uint256 elapsed = block.timestamp - lastBuyTime[token][user];\\n\\n        if (elapsed >= botConfig.cooldownPeriod) return 0;\\n        return botConfig.cooldownPeriod - elapsed;\\n    }\\n\\n    // Admin functions\\n    function blacklistAddress(address token, address user, bool blacklisted) external onlyOwner {\\n        isBlacklisted[token][user] = blacklisted;\\n        emit AddressBlacklisted(token, user, blacklisted, block.timestamp);\\n        if (blacklisted) {\\n            emit BotDetected(token, user, \\\"Manually blacklisted\\\", block.timestamp);\\n        }\\n    }\\n\\n    function addToWhitelist(address token, address user) external onlyOwner {\\n        whitelist[token][user] = true;\\n        emit AddressWhitelisted(token, user, true, block.timestamp);\\n    }\\n\\n    function removeFromWhitelist(address token, address user) external onlyOwner {\\n        whitelist[token][user] = false;\\n        emit AddressWhitelisted(token, user, false, block.timestamp);\\n    }\\n\\n    function triggerCircuitBreaker(address token, string memory reason) external onlyOwner {\\n        _triggerCircuitBreaker(token, reason);\\n    }\\n\\n    function resetCircuitBreaker(address token) external onlyOwner {\\n        TokenProtectionState storage state = tokenStates[token];\\n        state.circuitBreakerTriggeredAt = 0;\\n        state.volatilityMoveCount = 0;\\n        state.lastVolatilityReset = block.timestamp;\\n        delete state.recentPrices;\\n        emit CircuitBreakerReset(token, block.timestamp);\\n    }\\n\\n    function updateConfig(address newConfig) external onlyOwner {\\n        require(newConfig != address(0), \\\"Invalid config\\\");\\n        config = newConfig;\\n        emit ConfigUpdated(newConfig, block.timestamp);\\n    }\\n\\n    function updateLauncher(address newLauncher) external onlyOwner {\\n        require(newLauncher != address(0), \\\"Invalid launcher\\\");\\n        launcher = newLauncher;\\n        emit LauncherUpdated(newLauncher, block.timestamp);\\n    }\\n\\n    // Internal helper functions\\n    function _getAntiBotConfig() internal view returns (ICarbonCoinConfig.AntiBotConfig memory) {\\n        return ICarbonCoinConfig(config).getAntiBotConfig();\\n    }\\n\\n    function _getCircuitBreakerConfig() internal view returns (ICarbonCoinConfig.CircuitBreakerConfig memory) {\\n        return ICarbonCoinConfig(config).getCircuitBreakerConfig();\\n    }\\n\\n    function _getWhaleLimitConfig() internal view returns (ICarbonCoinConfig.WhaleLimitConfig memory) {\\n        return ICarbonCoinConfig(config).getWhaleLimitConfig();\\n    }\\n}\\n\",\"keccak256\":\"0xe97e8b733283df76bb151de6af3a5e33f92686ebcbea2f9f1a82e94ebda0cff4\",\"license\":\"MIT\"},\"contracts/interface/ICarbonCoinConfig.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n// ICarbonCoinConfig.sol\\n// Copyright (c) 2025 CarbonOpus\\n//\\n// Permission is hereby granted, free of charge, to any person obtaining a copy\\n// of this software and associated documentation files (the \\\"Software\\\"), to deal\\n// in the Software without restriction, including without limitation the rights\\n// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\\n// copies of the Software, and to permit persons to whom the Software is\\n// furnished to do so, subject to the following conditions:\\n//\\n// The above copyright notice and this permission notice shall be included in all\\n// copies or substantial portions of the Software.\\n//\\n// THE SOFTWARE IS PROVIDED \\\"AS IS\\\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\\n// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\\n// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE\\n// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\\n// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\\n// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\\n// SOFTWARE.\\n//\\n\\npragma solidity 0.8.27;\\n\\ninterface ICarbonCoinConfig {\\n  struct FeeConfig {\\n    uint256 buyFee;\\n    uint256 sellFee;\\n    uint256 maxFee;\\n  }\\n\\n  struct AntiBotConfig {\\n    uint256 antiBotDuration;\\n    uint256 maxBuyAmountEarly;\\n    uint256 maxWalletPercentage;\\n    uint256 cooldownPeriod;\\n    uint256 minBuyAmount;\\n  }\\n\\n  struct CircuitBreakerConfig {\\n    uint256 maxPriceImpact;\\n    uint256 volatilityWindow;\\n    uint256 maxVolatilityMoves;\\n    uint256 circuitBreakerDuration;\\n  }\\n\\n  struct WhaleLimitConfig {\\n    uint256 whaleThreshold;\\n    uint256 whaleDelay;\\n    uint256 maxTradeSize;\\n    uint256 maxSellPercentage;\\n  }\\n\\n  event DefaultConfigUpdated(string configType, uint256 timestamp);\\n\\n  function updateDefaultFeeConfig(FeeConfig memory newConfig) external;\\n  function updateDefaultAntiBotConfig(AntiBotConfig memory newConfig) external;\\n  function updateDefaultCircuitBreakerConfig(CircuitBreakerConfig memory newConfig) external;\\n  function updateDefaultWhaleLimitConfig(WhaleLimitConfig memory newConfig) external;\\n\\n  function getCarbonCoinDex() external view returns (address);\\n  function getFeeConfig() external view returns (FeeConfig memory);\\n  function getAntiBotConfig() external view returns (AntiBotConfig memory);\\n  function getCircuitBreakerConfig() external view returns (CircuitBreakerConfig memory);\\n  function getWhaleLimitConfig() external view returns (WhaleLimitConfig memory);\\n\\n}\\n\",\"keccak256\":\"0x53f08b1861f2d9b2d5dc63c8022c29668a584fd978ea234dda01f510f8520479\",\"license\":\"MIT\"},\"contracts/interface/ICarbonCoinProtection.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n// ICarbonCoinProtection.sol\\n// Copyright (c) 2025 CarbonOpus\\n//\\n// Permission is hereby granted, free of charge, to any person obtaining a copy\\n// of this software and associated documentation files (the \\\"Software\\\"), to deal\\n// in the Software without restriction, including without limitation the rights\\n// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\\n// copies of the Software, and to permit persons to whom the Software is\\n// furnished to do so, subject to the following conditions:\\n//\\n// The above copyright notice and this permission notice shall be included in all\\n// copies or substantial portions of the Software.\\n//\\n// THE SOFTWARE IS PROVIDED \\\"AS IS\\\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\\n// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\\n// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE\\n// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\\n// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\\n// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\\n// SOFTWARE.\\n//\\n\\npragma solidity 0.8.27;\\n\\ninterface ICarbonCoinProtection {\\n    struct PriceSnapshot {\\n        uint256 price;\\n        uint256 timestamp;\\n    }\\n\\n    struct WhaleIntent {\\n        uint256 amount;\\n        uint256 intentTime;\\n        bool isBuy;\\n        bool executed;\\n    }\\n\\n    struct TokenProtectionState {\\n        uint256 launchTime;\\n        uint256 circuitBreakerTriggeredAt;\\n        uint256 volatilityMoveCount;\\n        uint256 lastVolatilityReset;\\n        PriceSnapshot[] recentPrices;\\n    }\\n\\n    // Events\\n    event BotDetected(address indexed token, address indexed user, string reason, uint256 timestamp);\\n    event AddressBlacklisted(address indexed token, address indexed user, bool blacklisted, uint256 timestamp);\\n    event AddressWhitelisted(address indexed token, address indexed user, bool whitelisted, uint256 timestamp);\\n    event CircuitBreakerTriggered(address indexed token, string reason, uint256 timestamp, uint256 duration);\\n    event CircuitBreakerReset(address indexed token, uint256 timestamp);\\n    event VolatilityWarning(address indexed token, uint256 moveCount, uint256 timestamp);\\n    event HighPriceImpact(address indexed token, address indexed trader, uint256 impact, uint256 timestamp);\\n    event WhaleIntentRegistered(address indexed token, address indexed trader, uint256 amount, bool isBuy, uint256 executeAfter, uint256 timestamp);\\n    event WhaleTradeExecuted(address indexed token, address indexed trader, uint256 amount, bool isBuy, uint256 timestamp);\\n    event WhaleIntentCancelled(address indexed token, address indexed trader, uint256 timestamp);\\n    event ConfigUpdated(address indexed newConfig, uint256 timestamp);\\n    event LauncherUpdated(address indexed newLauncher, uint256 timestamp);\\n\\n    // Custom errors\\n    error WhaleDelayActive();\\n    error WhaleIntentRequired();\\n    error WhaleIntentNotReady();\\n    error NoWhaleIntentFound();\\n    error CircuitBreakerActive();\\n    error PriceImpactTooHigh();\\n    error Unauthorized();\\n\\n    /**\\n     * @notice Initialize protection for a new token\\n     */\\n    function initializeToken(address token, address creator) external;\\n\\n    /**\\n     * @notice Check if anti-bot protection should be applied\\n     */\\n    function checkAntiBotProtection(\\n        address token,\\n        address user,\\n        uint256 amount,\\n        bool isBuy\\n    ) external;\\n\\n    /**\\n     * @notice Check circuit breaker status\\n     */\\n    function checkCircuitBreaker(address token) external view;\\n\\n    /**\\n     * @notice Reset circuit breaker if expired\\n     */\\n    function resetCircuitBreakerIfExpired(address token) external;\\n\\n    /**\\n     * @notice Check trade size limits\\n     */\\n    function checkTradeSizeLimit(address token, address user, uint256 amount) external view;\\n\\n    /**\\n     * @notice Check if whale intent is required and handle it\\n     * @return requiresIntent Whether a whale intent is required\\n     * @return canProceed Whether the trade can proceed\\n     */\\n    function checkWhaleIntent(\\n        address token,\\n        address user,\\n        uint256 amount,\\n        bool isBuy\\n    ) external returns (bool requiresIntent, bool canProceed);\\n\\n    /**\\n     * @notice Track price volatility and trigger circuit breaker if needed\\n     */\\n    function trackVolatility(\\n        address token,\\n        uint256 currentPrice,\\n        uint256 priceBefore\\n    ) external;\\n\\n    /**\\n     * @notice Check price impact and trigger circuit breaker if excessive\\n     */\\n    function checkPriceImpact(\\n        address token,\\n        address user,\\n        uint256 priceBefore,\\n        uint256 priceAfter,\\n        uint256 tradeSize,\\n        bool isBuy\\n    ) external;\\n\\n    function cancelWhaleIntent(address token, address user) external;\\n\\n    // View functions\\n    function getCircuitBreakerStatus(address token) external view returns (\\n        bool isActive,\\n        uint256 triggeredAt,\\n        uint256 timeRemaining,\\n        uint256 volatilityMoves\\n    );\\n\\n    function getWhaleIntent(address token, address trader) external view returns (\\n        uint256 amount,\\n        uint256 intentTime,\\n        uint256 executeAfter,\\n        bool isBuy,\\n        bool executed,\\n        bool canExecute\\n    );\\n\\n    function getWhaleCooldown(address token, address trader) external view returns (\\n        uint256 lastTradeTime,\\n        uint256 nextTradeAvailable,\\n        bool canTradeNow\\n    );\\n\\n    function getUserCooldown(address token, address user) external view returns (uint256);\\n}\\n\",\"keccak256\":\"0x1ac7bc87576f8c5730cf269a7ac49da9c53d253fa2c0325db753917057dddc41\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608080604052346075573315605f5760008054336001600160a01b0319821681178355916001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3611f4f908161007b8239f35b631e4fbdf760e01b600052600060045260246000fd5b600080fdfe6080604052600436101561001257600080fd5b60003560e01c80631260e745146112055780631544d5a01461113c57806316eebd1e146111135780631ecae3cd1461107c57806326cfee9c146110385780632b7803ec14610fa3578063339d70de14610f525780633811fb0314610e4157806338c4197214610dcc5780634028eddc14610d7157806347992cb614610cc45780635751824314610c295780635f7567ff14610bfd5780636cc919c814610b52578063715018a614610af957806379502c5514610ad0578063890cb1f614610aa357806389cb096a14610a475780638da5cb5b14610a1e57806393504c08146109cd578063a58b615c1461094b578063a5f3a6f01461084a578063a664ff81146107b0578063afca04a814610733578063b092145e146106d8578063c9b2c929146105b3578063d85934fe14610509578063eac7560c146102bf578063f2fde38b14610236578063f8d3277d146101aa5763fd7742cd1461017157600080fd5b346101a55760403660031901126101a557602061019d61018f61121f565b610197611235565b90611bb6565b604051908152f35b600080fd5b346101a55760403660031901126101a5576101c361121f565b6101cb611235565b906101d4611eaf565b6001600160a01b03908116600081815260066020908152604080832095909416808352948152838220805460ff191690558351918252429082015290917fab8844ffbe17b06ccd0252117092d084957438fe995528e2c74406ab85c7b5ff91a3005b346101a55760203660031901126101a55761024f61121f565b610257611eaf565b6001600160a01b031680156102a957600080546001600160a01b03198116831782556001600160a01b0316907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3005b631e4fbdf760e01b600052600060045260246000fd5b346101a55760603660031901126101a5576102d861121f565b602435906001600160a01b0381166102f13382146112ec565b6102f9611d93565b928160005260016020526040600020906003820161031d815460208801519061132e565b42116104ed575b50600482016040516040810181811067ffffffffffffffff8211176104d75760405282815260208101904282528254680100000000000000008110156104d7578060016103749201855584611b84565b9290926104c1576001915183555191015580546001811161039157005b600119810190811161047a576103a691611b84565b5054908180821115610490576103bb916115ac565b612710810290808204612710149015171561047a576101f4916103dd916115b9565b116103e5575b005b60020180549093600019821461047a57600160409201809555015183101561040957005b7f4046768748ebbc6058082cf55886f134072cafa8d4cb6bd3e210628d3137b3c160406103e3948151908152426020820152a26040519061044b6040836112ca565b601d82527f45786365737369766520766f6c6174696c6974792064657465637465640000006020830152611e07565b634e487b7160e01b600052601160045260246000fd5b9061049a916115ac565b612710810290808204612710149015171561047a576101f4916104bc916115b9565b6103dd565b634e487b7160e01b600052600060045260246000fd5b634e487b7160e01b600052604160045260246000fd5b6000600284015542905561050360048301611b37565b85610324565b346101a55760203660031901126101a557608061052461121f565b61052c611d93565b9060018060a01b031660005260016020526040600020600181015490811515928361059b575b83156105905761057261056b606060029301518561132e565b42906115ac565b915b0154916040519315158452602084015260408301526060820152f35b506002600091610574565b92506105ab60608401518361132e565b421092610552565b346101a55760403660031901126101a5576105cc61121f565b6001600160a01b036105dc611235565b169081331480156106c4575b156106905760018060a01b0316806000526004602052604060002082600052602052604060002060018101541561067f5760ff600261062d92015460081c1615611757565b80600052600460205260006002604080832083908682526020522082815582600182015501557f8a7f5822dbecd1573eb070e4f5aed873ffdae8e6943da56e053af6c25da5dc186020604051428152a3005b6303d82f8960e21b60005260046000fd5b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b506000546001600160a01b031633146105e8565b346101a55760403660031901126101a5576106f161121f565b6106f9611235565b9060018060a01b0316600052600660205260406000209060018060a01b0316600052602052602060ff604060002054166040519015158152f35b346101a55760403660031901126101a5576080604061075061121f565b610758611235565b9060018060a01b031660005260046020528160002060009160018060a01b031682526020522060ff815491600260018201549101549060405193845260208401528181161515604084015260081c1615156060820152f35b346101a55760403660031901126101a55760606107cb61121f565b6107d3611235565b6000906107de611ed8565b6001600160a01b039384168352600360209081526040808520939095168452919091529181205491826108255750506001425b604051928352602083015215156040820152f35b60206108339101518361132e565b42811180159250610845575042610811565b610811565b346101a55760403660031901126101a55760c061086561121f565b604061086f611235565b610877611ed8565b6001600160a01b039384166000908152600460209081528482209390951681529190935220604051906108a982611292565b805492838352600182015492602060028183019486865201549260ff6060604085019482871615158652019460081c161515845201936108ea85518261132e565b9151151592511594859485610940575b86610926575b5050604051958652602086015260408501526060840152156080830152151560a0820152f35b6109359296505190519061132e565b421015938780610900565b8051151596506108fa565b346101a55760203660031901126101a55761096461121f565b61096c611eaf565b60018060a01b03168060005260016020526109a160046040600020600060018201556000600282015542600382015501611b37565b7fdf2c80869f8349ad696d44d9b3bd9e12796ede774eccaeefcf974f9629d223fa6020604051428152a2005b346101a55760403660031901126101a5576109e661121f565b6109ee611235565b6001600160a01b039182166000908152600360209081526040808320949093168252928352819020549051908152f35b346101a55760003660031901126101a5576000546040516001600160a01b039091168152602090f35b346101a55760203660031901126101a5576001600160a01b03610a6861121f565b166000526001602052608060406000208054906001810154906003600282015491015491604051938452602084015260408301526060820152f35b346101a55760603660031901126101a5576103e3610abf61121f565b610ac7611235565b60443591611aa8565b346101a55760003660031901126101a5576007546040516001600160a01b039091168152602090f35b346101a55760003660031901126101a557610b12611eaf565b600080546001600160a01b0319811682556001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a3005b346101a55760203660031901126101a557610b6b61121f565b610b73611eaf565b6001600160a01b03168015610bc757806bffffffffffffffffffffffff60a01b60075416176007557faf8839d80c9b3bbf95c97465eb8c8348db4098f5c15af186c3b425b1129981176020604051428152a2005b60405162461bcd60e51b815260206004820152600e60248201526d496e76616c696420636f6e66696760901b6044820152606490fd5b346101a5576040610c19610c103661124b565b929190916117a3565b8251911515825215156020820152f35b346101a55760403660031901126101a557610c4261121f565b610c4a611235565b90610c53611eaf565b60018060a01b0316806000526006602052604060002060018060a01b0383166000526020526040600020600160ff198254161790557fab8844ffbe17b06ccd0252117092d084957438fe995528e2c74406ab85c7b5ff60408051936001855242602086015260018060a01b031693a3005b346101a55760203660031901126101a557610cdd61121f565b610ce5611eaf565b6001600160a01b03168015610d3957806bffffffffffffffffffffffff60a01b60085416176008557f775182a041345bfff9131614c1adc3ea25acb7ab38542f8008228b99c88a944c6020604051428152a2005b60405162461bcd60e51b815260206004820152601060248201526f24b73b30b634b2103630bab731b432b960811b6044820152606490fd5b346101a55760403660031901126101a557610d8a61121f565b610d92611235565b9060018060a01b0316600052600560205260406000209060018060a01b0316600052602052602060ff604060002054166040519015158152f35b346101a55760203660031901126101a5576001600160a01b03610ded61121f565b16610df98133146112ec565b610e01611d93565b90600052600160205260016040600020015480610e1a57005b6060610e289201519061132e565b4210610e3057005b63ff0376e760e01b60005260046000fd5b346101a55760603660031901126101a557610e5a61121f565b610e62611235565b906044358015158082036101a5576040937fb50b06a7f87c541fb476f1220b34de33fc3b5837e39ec84403e3c686a45ebf7b93610e9d611eaf565b60018060a01b03169384918260005260056020528660002060018060a01b038216600052602052610edd85886000209060ff801983541691151516179055565b86519384524260208501526001600160a01b0316958693a3610efb57005b7f0dc946ff58283703b592326cba96913162456ba6af34dc39b611fb3f30aab370608060405160408152601460408201527313585b9d585b1b1e48189b1858dadb1a5cdd195960621b6060820152426020820152a3005b346101a55760403660031901126101a557610f6b61121f565b610f73611235565b6001600160a01b039182166000908152600260209081526040808320949093168252928352819020549051908152f35b346101a55760403660031901126101a557610fbc61121f565b6024359067ffffffffffffffff82116101a557366023830112156101a55781600401359067ffffffffffffffff82116104d75760405191611007601f8201601f1916602001846112ca565b80835236602482860101116101a55760208160009260246103e397018387013784010152611033611eaf565b611e07565b346101a55760c03660031901126101a55761105161121f565b611059611235565b9060a4359081151582036101a5576103e3926084359160643591604435916115d9565b346101a55760203660031901126101a5576001600160a01b0361109d61121f565b166110a98133146112ec565b6110b1611d93565b8160005260016020526001604060002001908154806110cc57005b60606110da9201519061132e565b4210156110e357005b600090557fdf2c80869f8349ad696d44d9b3bd9e12796ede774eccaeefcf974f9629d223fa6020604051428152a2005b346101a55760003660031901126101a5576008546040516001600160a01b039091168152602090f35b346101a55760403660031901126101a55761115561121f565b61115d611235565b6008549091906001600160a01b031633036111c7576001600160a01b039081166000908152600160208181526040808420429055600682528084209585168452949052838220805460ff199081168317909155600854909316825292902080549091169091179055005b60405162461bcd60e51b815260206004820152601660248201527513db9b1e481b185d5b98da195c8818d85b8818d85b1b60521b6044820152606490fd5b346101a5576103e36112163661124b565b9291909161133b565b600435906001600160a01b03821682036101a557565b602435906001600160a01b03821682036101a557565b60809060031901126101a5576004356001600160a01b03811681036101a557906024356001600160a01b03811681036101a557906044359060643580151581036101a55790565b6080810190811067ffffffffffffffff8211176104d757604052565b60a0810190811067ffffffffffffffff8211176104d757604052565b90601f8019910116810190811067ffffffffffffffff8211176104d757604052565b156112f357565b60405162461bcd60e51b815260206004820152601360248201527213db9b1e481d1bdad95b8818d85b8818d85b1b606a1b6044820152606490fd5b9190820180921161047a57565b90926001600160a01b0390911691906113553384146112ec565b6001600160a01b038416320361156757826000526005602052604060002060018060a01b03851660005260205260ff60406000205416611534571561152f5761139c611c66565b908260005260016020526113b760406000205483519061132e565b42106114af575b50816000526006602052604060002060018060a01b03841660005260205260ff6040600020541615611412575b50600052600260205260406000209060018060a01b03166000526020526040600020429055565b816000526002602052604060002060018060a01b038416600052602052604060002054156113eb5761146c90826000526002602052604060002060018060a01b03851660005260205260606040600020549101519061132e565b421061147857386113eb565b60405162461bcd60e51b815260206004820152600f60248201526e436f6f6c646f776e2061637469766560881b6044820152606490fd5b602082015110801590611503575b156114c857386113be565b60405162461bcd60e51b8152602060048201526013602482015272084eaf240c2dadeeadce840e8dede40d0d2ced606b1b6044820152606490fd5b50816000526006602052604060002060018060a01b03841660005260205260ff604060002054166114bd565b505050565b60405162461bcd60e51b815260206004820152600b60248201526a109b1858dadb1a5cdd195960aa1b6044820152606490fd5b60405162461bcd60e51b815260206004820152601960248201527f436f6e74726163742063616c6c206e6f7420616c6c6f776564000000000000006044820152606490fd5b9190820391821161047a57565b81156115c3570490565b634e487b7160e01b600052601260045260246000fd5b946001600160a01b0386169493919291906115f53387146112ec565b856000526006602052604060002060018060a01b03851660005260205260ff6040600020541661174e57633b9aca0061162c611d93565b951061174e5782901561171f57611642916115ac565b90612710820291808304612710149015171561047a57611661916115b9565b925b82518411611673575b5050505050565b604080518581524260208201526001600160a01b03909316927f661b5812db41a70bf680930959cfc60bd68f3e8435997dd1c114841e28d5b8b29190a351908160011b918083046002149015171561047a57116116d3578080808061166c565b61170e90604051906116e66040836112ca565b6016825275115e18d95cdcda5d99481c1c9a58d9481a5b5c1858dd60521b6020830152611e07565b637d98681d60e11b60005260046000fd5b90611729916115ac565b90612710820291808304612710149015171561047a57611748916115b9565b92611663565b50505050505050565b1561175e57565b60405162461bcd60e51b815260206004820152601760248201527f496e74656e7420616c72656164792065786563757465640000000000000000006044820152606490fd5b6001600160a01b031692906117b93385146112ec565b6117c1611ed8565b93806000526006602052604060002060018060a01b03831660005260205260ff604060002054168015611a9e575b611a9157806000526003602052604060002060018060a01b038316600052602052604060002054611a48575b80600052600460205260408060002060009060018060a01b03851682526020522094600186018054156119bd57546020909101516118589161132e565b42106119ac5760028501938454931515958660ff861615150361197057819061188760ff8760081c1615611757565b540361192b5760009560029561010060409661ff001916179055828752600360205284872060018060a01b0385168852602052848720429055845191825260208201524284820152817f48692165ae0e85c6a30263711c3cbf06d12d489e77ad27fbfe8ef86ec030ae84606060018060a01b03861693a384526004602052818420849160018060a01b03168252602052208281558260018201550155600190600190565b60405162461bcd60e51b815260206004820152601860248201527f416d6f756e74206d757374206d6174636820696e74656e7400000000000000006044820152606490fd5b60405162461bcd60e51b8152602060048201526014602482015273092dce8cadce840e8f2e0ca40dad2e6dac2e8c6d60631b6044820152606490fd5b6301b57b7f60e71b60005260046000fd5b60207f397c877647e5467d7bb03e10f931aa94418ce552a06aba99c660f53a1f22979c9592600289611a1c948a608099989b9c5542905501611a0b85829060ff801983541691151516179055565b805461ff001916905501514261132e565b604080519788529115156020880152908601524260608601526001600160a01b031693a3600190600090565b806000526003602052604060002060018060a01b038316600052602052611a7960406000205460208701519061132e565b42101561181b576301130f0960e71b60005260046000fd5b5050505050600090600190565b50845184106117ef565b6001600160a01b0316611abc3382146112ec565b600052600660205260406000209060018060a01b031660005260205260ff60406000205416611b34576040611aef611ed8565b015110611af857565b60405162461bcd60e51b815260206004820152601460248201527354726164652073697a6520746f6f206c6172676560601b6044820152606490fd5b50565b8054906000815581611b47575050565b6001600160ff1b038216820361047a5760005260206000209060011b8101905b818110611b72575050565b60008082556001820155600201611b67565b8054821015611ba05760005260206000209060011b0190600090565b634e487b7160e01b600052603260045260246000fd5b60018060a01b031690816000526006602052604060002060018060a01b03821660005260205260ff60406000205416611c5f57816000526002602052604060002060018060a01b03821660005260205260406000205415611c5f57611c19611c66565b91600052600260205260406000209060018060a01b03166000526020526060611c47604060002054426115ac565b9101519081811015611c5f57611c5c916115ac565b90565b5050600090565b60006080604051611c76816112ae565b8281528260208201528260408201528260608201520152600460a0600180821b03600754166040519283809263562528f760e01b82525afa908115611d2657600091611cc0575090565b905060a0813d60a011611d1e575b81611cdb60a093836112ca565b810103126101a557608060405191611cf2836112ae565b805183526020810151602084015260408101516040840152606081015160608401520151608082015290565b3d9150611cce565b6040513d6000823e3d90fd5b60405190611d3f82611292565b60006060838281528260208201528260408201520152565b91908260809103126101a557604051611d6f81611292565b60608082948051845260208101516020850152604081015160408501520151910152565b611d9b611d32565b50600754604051634c16e18360e11b815290608090829060049082906001600160a01b03165afa908115611d2657600091611dd4575090565b905060803d608011611e00575b611deb81836112ca565b81016080828203126101a557611c5c91611d57565b503d611de1565b906060611e12611d93565b9260018060a01b0316928360005260016020526040600020600142910155015190604051916060835281519182606085015260005b838110611e99575050828260809260008484967f045b657d83eb6d8310de8af2875ab116255b1d62f06575b37cc76f5ef9fb3faf980101524260208401526040830152601f80199101168101030190a2565b8060208092840101516080828801015201611e47565b6000546001600160a01b03163303611ec357565b63118cdaa760e01b6000523360045260246000fd5b611ee0611d32565b50600754604051637e529df560e11b815290608090829060049082906001600160a01b03165afa908115611d2657600091611dd457509056fea26469706673582212203830f31099421a3cd0cafdaa7506829ec924b44bcb83ceab7c3d473887d366d264736f6c634300081b0033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c80631260e745146112055780631544d5a01461113c57806316eebd1e146111135780631ecae3cd1461107c57806326cfee9c146110385780632b7803ec14610fa3578063339d70de14610f525780633811fb0314610e4157806338c4197214610dcc5780634028eddc14610d7157806347992cb614610cc45780635751824314610c295780635f7567ff14610bfd5780636cc919c814610b52578063715018a614610af957806379502c5514610ad0578063890cb1f614610aa357806389cb096a14610a475780638da5cb5b14610a1e57806393504c08146109cd578063a58b615c1461094b578063a5f3a6f01461084a578063a664ff81146107b0578063afca04a814610733578063b092145e146106d8578063c9b2c929146105b3578063d85934fe14610509578063eac7560c146102bf578063f2fde38b14610236578063f8d3277d146101aa5763fd7742cd1461017157600080fd5b346101a55760403660031901126101a557602061019d61018f61121f565b610197611235565b90611bb6565b604051908152f35b600080fd5b346101a55760403660031901126101a5576101c361121f565b6101cb611235565b906101d4611eaf565b6001600160a01b03908116600081815260066020908152604080832095909416808352948152838220805460ff191690558351918252429082015290917fab8844ffbe17b06ccd0252117092d084957438fe995528e2c74406ab85c7b5ff91a3005b346101a55760203660031901126101a55761024f61121f565b610257611eaf565b6001600160a01b031680156102a957600080546001600160a01b03198116831782556001600160a01b0316907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3005b631e4fbdf760e01b600052600060045260246000fd5b346101a55760603660031901126101a5576102d861121f565b602435906001600160a01b0381166102f13382146112ec565b6102f9611d93565b928160005260016020526040600020906003820161031d815460208801519061132e565b42116104ed575b50600482016040516040810181811067ffffffffffffffff8211176104d75760405282815260208101904282528254680100000000000000008110156104d7578060016103749201855584611b84565b9290926104c1576001915183555191015580546001811161039157005b600119810190811161047a576103a691611b84565b5054908180821115610490576103bb916115ac565b612710810290808204612710149015171561047a576101f4916103dd916115b9565b116103e5575b005b60020180549093600019821461047a57600160409201809555015183101561040957005b7f4046768748ebbc6058082cf55886f134072cafa8d4cb6bd3e210628d3137b3c160406103e3948151908152426020820152a26040519061044b6040836112ca565b601d82527f45786365737369766520766f6c6174696c6974792064657465637465640000006020830152611e07565b634e487b7160e01b600052601160045260246000fd5b9061049a916115ac565b612710810290808204612710149015171561047a576101f4916104bc916115b9565b6103dd565b634e487b7160e01b600052600060045260246000fd5b634e487b7160e01b600052604160045260246000fd5b6000600284015542905561050360048301611b37565b85610324565b346101a55760203660031901126101a557608061052461121f565b61052c611d93565b9060018060a01b031660005260016020526040600020600181015490811515928361059b575b83156105905761057261056b606060029301518561132e565b42906115ac565b915b0154916040519315158452602084015260408301526060820152f35b506002600091610574565b92506105ab60608401518361132e565b421092610552565b346101a55760403660031901126101a5576105cc61121f565b6001600160a01b036105dc611235565b169081331480156106c4575b156106905760018060a01b0316806000526004602052604060002082600052602052604060002060018101541561067f5760ff600261062d92015460081c1615611757565b80600052600460205260006002604080832083908682526020522082815582600182015501557f8a7f5822dbecd1573eb070e4f5aed873ffdae8e6943da56e053af6c25da5dc186020604051428152a3005b6303d82f8960e21b60005260046000fd5b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b506000546001600160a01b031633146105e8565b346101a55760403660031901126101a5576106f161121f565b6106f9611235565b9060018060a01b0316600052600660205260406000209060018060a01b0316600052602052602060ff604060002054166040519015158152f35b346101a55760403660031901126101a5576080604061075061121f565b610758611235565b9060018060a01b031660005260046020528160002060009160018060a01b031682526020522060ff815491600260018201549101549060405193845260208401528181161515604084015260081c1615156060820152f35b346101a55760403660031901126101a55760606107cb61121f565b6107d3611235565b6000906107de611ed8565b6001600160a01b039384168352600360209081526040808520939095168452919091529181205491826108255750506001425b604051928352602083015215156040820152f35b60206108339101518361132e565b42811180159250610845575042610811565b610811565b346101a55760403660031901126101a55760c061086561121f565b604061086f611235565b610877611ed8565b6001600160a01b039384166000908152600460209081528482209390951681529190935220604051906108a982611292565b805492838352600182015492602060028183019486865201549260ff6060604085019482871615158652019460081c161515845201936108ea85518261132e565b9151151592511594859485610940575b86610926575b5050604051958652602086015260408501526060840152156080830152151560a0820152f35b6109359296505190519061132e565b421015938780610900565b8051151596506108fa565b346101a55760203660031901126101a55761096461121f565b61096c611eaf565b60018060a01b03168060005260016020526109a160046040600020600060018201556000600282015542600382015501611b37565b7fdf2c80869f8349ad696d44d9b3bd9e12796ede774eccaeefcf974f9629d223fa6020604051428152a2005b346101a55760403660031901126101a5576109e661121f565b6109ee611235565b6001600160a01b039182166000908152600360209081526040808320949093168252928352819020549051908152f35b346101a55760003660031901126101a5576000546040516001600160a01b039091168152602090f35b346101a55760203660031901126101a5576001600160a01b03610a6861121f565b166000526001602052608060406000208054906001810154906003600282015491015491604051938452602084015260408301526060820152f35b346101a55760603660031901126101a5576103e3610abf61121f565b610ac7611235565b60443591611aa8565b346101a55760003660031901126101a5576007546040516001600160a01b039091168152602090f35b346101a55760003660031901126101a557610b12611eaf565b600080546001600160a01b0319811682556001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a3005b346101a55760203660031901126101a557610b6b61121f565b610b73611eaf565b6001600160a01b03168015610bc757806bffffffffffffffffffffffff60a01b60075416176007557faf8839d80c9b3bbf95c97465eb8c8348db4098f5c15af186c3b425b1129981176020604051428152a2005b60405162461bcd60e51b815260206004820152600e60248201526d496e76616c696420636f6e66696760901b6044820152606490fd5b346101a5576040610c19610c103661124b565b929190916117a3565b8251911515825215156020820152f35b346101a55760403660031901126101a557610c4261121f565b610c4a611235565b90610c53611eaf565b60018060a01b0316806000526006602052604060002060018060a01b0383166000526020526040600020600160ff198254161790557fab8844ffbe17b06ccd0252117092d084957438fe995528e2c74406ab85c7b5ff60408051936001855242602086015260018060a01b031693a3005b346101a55760203660031901126101a557610cdd61121f565b610ce5611eaf565b6001600160a01b03168015610d3957806bffffffffffffffffffffffff60a01b60085416176008557f775182a041345bfff9131614c1adc3ea25acb7ab38542f8008228b99c88a944c6020604051428152a2005b60405162461bcd60e51b815260206004820152601060248201526f24b73b30b634b2103630bab731b432b960811b6044820152606490fd5b346101a55760403660031901126101a557610d8a61121f565b610d92611235565b9060018060a01b0316600052600560205260406000209060018060a01b0316600052602052602060ff604060002054166040519015158152f35b346101a55760203660031901126101a5576001600160a01b03610ded61121f565b16610df98133146112ec565b610e01611d93565b90600052600160205260016040600020015480610e1a57005b6060610e289201519061132e565b4210610e3057005b63ff0376e760e01b60005260046000fd5b346101a55760603660031901126101a557610e5a61121f565b610e62611235565b906044358015158082036101a5576040937fb50b06a7f87c541fb476f1220b34de33fc3b5837e39ec84403e3c686a45ebf7b93610e9d611eaf565b60018060a01b03169384918260005260056020528660002060018060a01b038216600052602052610edd85886000209060ff801983541691151516179055565b86519384524260208501526001600160a01b0316958693a3610efb57005b7f0dc946ff58283703b592326cba96913162456ba6af34dc39b611fb3f30aab370608060405160408152601460408201527313585b9d585b1b1e48189b1858dadb1a5cdd195960621b6060820152426020820152a3005b346101a55760403660031901126101a557610f6b61121f565b610f73611235565b6001600160a01b039182166000908152600260209081526040808320949093168252928352819020549051908152f35b346101a55760403660031901126101a557610fbc61121f565b6024359067ffffffffffffffff82116101a557366023830112156101a55781600401359067ffffffffffffffff82116104d75760405191611007601f8201601f1916602001846112ca565b80835236602482860101116101a55760208160009260246103e397018387013784010152611033611eaf565b611e07565b346101a55760c03660031901126101a55761105161121f565b611059611235565b9060a4359081151582036101a5576103e3926084359160643591604435916115d9565b346101a55760203660031901126101a5576001600160a01b0361109d61121f565b166110a98133146112ec565b6110b1611d93565b8160005260016020526001604060002001908154806110cc57005b60606110da9201519061132e565b4210156110e357005b600090557fdf2c80869f8349ad696d44d9b3bd9e12796ede774eccaeefcf974f9629d223fa6020604051428152a2005b346101a55760003660031901126101a5576008546040516001600160a01b039091168152602090f35b346101a55760403660031901126101a55761115561121f565b61115d611235565b6008549091906001600160a01b031633036111c7576001600160a01b039081166000908152600160208181526040808420429055600682528084209585168452949052838220805460ff199081168317909155600854909316825292902080549091169091179055005b60405162461bcd60e51b815260206004820152601660248201527513db9b1e481b185d5b98da195c8818d85b8818d85b1b60521b6044820152606490fd5b346101a5576103e36112163661124b565b9291909161133b565b600435906001600160a01b03821682036101a557565b602435906001600160a01b03821682036101a557565b60809060031901126101a5576004356001600160a01b03811681036101a557906024356001600160a01b03811681036101a557906044359060643580151581036101a55790565b6080810190811067ffffffffffffffff8211176104d757604052565b60a0810190811067ffffffffffffffff8211176104d757604052565b90601f8019910116810190811067ffffffffffffffff8211176104d757604052565b156112f357565b60405162461bcd60e51b815260206004820152601360248201527213db9b1e481d1bdad95b8818d85b8818d85b1b606a1b6044820152606490fd5b9190820180921161047a57565b90926001600160a01b0390911691906113553384146112ec565b6001600160a01b038416320361156757826000526005602052604060002060018060a01b03851660005260205260ff60406000205416611534571561152f5761139c611c66565b908260005260016020526113b760406000205483519061132e565b42106114af575b50816000526006602052604060002060018060a01b03841660005260205260ff6040600020541615611412575b50600052600260205260406000209060018060a01b03166000526020526040600020429055565b816000526002602052604060002060018060a01b038416600052602052604060002054156113eb5761146c90826000526002602052604060002060018060a01b03851660005260205260606040600020549101519061132e565b421061147857386113eb565b60405162461bcd60e51b815260206004820152600f60248201526e436f6f6c646f776e2061637469766560881b6044820152606490fd5b602082015110801590611503575b156114c857386113be565b60405162461bcd60e51b8152602060048201526013602482015272084eaf240c2dadeeadce840e8dede40d0d2ced606b1b6044820152606490fd5b50816000526006602052604060002060018060a01b03841660005260205260ff604060002054166114bd565b505050565b60405162461bcd60e51b815260206004820152600b60248201526a109b1858dadb1a5cdd195960aa1b6044820152606490fd5b60405162461bcd60e51b815260206004820152601960248201527f436f6e74726163742063616c6c206e6f7420616c6c6f776564000000000000006044820152606490fd5b9190820391821161047a57565b81156115c3570490565b634e487b7160e01b600052601260045260246000fd5b946001600160a01b0386169493919291906115f53387146112ec565b856000526006602052604060002060018060a01b03851660005260205260ff6040600020541661174e57633b9aca0061162c611d93565b951061174e5782901561171f57611642916115ac565b90612710820291808304612710149015171561047a57611661916115b9565b925b82518411611673575b5050505050565b604080518581524260208201526001600160a01b03909316927f661b5812db41a70bf680930959cfc60bd68f3e8435997dd1c114841e28d5b8b29190a351908160011b918083046002149015171561047a57116116d3578080808061166c565b61170e90604051906116e66040836112ca565b6016825275115e18d95cdcda5d99481c1c9a58d9481a5b5c1858dd60521b6020830152611e07565b637d98681d60e11b60005260046000fd5b90611729916115ac565b90612710820291808304612710149015171561047a57611748916115b9565b92611663565b50505050505050565b1561175e57565b60405162461bcd60e51b815260206004820152601760248201527f496e74656e7420616c72656164792065786563757465640000000000000000006044820152606490fd5b6001600160a01b031692906117b93385146112ec565b6117c1611ed8565b93806000526006602052604060002060018060a01b03831660005260205260ff604060002054168015611a9e575b611a9157806000526003602052604060002060018060a01b038316600052602052604060002054611a48575b80600052600460205260408060002060009060018060a01b03851682526020522094600186018054156119bd57546020909101516118589161132e565b42106119ac5760028501938454931515958660ff861615150361197057819061188760ff8760081c1615611757565b540361192b5760009560029561010060409661ff001916179055828752600360205284872060018060a01b0385168852602052848720429055845191825260208201524284820152817f48692165ae0e85c6a30263711c3cbf06d12d489e77ad27fbfe8ef86ec030ae84606060018060a01b03861693a384526004602052818420849160018060a01b03168252602052208281558260018201550155600190600190565b60405162461bcd60e51b815260206004820152601860248201527f416d6f756e74206d757374206d6174636820696e74656e7400000000000000006044820152606490fd5b60405162461bcd60e51b8152602060048201526014602482015273092dce8cadce840e8f2e0ca40dad2e6dac2e8c6d60631b6044820152606490fd5b6301b57b7f60e71b60005260046000fd5b60207f397c877647e5467d7bb03e10f931aa94418ce552a06aba99c660f53a1f22979c9592600289611a1c948a608099989b9c5542905501611a0b85829060ff801983541691151516179055565b805461ff001916905501514261132e565b604080519788529115156020880152908601524260608601526001600160a01b031693a3600190600090565b806000526003602052604060002060018060a01b038316600052602052611a7960406000205460208701519061132e565b42101561181b576301130f0960e71b60005260046000fd5b5050505050600090600190565b50845184106117ef565b6001600160a01b0316611abc3382146112ec565b600052600660205260406000209060018060a01b031660005260205260ff60406000205416611b34576040611aef611ed8565b015110611af857565b60405162461bcd60e51b815260206004820152601460248201527354726164652073697a6520746f6f206c6172676560601b6044820152606490fd5b50565b8054906000815581611b47575050565b6001600160ff1b038216820361047a5760005260206000209060011b8101905b818110611b72575050565b60008082556001820155600201611b67565b8054821015611ba05760005260206000209060011b0190600090565b634e487b7160e01b600052603260045260246000fd5b60018060a01b031690816000526006602052604060002060018060a01b03821660005260205260ff60406000205416611c5f57816000526002602052604060002060018060a01b03821660005260205260406000205415611c5f57611c19611c66565b91600052600260205260406000209060018060a01b03166000526020526060611c47604060002054426115ac565b9101519081811015611c5f57611c5c916115ac565b90565b5050600090565b60006080604051611c76816112ae565b8281528260208201528260408201528260608201520152600460a0600180821b03600754166040519283809263562528f760e01b82525afa908115611d2657600091611cc0575090565b905060a0813d60a011611d1e575b81611cdb60a093836112ca565b810103126101a557608060405191611cf2836112ae565b805183526020810151602084015260408101516040840152606081015160608401520151608082015290565b3d9150611cce565b6040513d6000823e3d90fd5b60405190611d3f82611292565b60006060838281528260208201528260408201520152565b91908260809103126101a557604051611d6f81611292565b60608082948051845260208101516020850152604081015160408501520151910152565b611d9b611d32565b50600754604051634c16e18360e11b815290608090829060049082906001600160a01b03165afa908115611d2657600091611dd4575090565b905060803d608011611e00575b611deb81836112ca565b81016080828203126101a557611c5c91611d57565b503d611de1565b906060611e12611d93565b9260018060a01b0316928360005260016020526040600020600142910155015190604051916060835281519182606085015260005b838110611e99575050828260809260008484967f045b657d83eb6d8310de8af2875ab116255b1d62f06575b37cc76f5ef9fb3faf980101524260208401526040830152601f80199101168101030190a2565b8060208092840101516080828801015201611e47565b6000546001600160a01b03163303611ec357565b63118cdaa760e01b6000523360045260246000fd5b611ee0611d32565b50600754604051637e529df560e11b815290608090829060049082906001600160a01b03165afa908115611d2657600091611dd457509056fea26469706673582212203830f31099421a3cd0cafdaa7506829ec924b44bcb83ceab7c3d473887d366d264736f6c634300081b0033",
+  "devdoc": {
+    "details": "Handles anti-bot, whale limits, circuit breakers for multiple tokens",
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "checkWhaleIntent(address,address,uint256,bool)": {
+        "returns": {
+          "canProceed": "Whether the trade can proceed",
+          "requiresIntent": "Whether a whale intent is required"
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "CarbonCoinProtection",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "checkAntiBotProtection(address,address,uint256,bool)": {
+        "notice": "Check if anti-bot protection should be applied"
+      },
+      "checkCircuitBreaker(address)": {
+        "notice": "Check circuit breaker status"
+      },
+      "checkPriceImpact(address,address,uint256,uint256,uint256,bool)": {
+        "notice": "Check price impact and trigger circuit breaker if excessive"
+      },
+      "checkTradeSizeLimit(address,address,uint256)": {
+        "notice": "Check trade size limits"
+      },
+      "checkWhaleIntent(address,address,uint256,bool)": {
+        "notice": "Check if whale intent is required and handle it"
+      },
+      "initializeToken(address,address)": {
+        "notice": "Initialize protection for a new token"
+      },
+      "resetCircuitBreakerIfExpired(address)": {
+        "notice": "Reset circuit breaker if expired"
+      },
+      "trackVolatility(address,uint256,uint256)": {
+        "notice": "Track price volatility and trigger circuit breaker if needed"
+      }
+    },
+    "notice": "Centralized protection mechanism for all CarbonCoin tokens",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 9339,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "tokenStates",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_struct(TokenProtectionState)11283_storage)"
+      },
+      {
+        "astId": 9345,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "lastBuyTime",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+      },
+      {
+        "astId": 9351,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "lastWhaleTradeTime",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+      },
+      {
+        "astId": 9358,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "pendingWhaleIntents",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_struct(WhaleIntent)11270_storage))"
+      },
+      {
+        "astId": 9364,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "isBlacklisted",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 9370,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "whitelist",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 9372,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "config",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_address"
+      },
+      {
+        "astId": 9374,
+        "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+        "label": "launcher",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_struct(PriceSnapshot)11261_storage)dyn_storage": {
+        "base": "t_struct(PriceSnapshot)11261_storage",
+        "encoding": "dynamic_array",
+        "label": "struct ICarbonCoinProtection.PriceSnapshot[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_struct(WhaleIntent)11270_storage))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => struct ICarbonCoinProtection.WhaleIntent))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_struct(WhaleIntent)11270_storage)"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint256)"
+      },
+      "t_mapping(t_address,t_struct(TokenProtectionState)11283_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct ICarbonCoinProtection.TokenProtectionState)",
+        "numberOfBytes": "32",
+        "value": "t_struct(TokenProtectionState)11283_storage"
+      },
+      "t_mapping(t_address,t_struct(WhaleIntent)11270_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct ICarbonCoinProtection.WhaleIntent)",
+        "numberOfBytes": "32",
+        "value": "t_struct(WhaleIntent)11270_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(PriceSnapshot)11261_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinProtection.PriceSnapshot",
+        "members": [
+          {
+            "astId": 11258,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "price",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11260,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "timestamp",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(TokenProtectionState)11283_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinProtection.TokenProtectionState",
+        "members": [
+          {
+            "astId": 11272,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "launchTime",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11274,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "circuitBreakerTriggeredAt",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11276,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "volatilityMoveCount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11278,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "lastVolatilityReset",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11282,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "recentPrices",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_struct(PriceSnapshot)11261_storage)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "160"
+      },
+      "t_struct(WhaleIntent)11270_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinProtection.WhaleIntent",
+        "members": [
+          {
+            "astId": 11263,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "amount",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11265,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "intentTime",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11267,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "isBuy",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool"
+          },
+          {
+            "astId": 11269,
+            "contract": "contracts/CarbonCoinProtection.sol:CarbonCoinProtection",
+            "label": "executed",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

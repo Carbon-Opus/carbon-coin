@@ -140,7 +140,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
   }
 
   function claimRewards(bytes32 memberId, address memberAddress) external {
-    if (memberId == TREASURY_ID && (_msgSender() != _controller || _msgSender() != owner())) revert NotAuthorized(_msgSender());
+    if (memberId == TREASURY_ID && _msgSender() != _controller && _msgSender() != owner()) revert NotAuthorized(_msgSender());
     if (memberId != TREASURY_ID && _msgSender() != _controller) revert NotAuthorized(_msgSender());
 
     uint256 amount = rewards[memberId];

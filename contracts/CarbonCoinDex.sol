@@ -84,7 +84,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Pausable {
     // Add liquidity (auto-creates USDC/Token pair)
     try dexRouter.addLiquidity(
         address(USDC),
-        address(this),
+        token,
         usdcAmount,
         tokensAmount,
         (usdcAmount * 95) / 100, // 5% slippage tolerance

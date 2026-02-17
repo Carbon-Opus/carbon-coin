@@ -1,0 +1,698 @@
+{
+  "address": "0x47D08E4451AD2c3bc20f8CC240c99CE94a756A2B",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "configType",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DefaultConfigUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getAntiBotConfig",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "antiBotDuration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxBuyAmountEarly",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxWalletPercentage",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cooldownPeriod",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minBuyAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.AntiBotConfig",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCarbonCoinDex",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCircuitBreakerConfig",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "maxPriceImpact",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "volatilityWindow",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxVolatilityMoves",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "circuitBreakerDuration",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.CircuitBreakerConfig",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getFeeConfig",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "buyFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sellFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxFee",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.FeeConfig",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getWhaleLimitConfig",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "whaleThreshold",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "whaleDelay",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxTradeSize",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxSellPercentage",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.WhaleLimitConfig",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "antiBotDuration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxBuyAmountEarly",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxWalletPercentage",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cooldownPeriod",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minBuyAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.AntiBotConfig",
+          "name": "newConfig",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateDefaultAntiBotConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "maxPriceImpact",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "volatilityWindow",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxVolatilityMoves",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "circuitBreakerDuration",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.CircuitBreakerConfig",
+          "name": "newConfig",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateDefaultCircuitBreakerConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "buyFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sellFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxFee",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.FeeConfig",
+          "name": "newConfig",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateDefaultFeeConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "whaleThreshold",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "whaleDelay",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxTradeSize",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxSellPercentage",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICarbonCoinConfig.WhaleLimitConfig",
+          "name": "newConfig",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateDefaultWhaleLimitConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dex",
+          "type": "address"
+        }
+      ],
+      "name": "updateDexAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xe51fa16199fc7baaf8bb76d633fbbff0b1bb5d3561c0c7c818c80aefab727b7d",
+  "receipt": {
+    "to": "0x0000000000000000000000000000000000000000",
+    "from": "0x2BB8CBAd36D52708a43DE36a9Aa2782fFa0470F1",
+    "contractAddress": "0x47D08E4451AD2c3bc20f8CC240c99CE94a756A2B",
+    "transactionIndex": 0,
+    "gasUsed": "13691088",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000020000000000000000020000000000000001000800000000000000040000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000400000000000000001000000000000800000000000",
+    "blockHash": "0xa1baec6c1b39acd62b38f9b9bc58ad0aa29497b69f1111d8946b7f61caf79774",
+    "transactionHash": "0xe51fa16199fc7baaf8bb76d633fbbff0b1bb5d3561c0c7c818c80aefab727b7d",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 309541132,
+        "transactionHash": "0xe51fa16199fc7baaf8bb76d633fbbff0b1bb5d3561c0c7c818c80aefab727b7d",
+        "address": "0x47D08E4451AD2c3bc20f8CC240c99CE94a756A2B",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000002bb8cbad36d52708a43de36a9aa2782ffa0470f1"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0xa1baec6c1b39acd62b38f9b9bc58ad0aa29497b69f1111d8946b7f61caf79774"
+      }
+    ],
+    "blockNumber": 309541132,
+    "cumulativeGasUsed": "0",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "9155093bf2245444842c11d839cde2bc",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"configType\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"DefaultConfigUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getAntiBotConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"antiBotDuration\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxBuyAmountEarly\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxWalletPercentage\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cooldownPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minBuyAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.AntiBotConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCarbonCoinDex\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCircuitBreakerConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"maxPriceImpact\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"volatilityWindow\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxVolatilityMoves\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"circuitBreakerDuration\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.CircuitBreakerConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFeeConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"buyFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sellFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxFee\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.FeeConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getWhaleLimitConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"whaleThreshold\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"whaleDelay\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxTradeSize\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxSellPercentage\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.WhaleLimitConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"antiBotDuration\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxBuyAmountEarly\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxWalletPercentage\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cooldownPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minBuyAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.AntiBotConfig\",\"name\":\"newConfig\",\"type\":\"tuple\"}],\"name\":\"updateDefaultAntiBotConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"maxPriceImpact\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"volatilityWindow\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxVolatilityMoves\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"circuitBreakerDuration\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.CircuitBreakerConfig\",\"name\":\"newConfig\",\"type\":\"tuple\"}],\"name\":\"updateDefaultCircuitBreakerConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"buyFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sellFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxFee\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.FeeConfig\",\"name\":\"newConfig\",\"type\":\"tuple\"}],\"name\":\"updateDefaultFeeConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"whaleThreshold\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"whaleDelay\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxTradeSize\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxSellPercentage\",\"type\":\"uint256\"}],\"internalType\":\"struct ICarbonCoinConfig.WhaleLimitConfig\",\"name\":\"newConfig\",\"type\":\"tuple\"}],\"name\":\"updateDefaultWhaleLimitConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_dex\",\"type\":\"address\"}],\"name\":\"updateDexAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/CarbonCoinConfig.sol\":\"CarbonCoinConfig\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/CarbonCoinConfig.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n// CarbonCoinConfig.sol\\n// Copyright (c) 2025 CarbonOpus\\n//\\n// Permission is hereby granted, free of charge, to any person obtaining a copy\\n// of this software and associated documentation files (the \\\"Software\\\"), to deal\\n// in the Software without restriction, including without limitation the rights\\n// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\\n// copies of the Software, and to permit persons to whom the Software is\\n// furnished to do so, subject to the following conditions:\\n//\\n// The above copyright notice and this permission notice shall be included in all\\n// copies or substantial portions of the Software.\\n//\\n// THE SOFTWARE IS PROVIDED \\\"AS IS\\\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\\n// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\\n// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE\\n// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\\n// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\\n// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\\n// SOFTWARE.\\n//\\n\\npragma solidity 0.8.27;\\n\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { ICarbonCoinConfig } from \\\"./interface/ICarbonCoinConfig.sol\\\";\\n\\n\\ncontract CarbonCoinConfig is ICarbonCoinConfig, Ownable {\\n  // Default configurations\\n  FeeConfig internal defaultFeeConfig;\\n  AntiBotConfig internal defaultAntiBotConfig;\\n  CircuitBreakerConfig internal defaultCircuitBreakerConfig;\\n  WhaleLimitConfig internal defaultWhaleLimitConfig;\\n  address internal carbonCoinDex;\\n\\n  constructor() Ownable(msg.sender) {\\n    defaultFeeConfig = FeeConfig({\\n      buyFee: 100,  // 1%\\n      sellFee: 100, // 1%\\n      maxFee: 500   // 5% max\\n    });\\n\\n    defaultAntiBotConfig = AntiBotConfig({\\n      antiBotDuration: 120,               // 120 seconds\\n      maxBuyAmountEarly: 100 * (10 ** 6), // Max 100 USDC during launch\\n      maxWalletPercentage: 200,           // 2% of supply\\n      cooldownPeriod: 15,                 // 15 seconds between buys\\n      minBuyAmount: 1 * (10 ** 6)         // Prevent dust attacks\\n    });\\n\\n    defaultCircuitBreakerConfig = CircuitBreakerConfig({\\n      maxPriceImpact: 500,                  // 5%\\n      volatilityWindow: 5 minutes,\\n      maxVolatilityMoves: 3,\\n      circuitBreakerDuration: 15 minutes\\n    });\\n\\n    defaultWhaleLimitConfig = WhaleLimitConfig({\\n      whaleThreshold: 1000 * (10 ** 6), // 1000 USDC+ is whale\\n      whaleDelay: 5 minutes,            // 5 min delay\\n      maxTradeSize: 2500 * (10 ** 6),   // Max 2500 USDC per trade\\n      maxSellPercentage: 200            // Max 2% of supply per sell\\n    });\\n  }\\n\\n  function getCarbonCoinDex() external view returns (address) {\\n    return carbonCoinDex;\\n  }\\n\\n  function getFeeConfig() public view returns (FeeConfig memory) {\\n    return defaultFeeConfig;\\n  }\\n\\n  function getAntiBotConfig() public view returns (AntiBotConfig memory) {\\n    return defaultAntiBotConfig;\\n  }\\n\\n  function getCircuitBreakerConfig() public view returns (CircuitBreakerConfig memory) {\\n    return defaultCircuitBreakerConfig;\\n  }\\n\\n  function getWhaleLimitConfig() public view returns (WhaleLimitConfig memory) {\\n    return defaultWhaleLimitConfig;\\n  }\\n\\n  function updateDexAddress(address _dex) external onlyOwner {\\n    require(_dex != address(0), \\\"Invalid DEX address\\\");\\n    carbonCoinDex = _dex;\\n    emit DefaultConfigUpdated(\\\"Dex\\\", block.timestamp);\\n  }\\n\\n  function updateDefaultFeeConfig(FeeConfig memory newConfig) external onlyOwner {\\n    require(newConfig.maxFee <= 2000, \\\"Max fee too high\\\");\\n    require(newConfig.buyFee <= newConfig.maxFee, \\\"Buy fee exceeds max\\\");\\n    require(newConfig.sellFee <= newConfig.maxFee, \\\"Sell fee exceeds max\\\");\\n\\n    defaultFeeConfig = newConfig;\\n    emit DefaultConfigUpdated(\\\"Fee\\\", block.timestamp);\\n  }\\n\\n  function updateDefaultAntiBotConfig(AntiBotConfig memory newConfig) external onlyOwner {\\n    require(newConfig.antiBotDuration > 0, \\\"Invalid duration\\\");\\n    require(newConfig.maxWalletPercentage <= 10000, \\\"Invalid wallet percentage\\\");\\n    require(newConfig.cooldownPeriod <= 300, \\\"Cooldown too long\\\");\\n    require(newConfig.minBuyAmount > 0, \\\"Invalid min buy\\\");\\n\\n    defaultAntiBotConfig = newConfig;\\n    emit DefaultConfigUpdated(\\\"AntiBot\\\", block.timestamp);\\n  }\\n\\n  function updateDefaultCircuitBreakerConfig(CircuitBreakerConfig memory newConfig) external onlyOwner {\\n    require(newConfig.maxPriceImpact > 0 && newConfig.maxPriceImpact <= 5000, \\\"Invalid price impact\\\");\\n    require(newConfig.volatilityWindow > 0, \\\"Invalid window\\\");\\n    require(newConfig.maxVolatilityMoves > 0, \\\"Invalid moves\\\");\\n    require(newConfig.circuitBreakerDuration > 0, \\\"Invalid duration\\\");\\n\\n    defaultCircuitBreakerConfig = newConfig;\\n    emit DefaultConfigUpdated(\\\"CircuitBreaker\\\", block.timestamp);\\n  }\\n\\n  function updateDefaultWhaleLimitConfig(WhaleLimitConfig memory newConfig) external onlyOwner {\\n    require(newConfig.whaleThreshold > 0, \\\"Invalid threshold\\\");\\n    require(newConfig.whaleDelay > 0, \\\"Invalid delay\\\");\\n    require(newConfig.maxTradeSize > 0, \\\"Invalid trade size\\\");\\n    require(newConfig.maxSellPercentage <= 10000, \\\"Invalid sell percentage\\\");\\n\\n    defaultWhaleLimitConfig = newConfig;\\n    emit DefaultConfigUpdated(\\\"WhaleLimit\\\", block.timestamp);\\n  }\\n}\",\"keccak256\":\"0xba8411f1c024949b1fec7bdb5ec43b5a588a129da8a0ec136b7a52f7a924bd34\",\"license\":\"MIT\"},\"contracts/interface/ICarbonCoinConfig.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n// ICarbonCoinConfig.sol\\n// Copyright (c) 2025 CarbonOpus\\n//\\n// Permission is hereby granted, free of charge, to any person obtaining a copy\\n// of this software and associated documentation files (the \\\"Software\\\"), to deal\\n// in the Software without restriction, including without limitation the rights\\n// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\\n// copies of the Software, and to permit persons to whom the Software is\\n// furnished to do so, subject to the following conditions:\\n//\\n// The above copyright notice and this permission notice shall be included in all\\n// copies or substantial portions of the Software.\\n//\\n// THE SOFTWARE IS PROVIDED \\\"AS IS\\\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\\n// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\\n// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE\\n// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\\n// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\\n// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\\n// SOFTWARE.\\n//\\n\\npragma solidity 0.8.27;\\n\\ninterface ICarbonCoinConfig {\\n  struct FeeConfig {\\n    uint256 buyFee;\\n    uint256 sellFee;\\n    uint256 maxFee;\\n  }\\n\\n  struct AntiBotConfig {\\n    uint256 antiBotDuration;\\n    uint256 maxBuyAmountEarly;\\n    uint256 maxWalletPercentage;\\n    uint256 cooldownPeriod;\\n    uint256 minBuyAmount;\\n  }\\n\\n  struct CircuitBreakerConfig {\\n    uint256 maxPriceImpact;\\n    uint256 volatilityWindow;\\n    uint256 maxVolatilityMoves;\\n    uint256 circuitBreakerDuration;\\n  }\\n\\n  struct WhaleLimitConfig {\\n    uint256 whaleThreshold;\\n    uint256 whaleDelay;\\n    uint256 maxTradeSize;\\n    uint256 maxSellPercentage;\\n  }\\n\\n  event DefaultConfigUpdated(string configType, uint256 timestamp);\\n\\n  function updateDefaultFeeConfig(FeeConfig memory newConfig) external;\\n  function updateDefaultAntiBotConfig(AntiBotConfig memory newConfig) external;\\n  function updateDefaultCircuitBreakerConfig(CircuitBreakerConfig memory newConfig) external;\\n  function updateDefaultWhaleLimitConfig(WhaleLimitConfig memory newConfig) external;\\n\\n  function getCarbonCoinDex() external view returns (address);\\n  function getFeeConfig() external view returns (FeeConfig memory);\\n  function getAntiBotConfig() external view returns (AntiBotConfig memory);\\n  function getCircuitBreakerConfig() external view returns (CircuitBreakerConfig memory);\\n  function getWhaleLimitConfig() external view returns (WhaleLimitConfig memory);\\n\\n}\\n\",\"keccak256\":\"0x53f08b1861f2d9b2d5dc63c8022c29668a584fd978ea234dda01f510f8520479\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6080604052346101a357331561018d5760008054336001600160a01b0319821681178355916001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3604051606081016001600160401b03811182821017610177576101f491604091825260648152606460208201520152606460015560646002556101f460035560405160a0810181811060018060401b0382111761017757620f424091608091604052607881526305f5e100602082015260c86040820152600f6060820152015260786004556305f5e10060055560c8600655600f600755620f42406008556100fa6101a8565b6101f481526020810161012c8152604082019060038252606083019261038484525160095551600a5551600b5551600c556101336101a8565b633b9aca0081526020810161012c81526040820190639502f9008252606083019260c8845251600d5551600e5551600f5551601055604051610b9690816101c88239f35b634e487b7160e01b600052604160045260246000fd5b631e4fbdf760e01b600052600060045260246000fd5b600080fd5b60405190608082016001600160401b038111838210176101775760405256fe6080604052600436101561001257600080fd5b60003560e01c8063013d33c114610896578063338bc47d1461070f578063562528f7146106815780635fbbc0d214610620578063715018a6146105c75780638da5cb5b1461059e578063904c206b1461043f578063982dc306146103d3578063a7b005f91461028f578063a8f98593146101d4578063dcd69af2146101ab578063f2fde38b1461011e5763fca53bea146100ab57600080fd5b34610119576000366003190112610119576100c4610af3565b5060806100cf610a60565b600d548152600e546020820152600f54604082015260105460608201526101176040518092606080918051845260208101516020850152604081015160408501520151910152565bf35b600080fd5b34610119576020366003190112610119576004356001600160a01b038116908190036101195761014c610b17565b801561019557600080546001600160a01b03198116831782556001600160a01b0316907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3005b631e4fbdf760e01b600052600060045260246000fd5b34610119576000366003190112610119576011546040516001600160a01b039091168152602090f35b34610119576020366003190112610119576004356001600160a01b0381169081900361011957610202610b17565b8015610254576bffffffffffffffffffffffff60a01b6011541617601155600080516020610b418339815191526080604051604081526003604082015262088caf60eb1b6060820152426020820152a1005b60405162461bcd60e51b8152602060048201526013602482015272496e76616c696420444558206164647265737360681b6044820152606490fd5b34610119576060366003190112610119576102a8610a40565b6004358152602081016024358152604082019160443583526102c8610b17565b6107d083511161039b57805183511061036057815183511061032457516001555160025551600355600080516020610b41833981519152608060405160408152600360408201526246656560e81b6060820152426020820152a1005b60405162461bcd60e51b81526020600482015260146024820152730a6cad8d840cccaca40caf0c6cacac8e640dac2f60631b6044820152606490fd5b60405162461bcd60e51b8152602060048201526013602482015272084eaf240cccaca40caf0c6cacac8e640dac2f606b1b6044820152606490fd5b60405162461bcd60e51b815260206004820152601060248201526f09ac2f040cccaca40e8dede40d0d2ced60831b6044820152606490fd5b34610119576000366003190112610119576103ec610af3565b5060806103f7610a60565b6009548152600a546020820152600b546040820152600c5460608201526101176040518092606080918051845260208101516020850152604081015160408501520151910152565b346101195760803660031901126101195761045936610a80565b610461610b17565b80518015159081610591575b5015610555576020810180511561051f5760408201908151156104ea57606083019261049b84511515610ab4565b5160095551600a5551600b5551600c55600080516020610b41833981519152608060405160408152600e60408201526d21b4b931bab4ba213932b0b5b2b960911b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c6964206d6f76657360981b6044820152606490fd5b60405162461bcd60e51b815260206004820152600e60248201526d496e76616c69642077696e646f7760901b6044820152606490fd5b60405162461bcd60e51b8152602060048201526014602482015273125b9d985b1a59081c1c9a58d9481a5b5c1858dd60621b6044820152606490fd5b611388915011158261046d565b34610119576000366003190112610119576000546040516001600160a01b039091168152602090f35b34610119576000366003190112610119576105e0610b17565b600080546001600160a01b0319811682556001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a3005b34610119576000366003190112610119576000604061063d610a40565b82815282602082015201526060610652610a40565b600154908181526002546020820190815260406003549201918252604051928352516020830152516040820152f35b34610119576000366003190112610119576000608061069e610a0a565b828152826020820152826040820152826060820152015260a06106bf610a0a565b600454908181526005546020820190815260065460408301908152600754916060840192835260806008549401938452604051948552516020850152516040840152516060830152516080820152f35b346101195760803660031901126101195761072936610a80565b610731610b17565b80511561085d57602081018051156108285760408201908151156107ee5760608301926127108451116107a95751600d5551600e5551600f5551601055600080516020610b41833981519152608060405160408152600a60408201526915da185b19531a5b5a5d60b21b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152601760248201527f496e76616c69642073656c6c2070657263656e746167650000000000000000006044820152606490fd5b60405162461bcd60e51b8152602060048201526012602482015271496e76616c69642074726164652073697a6560701b6044820152606490fd5b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c69642064656c617960981b6044820152606490fd5b60405162461bcd60e51b8152602060048201526011602482015270125b9d985b1a59081d1a1c995cda1bdb19607a1b6044820152606490fd5b346101195760a0366003190112610119576108af610a0a565b600435815260208101602435815260408201604435815260608301916064358352608084019360843585526108e2610b17565b6108ee81511515610ab4565b6127108351116109c55761012c84511161098c57845115610955575160045551600555516006555160075551600855600080516020610b418339815191526080604051604081526007604082015266105b9d1a509bdd60ca1b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206d696e2062757960881b6044820152606490fd5b60405162461bcd60e51b8152602060048201526011602482015270436f6f6c646f776e20746f6f206c6f6e6760781b6044820152606490fd5b60405162461bcd60e51b815260206004820152601960248201527f496e76616c69642077616c6c65742070657263656e74616765000000000000006044820152606490fd5b6040519060a0820182811067ffffffffffffffff821117610a2a57604052565b634e487b7160e01b600052604160045260246000fd5b604051906060820182811067ffffffffffffffff821117610a2a57604052565b604051906080820182811067ffffffffffffffff821117610a2a57604052565b608090600319011261011957610a94610a60565b906004358252602435602083015260443560408301526064356060830152565b15610abb57565b60405162461bcd60e51b815260206004820152601060248201526f24b73b30b634b210323ab930ba34b7b760811b6044820152606490fd5b610afb610a60565b9060008252600060208301526000604083015260006060830152565b6000546001600160a01b03163303610b2b57565b63118cdaa760e01b6000523360045260246000fdfe6349e7d5485ec4d3eed63522db9d37a0b4d65b793aed12e82a8d96e05c210306a26469706673582212202d9aa1fc41e073509053a5598c511cc86dee6aa0718336000631e867c5cea31864736f6c634300081b0033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c8063013d33c114610896578063338bc47d1461070f578063562528f7146106815780635fbbc0d214610620578063715018a6146105c75780638da5cb5b1461059e578063904c206b1461043f578063982dc306146103d3578063a7b005f91461028f578063a8f98593146101d4578063dcd69af2146101ab578063f2fde38b1461011e5763fca53bea146100ab57600080fd5b34610119576000366003190112610119576100c4610af3565b5060806100cf610a60565b600d548152600e546020820152600f54604082015260105460608201526101176040518092606080918051845260208101516020850152604081015160408501520151910152565bf35b600080fd5b34610119576020366003190112610119576004356001600160a01b038116908190036101195761014c610b17565b801561019557600080546001600160a01b03198116831782556001600160a01b0316907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3005b631e4fbdf760e01b600052600060045260246000fd5b34610119576000366003190112610119576011546040516001600160a01b039091168152602090f35b34610119576020366003190112610119576004356001600160a01b0381169081900361011957610202610b17565b8015610254576bffffffffffffffffffffffff60a01b6011541617601155600080516020610b418339815191526080604051604081526003604082015262088caf60eb1b6060820152426020820152a1005b60405162461bcd60e51b8152602060048201526013602482015272496e76616c696420444558206164647265737360681b6044820152606490fd5b34610119576060366003190112610119576102a8610a40565b6004358152602081016024358152604082019160443583526102c8610b17565b6107d083511161039b57805183511061036057815183511061032457516001555160025551600355600080516020610b41833981519152608060405160408152600360408201526246656560e81b6060820152426020820152a1005b60405162461bcd60e51b81526020600482015260146024820152730a6cad8d840cccaca40caf0c6cacac8e640dac2f60631b6044820152606490fd5b60405162461bcd60e51b8152602060048201526013602482015272084eaf240cccaca40caf0c6cacac8e640dac2f606b1b6044820152606490fd5b60405162461bcd60e51b815260206004820152601060248201526f09ac2f040cccaca40e8dede40d0d2ced60831b6044820152606490fd5b34610119576000366003190112610119576103ec610af3565b5060806103f7610a60565b6009548152600a546020820152600b546040820152600c5460608201526101176040518092606080918051845260208101516020850152604081015160408501520151910152565b346101195760803660031901126101195761045936610a80565b610461610b17565b80518015159081610591575b5015610555576020810180511561051f5760408201908151156104ea57606083019261049b84511515610ab4565b5160095551600a5551600b5551600c55600080516020610b41833981519152608060405160408152600e60408201526d21b4b931bab4ba213932b0b5b2b960911b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c6964206d6f76657360981b6044820152606490fd5b60405162461bcd60e51b815260206004820152600e60248201526d496e76616c69642077696e646f7760901b6044820152606490fd5b60405162461bcd60e51b8152602060048201526014602482015273125b9d985b1a59081c1c9a58d9481a5b5c1858dd60621b6044820152606490fd5b611388915011158261046d565b34610119576000366003190112610119576000546040516001600160a01b039091168152602090f35b34610119576000366003190112610119576105e0610b17565b600080546001600160a01b0319811682556001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a3005b34610119576000366003190112610119576000604061063d610a40565b82815282602082015201526060610652610a40565b600154908181526002546020820190815260406003549201918252604051928352516020830152516040820152f35b34610119576000366003190112610119576000608061069e610a0a565b828152826020820152826040820152826060820152015260a06106bf610a0a565b600454908181526005546020820190815260065460408301908152600754916060840192835260806008549401938452604051948552516020850152516040840152516060830152516080820152f35b346101195760803660031901126101195761072936610a80565b610731610b17565b80511561085d57602081018051156108285760408201908151156107ee5760608301926127108451116107a95751600d5551600e5551600f5551601055600080516020610b41833981519152608060405160408152600a60408201526915da185b19531a5b5a5d60b21b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152601760248201527f496e76616c69642073656c6c2070657263656e746167650000000000000000006044820152606490fd5b60405162461bcd60e51b8152602060048201526012602482015271496e76616c69642074726164652073697a6560701b6044820152606490fd5b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c69642064656c617960981b6044820152606490fd5b60405162461bcd60e51b8152602060048201526011602482015270125b9d985b1a59081d1a1c995cda1bdb19607a1b6044820152606490fd5b346101195760a0366003190112610119576108af610a0a565b600435815260208101602435815260408201604435815260608301916064358352608084019360843585526108e2610b17565b6108ee81511515610ab4565b6127108351116109c55761012c84511161098c57845115610955575160045551600555516006555160075551600855600080516020610b418339815191526080604051604081526007604082015266105b9d1a509bdd60ca1b6060820152426020820152a1005b60405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206d696e2062757960881b6044820152606490fd5b60405162461bcd60e51b8152602060048201526011602482015270436f6f6c646f776e20746f6f206c6f6e6760781b6044820152606490fd5b60405162461bcd60e51b815260206004820152601960248201527f496e76616c69642077616c6c65742070657263656e74616765000000000000006044820152606490fd5b6040519060a0820182811067ffffffffffffffff821117610a2a57604052565b634e487b7160e01b600052604160045260246000fd5b604051906060820182811067ffffffffffffffff821117610a2a57604052565b604051906080820182811067ffffffffffffffff821117610a2a57604052565b608090600319011261011957610a94610a60565b906004358252602435602083015260443560408301526064356060830152565b15610abb57565b60405162461bcd60e51b815260206004820152601060248201526f24b73b30b634b210323ab930ba34b7b760811b6044820152606490fd5b610afb610a60565b9060008252600060208301526000604083015260006060830152565b6000546001600160a01b03163303610b2b57565b63118cdaa760e01b6000523360045260246000fdfe6349e7d5485ec4d3eed63522db9d37a0b4d65b793aed12e82a8d96e05c210306a26469706673582212202d9aa1fc41e073509053a5598c511cc86dee6aa0718336000631e867c5cea31864736f6c634300081b0033",
+  "devdoc": {
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 10292,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "defaultFeeConfig",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(FeeConfig)14529_storage"
+      },
+      {
+        "astId": 10295,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "defaultAntiBotConfig",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_struct(AntiBotConfig)14540_storage"
+      },
+      {
+        "astId": 10298,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "defaultCircuitBreakerConfig",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_struct(CircuitBreakerConfig)14549_storage"
+      },
+      {
+        "astId": 10301,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "defaultWhaleLimitConfig",
+        "offset": 0,
+        "slot": "13",
+        "type": "t_struct(WhaleLimitConfig)14558_storage"
+      },
+      {
+        "astId": 10303,
+        "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+        "label": "carbonCoinDex",
+        "offset": 0,
+        "slot": "17",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_struct(AntiBotConfig)14540_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinConfig.AntiBotConfig",
+        "members": [
+          {
+            "astId": 14531,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "antiBotDuration",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14533,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxBuyAmountEarly",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14535,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxWalletPercentage",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14537,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "cooldownPeriod",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14539,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "minBuyAmount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "160"
+      },
+      "t_struct(CircuitBreakerConfig)14549_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinConfig.CircuitBreakerConfig",
+        "members": [
+          {
+            "astId": 14542,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxPriceImpact",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14544,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "volatilityWindow",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14546,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxVolatilityMoves",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14548,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "circuitBreakerDuration",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(FeeConfig)14529_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinConfig.FeeConfig",
+        "members": [
+          {
+            "astId": 14524,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "buyFee",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14526,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "sellFee",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14528,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxFee",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_struct(WhaleLimitConfig)14558_storage": {
+        "encoding": "inplace",
+        "label": "struct ICarbonCoinConfig.WhaleLimitConfig",
+        "members": [
+          {
+            "astId": 14551,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "whaleThreshold",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14553,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "whaleDelay",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14555,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxTradeSize",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 14557,
+            "contract": "contracts/CarbonCoinConfig.sol:CarbonCoinConfig",
+            "label": "maxSellPercentage",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

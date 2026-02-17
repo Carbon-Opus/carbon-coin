@@ -28,6 +28,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
+import { ICarbonCoinProtection } from "./interface/ICarbonCoinProtection.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 import { CarbonCoin } from "./CarbonCoin.sol";
@@ -46,6 +47,8 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   address public configAddress;
   /// @notice The address of the USDC token for payments.
   address public usdcAddress;
+  /// @notice The address of the CarbonCoinProtection contract for initializing new tokens with protection features.
+  address public protectionAddress;
   /// @notice The address of the controller of the contract.
   address internal _controller;
   /// @notice The maximum number of tokens that a single address can create.
@@ -67,11 +70,19 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
    * @notice The constructor for the CarbonCoinLauncher contract.
    * @param _configAddress The address of the CarbonCoinConfig contract.
    * @param _usdcAddress The address of the USDC token.
+   * @param _protectionAddress The address of the CarbonCoinProtection contract.
    */
-  constructor(address _configAddress, address _usdcAddress) Ownable(msg.sender) ReentrancyGuard() Pausable() {
-    if (_configAddress == address(0) || _usdcAddress == address(0)) revert InvalidParameters();
+  constructor(
+    address _configAddress,
+    address _usdcAddress,
+    address _protectionAddress
+  ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
+    if (_configAddress == address(0) || _usdcAddress == address(0) || _protectionAddress == address(0))
+      revert InvalidParameters();
+
     configAddress = _configAddress;
     usdcAddress = _usdcAddress;
+    protectionAddress = _protectionAddress;
     _controller = msg.sender;
   }
 
@@ -87,51 +98,57 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
    * @notice Creates a new CarbonCoin token.
    * @param name The name of the token.
    * @param symbol The symbol of the token.
+   * @param creatorAddress The address of the creator of the token.
+   * @param curveConfig The bonding curve configuration for the token.
    * @return The address of the newly created token.
    */
-    function createToken(
-      string memory name,
-      string memory symbol,
-      address creatorAddress,
-      ICarbonCoin.BondingCurveConfig memory curveConfig
-    ) public nonReentrant whenNotPaused returns (address) {
-      if (msg.sender != _controller) revert Unauthorized();
-      if (tokensCreatedByAddress[creatorAddress] >= maxTokensPerCreator) revert TooManyTokens();
+  function createToken(
+    string memory name,
+    string memory symbol,
+    address creatorAddress,
+    ICarbonCoin.BondingCurveConfig memory curveConfig
+  ) public nonReentrant whenNotPaused returns (address) {
+    if (msg.sender != _controller) revert Unauthorized();
+    if (tokensCreatedByAddress[creatorAddress] >= maxTokensPerCreator) revert TooManyTokens();
 
-      CarbonCoin token = new CarbonCoin(
-        name,
-        symbol,
-        creatorAddress,
-        usdcAddress,
-        configAddress,
-        curveConfig
-      );
+    CarbonCoin token = new CarbonCoin(
+      name,
+      symbol,
+      creatorAddress,
+      usdcAddress,
+      configAddress,
+      protectionAddress,
+      curveConfig
+    );
 
-      address tokenAddress = address(token);
+    address tokenAddress = address(token);
 
-      tokens[tokenAddress] = TokenInfo({
-        tokenAddress: tokenAddress,
-        creator: creatorAddress,
-        createdAt: block.timestamp,
-        graduated: false,
-        name: name,
-        symbol: symbol
-      });
+    // Initialize protection for this token
+    ICarbonCoinProtection(protectionAddress).initializeToken(tokenAddress, creatorAddress);
 
-      // allTokens.push(tokenAddress);
-      // tokensByCreator[creatorAddress].push(tokenAddress);
-      tokensCreatedByAddress[creatorAddress]++;
-      totalTokensCreated++;
+    tokens[tokenAddress] = TokenInfo({
+      tokenAddress: tokenAddress,
+      creator: creatorAddress,
+      createdAt: block.timestamp,
+      graduated: false,
+      name: name,
+      symbol: symbol
+    });
 
-      emit TokenCreated(
-        tokenAddress,
-        creatorAddress,
-        name,
-        symbol,
-        block.timestamp
-      );
-      return tokenAddress;
-    }
+    // allTokens.push(tokenAddress);
+    // tokensByCreator[creatorAddress].push(tokenAddress);
+    tokensCreatedByAddress[creatorAddress]++;
+    totalTokensCreated++;
+
+    emit TokenCreated(
+      tokenAddress,
+      creatorAddress,
+      name,
+      symbol,
+      block.timestamp
+    );
+    return tokenAddress;
+  }
 
   /**
    * @notice Gets an array of all the token addresses that have been created.
@@ -199,6 +216,11 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     if (newController == address(0)) revert InvalidAddress(newController);
     _controller = newController;
     emit ControllerUpdated(newController);
+  }
+
+  function updateProtectionAddress(address newProtection) external onlyOwner {
+    if (newProtection == address(0)) revert InvalidAddress(newProtection);
+    protectionAddress = newProtection;
   }
 
   /**

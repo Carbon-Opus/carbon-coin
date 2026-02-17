@@ -17,11 +17,11 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const usdcAddress = globals.addresses[chainId].usdc;
   const nftUri = globals.opusNftUri[chainId];
-  const useExistingConfigContract = isHardhat(network) ? '' : '0x47D08E4451AD2c3bc20f8CC240c99CE94a756A2B';
-  const useExistingDexContract = isHardhat(network) ? '' : '0x69EAf84fD275429955A4D99977aA745aa22770Df';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '0x3F59dAd9FcC50726dF2aF8f366bDa5a1d701e743';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x6751Dc6DEF05bBf9069356c9AEE37941A56A4d27';
-  const useExistingOpusContract = isHardhat(network) ? '' : '0xE5afE40ACA5865399Ed0493e9c4FcaDC718926c5';
+  const useExistingConfigContract = isHardhat(network) ? '' : '0xdB03C48611C194a78361A6f56d145d014B5Bb213';
+  const useExistingDexContract = isHardhat(network) ? '' : '0x96905Aa6671c108b226f963e640545A9F41F3603';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '0x99b1026bb4262d129bB3F836A5289c034CF90b8f';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0x719bce16560F9314dB801eaB70A563eab9c15633';
+  const useExistingOpusContract = isHardhat(network) ? '' : '0xAE5EDb64d9799B81BAB8D80994879Aaa876f297D';
   const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x491DC6e249d0595993751DEED326e12B96Fa38dF';
 
   log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');

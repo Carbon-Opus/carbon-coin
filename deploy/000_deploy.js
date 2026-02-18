@@ -17,11 +17,11 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const usdcAddress = globals.addresses[chainId].usdc;
   const nftUri = globals.opusNftUri[chainId];
-  const useExistingConfigContract = isHardhat(network) ? '' : '0xdB03C48611C194a78361A6f56d145d014B5Bb213';
-  const useExistingDexContract = isHardhat(network) ? '' : '0x96905Aa6671c108b226f963e640545A9F41F3603';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '0x99b1026bb4262d129bB3F836A5289c034CF90b8f';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x719bce16560F9314dB801eaB70A563eab9c15633';
-  const useExistingOpusContract = isHardhat(network) ? '' : '0xAE5EDb64d9799B81BAB8D80994879Aaa876f297D';
+  const useExistingConfigContract = isHardhat(network) ? '' : '0x564eD4721656bEFE62AaBDEF71b56748f065bAdB';
+  const useExistingDexContract = isHardhat(network) ? '' : '0x5fb648d7797274398309b82526e41C1D2A273Ddd';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '0xEb0103568d4D53733d23C80F91a49C92Ebd89696';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0x973a5D67E80Ef5Faa5faA0EddA7D31C8D189782E';
+  const useExistingOpusContract = isHardhat(network) ? '' : '0x6c59dF12b1F4cB61F5077d810E22768Bc7a20109';
   const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x491DC6e249d0595993751DEED326e12B96Fa38dF';
 
   log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
@@ -234,13 +234,15 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Verify CarbonCoinConfig
-  if (useExistingConfigContract.length === 0) {
+  if (carbonCoinConfig || useExistingConfigContract.length !== 0) {
     log('  Verifying CarbonCoinConfig...');
     const constructorArgs = [];
     if (!isHardhat(network)) {
-      setTimeout(async () => {
-        await verifyContract('CarbonCoinConfig', await ethers.getContract('CarbonCoinConfig'), constructorArgs);
-      }, 1000);
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoinConfig...: ${useExistingConfigContract}`);
+        const contract = carbonCoinConfig || await ethers.getContractAt('CarbonCoinConfig', useExistingConfigContract);
+        await verifyContract('CarbonCoinConfig', contract, constructorArgs);
+      // }, 1000);
     }
   }
 
@@ -248,7 +250,7 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Verify CarbonCoinDex
-  if (useExistingDexContract.length === 0) {
+  if (carbonCoinDex || useExistingDexContract.length !== 0) {
     log('  Verifying CarbonCoinDex...');
     const constructorArgs = [
       usdcAddress,
@@ -256,9 +258,11 @@ module.exports = async (hre) => {
       carbonCoinConfig.address,
     ];
     if (!isHardhat(network)) {
-      setTimeout(async () => {
-        await verifyContract('CarbonCoinDex', await ethers.getContract('CarbonCoinDex'), constructorArgs);
-      }, 1000);
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoinDex...: ${useExistingDexContract}`);
+        const contract = carbonCoinDex || await ethers.getContractAt('CarbonCoinDex', useExistingDexContract);
+        await verifyContract('CarbonCoinDex', contract, constructorArgs);
+      // }, 1000);
     }
   }
 
@@ -266,15 +270,15 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Verify CarbonCoinProtection
-  if (useExistingProtectionContract.length === 0) {
+  if (carbonCoinProtection || useExistingProtectionContract.length !== 0) {
     log('  Verifying CarbonCoinProtection...');
-    const constructorArgs = [
-      carbonCoinConfig.address,
-    ];
+    const constructorArgs = [];
     if (!isHardhat(network)) {
-      setTimeout(async () => {
-        await verifyContract('CarbonCoinProtection', await ethers.getContract('CarbonCoinProtection'), constructorArgs);
-      }, 1000);
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoinProtection...: ${useExistingProtectionContract}`);
+        const contract = carbonCoinProtection || await ethers.getContractAt('CarbonCoinProtection', useExistingProtectionContract);
+        await verifyContract('CarbonCoinProtection', contract, constructorArgs);
+      // }, 1000);
     }
   }
 
@@ -282,7 +286,7 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Verify CarbonCoinLauncher
-  if (useExistingLauncherContract.length === 0) {
+  if (carbonCoinLauncher || useExistingLauncherContract.length !== 0) {
     log('  Verifying CarbonCoinLauncher...');
     const constructorArgs = [
       carbonCoinConfig.address,
@@ -290,9 +294,11 @@ module.exports = async (hre) => {
       carbonCoinProtection.address,
     ];
     if (!isHardhat(network)) {
-      setTimeout(async () => {
-        await verifyContract('CarbonCoinLauncher', await ethers.getContract('CarbonCoinLauncher'), constructorArgs);
-      }, 1000);
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoinLauncher...: ${useExistingLauncherContract}`);
+        const contract = carbonCoinLauncher || await ethers.getContractAt('CarbonCoinLauncher', useExistingLauncherContract);
+        await verifyContract('CarbonCoinLauncher', contract, constructorArgs);
+      // }, 1000);
     }
   }
 
@@ -300,16 +306,18 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Verify CarbonOpus
-  if (useExistingOpusContract.length === 0) {
+  if (carbonOpus || useExistingOpusContract.length !== 0) {
     log('  Verifying CarbonOpus...');
     const constructorArgs = [
       nftUri,
       usdcAddress
     ];
     if (!isHardhat(network)) {
-      setTimeout(async () => {
-        await verifyContract('CarbonOpus', await ethers.getContract('CarbonOpus'), constructorArgs);
-      }, 1000);
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonOpus...: ${useExistingOpusContract}`);
+        const contract = carbonOpus || await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
+        await verifyContract('CarbonOpus', contract, constructorArgs);
+      // }, 1000);
     }
   }
 

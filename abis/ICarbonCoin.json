@@ -552,6 +552,39 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getTradeLimits",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxTradeSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxSellPercentage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_whaleThreshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_whaleDelay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentMaxSellTokens",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",

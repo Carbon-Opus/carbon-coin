@@ -159,6 +159,31 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     /**
+     *
+     * @return _maxTradeSize
+     * @return _maxSellPercentage
+     * @return _whaleThreshold
+     * @return _whaleDelay
+     * @return currentMaxSellTokens
+     */
+    function getTradeLimits() external view returns (
+        uint256 _maxTradeSize,
+        uint256 _maxSellPercentage,
+        uint256 _whaleThreshold,
+        uint256 _whaleDelay,
+        uint256 currentMaxSellTokens
+    ) {
+        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+        return (
+            whaleConfig.maxTradeSize,
+            whaleConfig.maxSellPercentage,
+            whaleConfig.whaleThreshold,
+            whaleConfig.whaleDelay,
+            (realTokenSupply * whaleConfig.maxSellPercentage) / 10000
+        );
+    }
+
+    /**
      * @notice Calculate the amount of tokens received for a given USDC input.
      * @dev The calculation is based on the bonding curve formula and includes the buy fee.
      * @param usdcIn The amount of USDC to be spent.
@@ -448,6 +473,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         emit PriceUpdate(priceAfter, realUsdcReserves, realTokenSupply, block.timestamp);
     }
 
+
     /**
      * @notice Graduate to Somnia Exchange with USDC/Token pair.
      * @dev Creates a USDC/Token liquidity pool instead of ETH/Token.
@@ -534,6 +560,10 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     function _getAntiBotConfig() internal view returns (ICarbonCoinConfig.AntiBotConfig memory) {
       return ICarbonCoinConfig(config).getAntiBotConfig();
+    }
+
+    function _getWhaleLimitConfig() internal view returns (ICarbonCoinConfig.WhaleLimitConfig memory) {
+      return ICarbonCoinConfig(config).getWhaleLimitConfig();
     }
 
     modifier onlyAuthorized() {

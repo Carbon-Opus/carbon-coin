@@ -88,7 +88,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   }
 
   receive() external payable {
-    emit FeeReceived(msg.sender, msg.value, block.timestamp);
+    emit NativeFeeReceived(msg.sender, msg.value, block.timestamp);
   }
 
   function getFeeBalance() public view returns (uint256) {

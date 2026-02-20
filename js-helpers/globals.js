@@ -16,13 +16,13 @@ const globals = {
     50312: {
       WETH: '0x046EDe9564A72571df6F5e44d0405360c0f4dCab', // WSOMI
       router: '0xb98c15a0dC1e271132e341250703c7e94c059e8D', // Somnia Exchange (Router V02)
-      usdc: '0x70c5cEE69753f9359340b29967e2273C8908d774',
+      usdc: '0x0673aDBDc50F3501A3a5FaE4acd723D8430e9f18',
     },
     // Hardhat
     34443: {
       WETH: '0x046EDe9564A72571df6F5e44d0405360c0f4dCab', // WSOMI
       router: '0xb98c15a0dC1e271132e341250703c7e94c059e8D', // Somnia Exchange (Router V02)
-      usdc: '0x70c5cEE69753f9359340b29967e2273C8908d774',
+      usdc: '0x0673aDBDc50F3501A3a5FaE4acd723D8430e9f18',
     },
   },
 

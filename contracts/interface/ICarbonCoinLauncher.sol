@@ -55,7 +55,7 @@ interface ICarbonCoinLauncher {
   event UsdcFeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
   event NativeFeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
   event ControllerUpdated(address indexed newController);
-  event FeeReceived(address indexed from, uint256 amount, uint256 timestamp);
+  event NativeFeeReceived(address indexed from, uint256 amount, uint256 timestamp);
 
   error Unauthorized();
   error InsufficientFee();

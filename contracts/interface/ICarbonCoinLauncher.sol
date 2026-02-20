@@ -47,10 +47,13 @@ interface ICarbonCoinLauncher {
     address indexed tokenAddress,
     uint256 timestamp
   );
+  event TokenBuy(address indexed coinAddress, address buyer, uint256 usdcAmount, uint256 fee, uint256 tokensOut);
+  event TokenSell(address indexed coinAddress, address seller, uint256 tokensAmount, uint256 fee, uint256 usdcOut);
   event MaxTokensPerCreatorUpdated(uint256 oldMax, uint256 newMax, uint256 timestamp);
   event LauncherPaused(uint256 timestamp);
   event LauncherUnpaused(uint256 timestamp);
-  event FeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
+  event UsdcFeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
+  event NativeFeesWithdrawn(address indexed to, uint256 amount, uint256 timestamp);
   event ControllerUpdated(address indexed newController);
   event FeeReceived(address indexed from, uint256 amount, uint256 timestamp);
 
@@ -67,6 +70,11 @@ interface ICarbonCoinLauncher {
     ICarbonCoin.BondingCurveConfig memory curveConfig
   ) external returns (address);
 
+  function markTokenGraduated(address tokenAddress) external;
+
+  function trackCoinBuy(address coinAddress, address buyer, uint256 usdcAmount, uint256 fee, uint256 tokensOut) external;
+  function trackCoinSell(address coinAddress, address seller, uint256 tokensAmount, uint256 fee, uint256 usdcOut) external;
+
   // function getAllTokens() external view returns (address[] memory);
 
   // function getTokensByCreator(address creator) external view returns (address[] memory);
@@ -76,10 +84,4 @@ interface ICarbonCoinLauncher {
   // function getTokenCount() external view returns (uint256);
 
   // function getRecentTokens(uint256 count) external view returns (address[] memory);
-
-  function setMaxTokensPerCreator(uint256 _max) external;
-
-  function withdraw() external;
-
-  function markTokenGraduated(address tokenAddress) external;
 }

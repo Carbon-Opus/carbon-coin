@@ -26,6 +26,7 @@ pragma solidity 0.8.27;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
 import { ICarbonCoinProtection } from "./interface/ICarbonCoinProtection.sol";
@@ -151,6 +152,29 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   }
 
   /**
+   * @notice Marks a token as graduated. This can be called by the token contract itself or by the owner of the launcher contract.
+   * @param tokenAddress The address of the token to mark as graduated.
+   */
+  function markTokenGraduated(address tokenAddress) external {
+    require(
+      msg.sender == tokenAddress || msg.sender == owner(),
+      "Only token or owner can mark graduated"
+    );
+    if (tokens[tokenAddress].tokenAddress != address(0)) {
+      tokens[tokenAddress].graduated = true;
+      emit TokenGraduated(tokenAddress, block.timestamp);
+    }
+  }
+
+  function trackCoinBuy(address coinAddress, address buyer, uint256 usdcAmount, uint256 fee, uint256 tokensOut) external {
+    emit TokenBuy(coinAddress, buyer, usdcAmount, fee, tokensOut);
+  }
+
+  function trackCoinSell(address coinAddress, address seller, uint256 tokensAmount, uint256 fee, uint256 usdcOut) external {
+    emit TokenSell(coinAddress, seller, tokensAmount, fee, usdcOut);
+  }
+
+  /**
    * @notice Gets an array of all the token addresses that have been created.
    * @return An array of token addresses.
    */
@@ -242,25 +266,21 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   /**
    * @notice Withdraws the fees that have been collected from token creations.
    */
-  function withdraw() external onlyOwner {
-    uint256 balance = address(this).balance;
-    (bool success, ) = payable(owner()).call{value: balance}("");
-    require(success, "Withdrawal failed");
-    emit FeesWithdrawn(owner(), balance, block.timestamp);
+  function withdrawUsdcFees() external onlyOwner {
+    IERC20 usdc = IERC20(usdcAddress);
+    uint256 balance = usdc.balanceOf(address(this));
+    if (balance > 0) {
+      require(usdc.transfer(owner(), balance), "Fee transfer failed");
+      emit UsdcFeesWithdrawn(owner(), balance, block.timestamp);
+    }
   }
 
-  /**
-   * @notice Marks a token as graduated. This can be called by the token contract itself or by the owner of the launcher contract.
-   * @param tokenAddress The address of the token to mark as graduated.
-   */
-  function markTokenGraduated(address tokenAddress) external {
-    require(
-      msg.sender == tokenAddress || msg.sender == owner(),
-      "Only token or owner can mark graduated"
-    );
-    if (tokens[tokenAddress].tokenAddress != address(0)) {
-      tokens[tokenAddress].graduated = true;
-      emit TokenGraduated(tokenAddress, block.timestamp);
+  function withdrawNativeFees() external onlyOwner {
+    uint256 balance = address(this).balance;
+    if (balance > 0) {
+      (bool success, ) = payable(owner()).call{value: balance}("");
+      require(success, "Fee transfer failed");
+      emit NativeFeesWithdrawn(owner(), balance, block.timestamp);
     }
   }
 }

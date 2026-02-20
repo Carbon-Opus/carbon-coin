@@ -155,7 +155,9 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     function getCurrentPrice() public view returns (uint256) {
         uint256 totalUsdc = VIRTUAL_USDC + realUsdcReserves;
         uint256 totalTokens = VIRTUAL_TOKENS - realTokenSupply;
-        return (totalUsdc * 10**6) / totalTokens;
+        // totalUsdc is 6 decimals, totalTokens is 18 decimals
+        // To get price in USDC (6 decimals) per token, scale up by 10**18
+        return (totalUsdc * 10**18) / totalTokens;
     }
 
     /**
@@ -231,8 +233,20 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @return The amount of USDC that will be received.
      */
     function calculateUsdcOut(uint256 tokensIn) public view returns (uint256) {
-        if (tokensIn == 0) return 0;
-        if (tokensIn > realTokenSupply) return 0;
+        (uint256 usdcOut, ) = calculateUsdcOutWithFee(tokensIn);
+        return usdcOut;
+    }
+
+    /**
+     * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
+     * @dev The calculation is based on the bonding curve formula and includes the sell fee.
+     * @param tokensIn The amount of tokens to be sold.
+     * @return The amount of USDC that will be received.
+     * @return The amount of fee that will be taken.
+     */
+    function calculateUsdcOutWithFee(uint256 tokensIn) public view returns (uint256, uint256) {
+        if (tokensIn == 0) return (0, 0);
+        if (tokensIn > realTokenSupply) return (0, 0);
 
         ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
 
@@ -242,8 +256,9 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         uint256 newTotalUsdc = k / newTotalTokens;
         uint256 newUsdcReserves = newTotalUsdc - VIRTUAL_USDC;
         uint256 usdcOut = realUsdcReserves - newUsdcReserves;
-
-        return (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
+        uint256 usdcAmount = (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
+        uint256 feeAmount = usdcOut - usdcAmount;
+        return (usdcAmount, feeAmount);
     }
 
     /**
@@ -362,6 +377,13 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         // Track volatility
         ICarbonCoinProtection(protection).trackVolatility(address(this), priceAfter, priceBefore);
+        ICarbonCoinLauncher(launcher).trackCoinBuy(
+          address(this),
+          buyer,
+          usdcAmount,
+          fee,
+          tokensOut
+        );
 
         _mint(buyer, tokensOut);
 
@@ -399,13 +421,13 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         if (tokensIn == 0) revert InvalidAmount();
         if (balanceOf(msg.sender) < tokensIn) revert InvalidAmount();
 
-        uint256 usdcOut = calculateUsdcOut(tokensIn);
+        (uint256 usdcOut, uint256 feeAmount) = calculateUsdcOutWithFee(tokensIn);
 
         // Check whale intent
         (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
             address(this),
             msg.sender,
-            usdcOut,
+            usdcOut + feeAmount,
             false
         );
 
@@ -413,7 +435,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             revert WhaleIntentRequired();
         }
 
-        _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut);
+        _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut, feeAmount);
     }
 
     /**
@@ -424,17 +446,12 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
      * @param usdcOut The calculated amount of USDC to be received.
      */
-    function _executeSell(address seller, uint256 tokensIn, uint256 minUsdcOut, uint256 usdcOut) internal {
+    function _executeSell(address seller, uint256 tokensIn, uint256 minUsdcOut, uint256 usdcOut, uint256 fee) internal {
         if (usdcOut < minUsdcOut) revert SlippageTooHigh();
-        if (usdcOut > realUsdcReserves) revert InsufficientLiquidity();
-
-        ICarbonCoinConfig.FeeConfig memory feeConfig = _getFeeConfig();
+        if (usdcOut + fee > realUsdcReserves) revert InsufficientLiquidity();
 
         uint256 priceBefore = getCurrentPrice();
-        uint256 usdcAfterFee = (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
-        uint256 fee = usdcOut - usdcAfterFee;
-
-        realUsdcReserves -= usdcOut;
+        realUsdcReserves -= usdcOut + fee;
         realTokenSupply -= tokensIn;
 
         uint256 priceAfter = getCurrentPrice();
@@ -451,10 +468,17 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
         // Track volatility
         ICarbonCoinProtection(protection).trackVolatility(address(this), priceAfter, priceBefore);
+        ICarbonCoinLauncher(launcher).trackCoinSell(
+          address(this),
+          seller,
+          tokensIn,
+          fee,
+          usdcOut
+        );
 
         _burn(seller, tokensIn);
 
-        require(USDC.transfer(seller, usdcAfterFee), "USDC transfer failed");
+        require(USDC.transfer(seller, usdcOut), "USDC transfer failed");
 
         if (fee > 0) {
             require(USDC.transfer(launcher, fee), "Fee transfer failed");

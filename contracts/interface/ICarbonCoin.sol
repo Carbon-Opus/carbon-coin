@@ -152,6 +152,15 @@ interface ICarbonCoin {
   function calculateUsdcOut(uint256 tokensIn) external view returns (uint256);
 
   /**
+   * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
+   * @dev The calculation is based on the bonding curve formula and includes the sell fee.
+   * @param tokensIn The amount of tokens to be sold.
+   * @return The amount of USDC that will be received.
+   * @return The amount of fee that will be taken.
+   */
+  function calculateUsdcOutWithFee(uint256 tokensIn) external view returns (uint256, uint256);
+
+  /**
    * @notice Allows a user to buy tokens with USDC using permit (gasless signature).
    * @dev This is the standard buy function where users pay their own gas.
    * Uses EIP-2612 permit to avoid separate approval transaction.

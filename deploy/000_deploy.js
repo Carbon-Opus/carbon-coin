@@ -17,12 +17,28 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const usdcAddress = globals.addresses[chainId].usdc;
   const nftUri = globals.opusNftUri[chainId];
-  const useExistingConfigContract = isHardhat(network) ? '' : '0x564eD4721656bEFE62AaBDEF71b56748f065bAdB';
-  const useExistingDexContract = isHardhat(network) ? '' : '0x5fb648d7797274398309b82526e41C1D2A273Ddd';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '0xEb0103568d4D53733d23C80F91a49C92Ebd89696';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x973a5D67E80Ef5Faa5faA0EddA7D31C8D189782E';
-  const useExistingOpusContract = isHardhat(network) ? '' : '0x6c59dF12b1F4cB61F5077d810E22768Bc7a20109';
+  const useExistingConfigContract = isHardhat(network) ? '' : '0x80d807518F007DeCCEFF03767fd350D2936e48Bb';
+  const useExistingDexContract = isHardhat(network) ? '' : '0x19A17d4702a37F32aff295aA4196794818B1A942';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '0xB8ddC21A89240833377651Eb911b21B8044d2fB8';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0xAB91012b8F76BC2dd74287085Ba37a76cFCE40e4';
+  const useExistingOpusContract = isHardhat(network) ? '' : '0x43055E77Ac717D2D09Dd1ABFE9317045b64A18bb';
+  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x445d136972AC6d6a1F78cCa00E5408d50bbb15a8';
   const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x491DC6e249d0595993751DEED326e12B96Fa38dF';
+
+  const sampleCarbonCoinArgs = [
+    'Carbon Coin',
+    'CCC',
+    user1,
+    {
+      virtualUsdc: ethers.utils.parseUnits('5000', 6),         // 5,000 USDC
+      virtualTokens: ethers.utils.parseEther('6000000'),       // 6M tokens
+      creatorReserve: ethers.utils.parseEther('1000000'),      // 1M tokens (10%)
+      liquiditySupply: ethers.utils.parseEther('4500000'),     // 4.5M tokens (45% - goes to liquidity)
+      curveSupply: ethers.utils.parseEther('4500000'),         // 4.5M tokens (45% - initial curve supply, determines initial price and price sensitivity)
+      maxSupply: ethers.utils.parseEther('10000000'),          // 10M tokens (max supply including creator reserve)
+      graduationThreshold: ethers.utils.parseUnits('15000', 6) // 15,000 USDC
+    },
+  ];
 
   log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   log('Carbon Opus - Carbon Coin - Contract Deployment');
@@ -171,6 +187,36 @@ module.exports = async (hre) => {
   //
   //////////////////////////////////////////////////////////////
   //
+  // Deploy CarbonCoinCoin (Sample)
+  if (useExistingCarbonCoinContract.length === 0) {
+    log('  Deploying CarbonCoin...');
+    const constructorArgs = [
+      sampleCarbonCoinArgs[0],
+      sampleCarbonCoinArgs[1],
+      sampleCarbonCoinArgs[2],
+      usdcAddress,
+      carbonCoinConfig.address,
+      carbonCoinProtection.address,
+      sampleCarbonCoinArgs[3]
+    ];
+    await deploy('CarbonCoin', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+  }
+
+  // Get Deployed CarbonCoin
+  let carbonCoin;
+  if (useExistingCarbonCoinContract.length === 0) {
+    carbonCoin = await ethers.getContract('CarbonCoin');
+  } else {
+    carbonCoin = await ethers.getContractAt('CarbonCoin', useExistingCarbonCoinContract);
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
   // Deploy CarbonOpus
   if (useExistingOpusContract.length === 0) {
     log('  Deploying CarbonOpus...');
@@ -305,6 +351,30 @@ module.exports = async (hre) => {
   //
   //////////////////////////////////////////////////////////////
   //
+  // Verify CarbonCoin
+  if (carbonCoin || useExistingCarbonCoinContract.length !== 0) {
+    log('  Verifying CarbonCoin...');
+    const constructorArgs = [
+      sampleCarbonCoinArgs[0],
+      sampleCarbonCoinArgs[1],
+      sampleCarbonCoinArgs[2],
+      usdcAddress,
+      carbonCoinConfig.address,
+      carbonCoinProtection.address,
+      sampleCarbonCoinArgs[3],
+    ];
+    if (!isHardhat(network)) {
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoin...: ${useExistingCarbonCoinContract}`);
+        const contract = carbonCoin || await ethers.getContractAt('CarbonCoin', useExistingCarbonCoinContract);
+        await verifyContract('CarbonCoin', contract, constructorArgs);
+      // }, 1000);
+    }
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
   // Verify CarbonOpus
   if (carbonOpus || useExistingOpusContract.length !== 0) {
     log('  Verifying CarbonOpus...');
@@ -327,23 +397,9 @@ module.exports = async (hre) => {
   // Deploy a test CarbonCoin on Hardhat
   if (isHardhat(network)) {
     log('  Deploying a test CarbonCoin...');
-    const bondingCurveParams = {
-      virtualUsdc: ethers.utils.parseUnits('5000', 6),         // 5,000 USDC
-      virtualTokens: ethers.utils.parseEther('6000000'),       // 6M tokens
-      creatorReserve: ethers.utils.parseEther('1000000'),      // 1M tokens (10%)
-      liquiditySupply: ethers.utils.parseEther('4500000'),     // 4.5M tokens (45% - goes to liquidity)
-      curveSupply: ethers.utils.parseEther('4500000'),         // 4.5M tokens (45% - initial curve supply, determines initial price and price sensitivity)
-      maxSupply: ethers.utils.parseEther('10000000'),          // 10M tokens (max supply including creator reserve)
-      graduationThreshold: ethers.utils.parseUnits('15000', 6) // 15,000 USDC
-    };
-    // console.log({ bondingCurveParams });
-
     let newCarbonCoinAddress;
     await carbonCoinLauncher.createToken(
-      'Carbon Coin',
-      'CCC',
-      user1,
-      bondingCurveParams,
+      ...sampleCarbonCoinArgs,
       // { value: globals.tokenCreationFee }
     ).then(tx => tx.wait())
     .then(async (receipt) => {

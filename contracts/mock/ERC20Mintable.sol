@@ -26,4 +26,8 @@ contract ERC20Mintable is ERC20, ERC20Permit {
     _burn(account, amount);
     return true;
   }
+
+  function version() external pure returns (string memory) {
+    return "1";
+  }
 }

@@ -117,6 +117,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
       symbol,
       creatorAddress,
       usdcAddress,
+      _controller,
       configAddress,
       protectionAddress,
       curveConfig

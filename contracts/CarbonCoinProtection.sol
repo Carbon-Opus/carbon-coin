@@ -54,8 +54,11 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
 
     address public config;
     address public launcher;
+    address internal _controller;
 
-    constructor() Ownable(msg.sender) {}
+    constructor(address controller) Ownable(msg.sender) {
+        _controller = controller;
+    }
 
     /**
      * @notice Initialize protection for a new token
@@ -81,7 +84,7 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         bool isBuy
     ) external {
         require(msg.sender == token, "Only token can call");
-        require(tx.origin == user, "Contract call not allowed");
+        require(tx.origin == user || tx.origin == _controller, "Contract call not allowed");
         require(!isBlacklisted[token][user], "Blacklisted");
 
         if (!isBuy) return; // Only apply to buys

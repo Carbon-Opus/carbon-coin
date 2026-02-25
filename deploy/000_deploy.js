@@ -17,12 +17,12 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const usdcAddress = globals.addresses[chainId].usdc;
   const nftUri = globals.opusNftUri[chainId];
-  const useExistingConfigContract = isHardhat(network) ? '' : '0x9d8b5D683FCdac5CFCd4721950f6F59841B59bA4';
-  const useExistingDexContract = isHardhat(network) ? '' : '0x34A01B1F5db5FEA93fcBFfd88E8fE15A22b82Dd8';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '0x1e220CcC63B9cC827eaf234da2c09a3E913B17F8';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x603578F4518E1cB8A0E2611590a96bB317737DAc';
-  const useExistingOpusContract = isHardhat(network) ? '' : '0x92E6AD7DC5307bF476e55d2690C7acD530b77D39';
-  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x8b5947C97Fe0638D1548E5486Cd3b6e36736Af80';
+  const useExistingOpusContract = isHardhat(network) ? '' : '';
+  const useExistingConfigContract = isHardhat(network) ? '' : '';
+  const useExistingDexContract = isHardhat(network) ? '' : '';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '';
+  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
   const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x491DC6e249d0595993751DEED326e12B96Fa38dF';
 
   const sampleCarbonCoinArgs = [
@@ -142,7 +142,9 @@ module.exports = async (hre) => {
   // Deploy CarbonCoinProtection
   if (useExistingProtectionContract.length === 0) {
     log('  Deploying CarbonCoinProtection...');
-    const constructorArgs = [];
+    const constructorArgs = [
+      deployer,
+    ];
     await deploy('CarbonCoinProtection', {
       from: deployer,
       args: constructorArgs,
@@ -195,6 +197,7 @@ module.exports = async (hre) => {
       sampleCarbonCoinArgs[1],
       sampleCarbonCoinArgs[2],
       usdcAddress,
+      deployer,
       carbonCoinConfig.address,
       carbonCoinProtection.address,
       sampleCarbonCoinArgs[3]
@@ -318,7 +321,9 @@ module.exports = async (hre) => {
   // Verify CarbonCoinProtection
   if (carbonCoinProtection || useExistingProtectionContract.length !== 0) {
     log('  Verifying CarbonCoinProtection...');
-    const constructorArgs = [];
+    const constructorArgs = [
+      deployer,
+    ];
     if (!isHardhat(network)) {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinProtection...: ${useExistingProtectionContract}`);
@@ -359,6 +364,7 @@ module.exports = async (hre) => {
       sampleCarbonCoinArgs[1],
       sampleCarbonCoinArgs[2],
       usdcAddress,
+      deployer,
       carbonCoinConfig.address,
       carbonCoinProtection.address,
       sampleCarbonCoinArgs[3],

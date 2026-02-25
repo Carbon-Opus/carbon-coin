@@ -77,6 +77,7 @@ interface ICarbonCoin {
   event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
+  event ControllerUpdated(address indexed newController);
 
   // State tracking events
   event PriceUpdate(uint256 price, uint256 usdcReserves, uint256 tokenSupply, uint256 timestamp);
@@ -187,6 +188,16 @@ interface ICarbonCoin {
    * @param minTokensOut The minimum number of tokens the user is willing to accept.
    */
   function buy(uint256 usdcAmount, uint256 minTokensOut) external;
+
+  function buyOnBehalf(
+        address receiver,
+        uint256 usdcAmount,
+        uint256 minTokensOut,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
 
   /**
    * @notice Allows a user to sell tokens for USDC.

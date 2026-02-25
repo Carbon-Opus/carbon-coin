@@ -54,6 +54,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address public immutable config;
     address public immutable launcher;
     address public immutable protection;
+    address internal controller;
     bool public hasGraduated;
 
     // USDC token integration
@@ -71,6 +72,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
      * @param symbol The symbol of the token.
      * @param _creator The address of the token creator.
      * @param _usdc The address of the USDC token contract.
+     * @param _controller The address of the controller contract.
      * @param _config The address of the token configuration contract.
      * @param _protection The address of the token protection contract.
      * @param bondingCurveConfig The bonding curve parameters.
@@ -80,6 +82,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         string memory symbol,
         address _creator,
         address _usdc,
+        address _controller,
         address _config,
         address _protection,
         BondingCurveConfig memory bondingCurveConfig
@@ -96,6 +99,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         protection = _protection;
         USDC = IERC20(_usdc);
         launchTime = block.timestamp;
+        controller = _controller;
 
         // Set bonding curve config (immutable)
         VIRTUAL_USDC = bondingCurveConfig.virtualUsdc;
@@ -306,6 +310,54 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         }
 
         _executeBuy(msg.sender, usdcAmount, minTokensOut);
+    }
+
+    /**
+     * @notice
+     * @dev
+     * @param receiver The address of the user receiving the tokens.
+     * @param usdcAmount The amount of USDC to spend.
+     * @ param minTokensOut The minimum number of tokens the user is willing to accept.
+     * @param deadline The permit signature deadline.
+     * @param v The recovery byte of the signature.
+     * @param r Half of the ECDSA signature pair.
+     * @param s Half of the ECDSA signature pair.
+     */
+    function buyOnBehalf(
+        address receiver,
+        uint256 usdcAmount,
+        uint256 minTokensOut,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external nonReentrant whenNotPaused onlyController {
+        // Protection checks
+        ICarbonCoinProtection(protection).checkAntiBotProtection(address(this), receiver, usdcAmount, true);
+        ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
+        ICarbonCoinProtection(protection).checkTradeSizeLimit(address(this), receiver, usdcAmount);
+
+        ICarbonCoinConfig.AntiBotConfig memory botConfig = _getAntiBotConfig();
+        if (hasGraduated) revert AlreadyGraduated();
+        if (usdcAmount < botConfig.minBuyAmount) revert InvalidAmount();
+
+        // Execute permit
+        IERC20Permit(address(USDC)).permit(receiver, address(this), usdcAmount, deadline, v, r, s);
+        require(USDC.transferFrom(receiver, address(this), usdcAmount), "USDC transfer failed");
+
+        // Check whale intent
+        (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
+            address(this),
+            receiver,
+            usdcAmount,
+            true
+        );
+
+        if (requiresIntent && !canProceed) {
+            revert WhaleIntentRequired();
+        }
+
+        _executeBuy(receiver, usdcAmount, minTokensOut); // todo: deploy line by line..
     }
 
     /**
@@ -574,6 +626,12 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         return (realUsdcReserves, realTokenSupply, VIRTUAL_USDC, VIRTUAL_TOKENS);
     }
 
+    function updateController(address newController) external onlyAuthorized {
+      require(newController != address(0), "Invalid controller");
+      controller = newController;
+      emit ControllerUpdated(newController);
+    }
+
     function _owner() internal view returns (address) {
       return Ownable(config).owner();
     }
@@ -592,6 +650,11 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     modifier onlyAuthorized() {
         if (msg.sender != launcher && msg.sender != _owner() && msg.sender != creator) revert Unauthorized();
+        _;
+    }
+
+    modifier onlyController() {
+        if (msg.sender != controller) revert Unauthorized();
         _;
     }
 

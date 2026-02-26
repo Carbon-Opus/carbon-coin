@@ -1,0 +1,142 @@
+{
+  "address": "0x653bca3d87630e0Bd826ccfFa39De9f776a554FB",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "senderId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "uuid",
+          "type": "bytes32"
+        }
+      ],
+      "name": "PermitTransfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "senderId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "uuid",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "permitAndTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd87e5fe7e73fa22e8ec2bd6e4d5ab2c48433a50bcaf0024c255e4c41e22ddd3a",
+  "receipt": {
+    "to": null,
+    "from": "0x2BB8CBAd36D52708a43DE36a9Aa2782fFa0470F1",
+    "contractAddress": "0x653bca3d87630e0Bd826ccfFa39De9f776a554FB",
+    "transactionIndex": 0,
+    "gasUsed": "191100",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xddf1c622e6a9417d6c46d1181f3790cb0c0b4e5fd9b3549b77ba60d8ebf19403",
+    "transactionHash": "0xd87e5fe7e73fa22e8ec2bd6e4d5ab2c48433a50bcaf0024c255e4c41e22ddd3a",
+    "logs": [],
+    "blockNumber": 232851912,
+    "cumulativeGasUsed": "191100",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "fe2acba244cf938186329530d9720dfc",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"senderId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"uuid\",\"type\":\"bytes32\"}],\"name\":\"PermitTransfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"senderId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"uuid\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"permitAndTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/PermitAndTransfer.sol\":\"PermitAndTransfer\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/PermitAndTransfer.sol\":{\"content\":\"// PermitAndTransfer.sol\\n// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\ninterface IERC20Permit {\\n  function permit(\\n    address owner,\\n    address spender,\\n    uint256 value,\\n    uint256 deadline,\\n    uint8 v,\\n    bytes32 r,\\n    bytes32 s\\n  ) external;\\n\\n  function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n}\\n\\ncontract PermitAndTransfer {\\n  event PermitTransfer(bytes32 indexed senderId, address indexed token, address owner, address spender, uint256 value, bytes32 uuid);\\n\\n  function permitAndTransfer(\\n    bytes32 senderId, // for filtering on Events\\n    bytes32 uuid,     // for matching to a specific order\\n    address token,    // usdc or other\\n    address owner,\\n    address to,\\n    uint256 amount,\\n    uint256 deadline,\\n    uint8 v,\\n    bytes32 r,\\n    bytes32 s\\n  ) external {\\n    IERC20Permit(token).permit(owner, address(this), amount, deadline, v, r, s);\\n    require(\\n      IERC20Permit(token).transferFrom(owner, to, amount),\\n      \\\"Transfer failed\\\"\\n    );\\n    emit PermitTransfer(senderId, token, owner, to, amount, uuid);\\n  }\\n}\\n\",\"keccak256\":\"0xa316927e09e52e59c51c27b3c39139e43b27cdd59f751d1c339b2920f6c02794\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6080806040523460155761027d908161001b8239f35b600080fdfe608080604052600436101561001357600080fd5b600090813560e01c63f90696df1461002a57600080fd5b3461020b5761014036600319011261020b576044356001600160a01b0381169190829003610207576064356001600160a01b0381169190829003610203576084356001600160a01b038116908190036101ff5760a4359160e43560ff81168091036101fb57853b156101fb5763d505accf60e01b825284600483015230602483015283604483015260c435606483015260848201526101043560a48201526101243560c4820152858160e48183895af180156101dc576101e7575b506040516323b872dd60e01b815283600482015281602482015282604482015260208160648189895af19081156101dc57869161019d575b5015610166576040519283526020830152604082015260243560608201527f6f8fa265b8b74a59915236a5c018a495bf104e5ff0073f8c6d4b6a26882d4349608060043592a380f35b60405162461bcd60e51b815260206004820152600f60248201526e151c985b9cd9995c8819985a5b1959608a1b6044820152606490fd5b90506020813d6020116101d4575b816101b86020938361020f565b810103126101d0575180151581036101d0573861011d565b8580fd5b3d91506101ab565b6040513d88823e3d90fd5b856101f49196929661020f565b93386100e5565b8680fd5b8480fd5b8380fd5b8280fd5b5080fd5b90601f8019910116810190811067ffffffffffffffff82111761023157604052565b634e487b7160e01b600052604160045260246000fdfea2646970667358221220a6c8ad10a11bf460d827984ad1f201d7e7a9dbf51c2e193a6d9d419f6f7f3e8864736f6c634300081b0033",
+  "deployedBytecode": "0x608080604052600436101561001357600080fd5b600090813560e01c63f90696df1461002a57600080fd5b3461020b5761014036600319011261020b576044356001600160a01b0381169190829003610207576064356001600160a01b0381169190829003610203576084356001600160a01b038116908190036101ff5760a4359160e43560ff81168091036101fb57853b156101fb5763d505accf60e01b825284600483015230602483015283604483015260c435606483015260848201526101043560a48201526101243560c4820152858160e48183895af180156101dc576101e7575b506040516323b872dd60e01b815283600482015281602482015282604482015260208160648189895af19081156101dc57869161019d575b5015610166576040519283526020830152604082015260243560608201527f6f8fa265b8b74a59915236a5c018a495bf104e5ff0073f8c6d4b6a26882d4349608060043592a380f35b60405162461bcd60e51b815260206004820152600f60248201526e151c985b9cd9995c8819985a5b1959608a1b6044820152606490fd5b90506020813d6020116101d4575b816101b86020938361020f565b810103126101d0575180151581036101d0573861011d565b8580fd5b3d91506101ab565b6040513d88823e3d90fd5b856101f49196929661020f565b93386100e5565b8680fd5b8480fd5b8380fd5b8280fd5b5080fd5b90601f8019910116810190811067ffffffffffffffff82111761023157604052565b634e487b7160e01b600052604160045260246000fdfea2646970667358221220a6c8ad10a11bf460d827984ad1f201d7e7a9dbf51c2e193a6d9d419f6f7f3e8864736f6c634300081b0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

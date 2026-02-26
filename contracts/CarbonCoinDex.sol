@@ -30,15 +30,16 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
-import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
-import { ISomniaExchangeFactory } from "./interface/ISomniaExchangeFactory.sol";
+import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
 
 
 contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   // USDC token integration
   IERC20 public immutable USDC;
   address public config;
-  ISomniaExchangeRouter02 public dexRouter;
+  INonfungiblePositionManager public dexRouter;
+  int24 internal tickLower;
+  int24 internal tickUpper;
 
   /**
    * @notice Constructor for the CarbonCoinDex contract.
@@ -49,7 +50,9 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   constructor(
     address _usdc,
     address _router,
-    address _config
+    address _config,
+    int24 _tickLower,
+    int24 _tickUpper
   ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
     // Validate inputs
     require(_usdc != address(0), "Invalid USDC address");
@@ -58,7 +61,9 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
 
     USDC = IERC20(_usdc);
     config = _config;
-    dexRouter = ISomniaExchangeRouter02(_router);
+    dexRouter = INonfungiblePositionManager(_router);
+    tickLower = _tickLower;
+    tickUpper = _tickUpper;
   }
 
   /**
@@ -67,7 +72,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
    */
   function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
     external onlyAuthorized(token) nonReentrant whenNotPaused
-    returns (uint256 amountA, uint256 amountB, uint256 liquidity)
+    returns (uint256 amount0, uint256 amount1, uint256 liquidity, uint256 lpTokenId)
   {
     // Ensure the caller has approved the DEX to spend their tokens and USDC
     // require(IERC20(token).allowance(msg.sender, address(this)) >= tokensAmount, "Insufficient token allowance");
@@ -82,33 +87,31 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     USDC.approve(address(dexRouter), usdcAmount);
 
     // Add liquidity (auto-creates USDC/Token pair)
-    try dexRouter.addLiquidity(
-        address(USDC),
-        token,
-        usdcAmount,
-        tokensAmount,
-        (usdcAmount * 95) / 100, // 5% slippage tolerance
-        (tokensAmount * 95) / 100,
-        creator, // Send LP Tokens to Creator  OR   address(0), // Burn LP tokens
-        block.timestamp + 60
-    ) returns (uint amtA, uint amtB, uint amtC) {
-      // Get the pair address after deployment
-      address pair = ISomniaExchangeFactory(dexRouter.factory()).getPair(token, address(USDC));
+    INonfungiblePositionManager.MintParams memory params =
+      INonfungiblePositionManager.MintParams({
+        token0: address(USDC),
+        token1: token,
+        tickLower: tickLower,
+        tickUpper: tickUpper,
+        amount0Desired: usdcAmount,
+        amount1Desired: tokensAmount,
+        amount0Min: (usdcAmount * 95) / 100, // 5% slippage tolerance
+        amount1Min: (tokensAmount * 95) / 100,
+        recipient: creator,
+        deadline: block.timestamp
+      });
+    (lpTokenId, liquidity, amount0, amount1) = dexRouter.mint(params);
 
-      // Emit Liquidity event
-      emit LiquidityDeployed(
-        token,
-        creator,
-        pair,
-        amountA,
-        amountB,
-        liquidity,
-        block.timestamp
-      );
-      return (amtA, amtB, amtC);
-    } catch {
-      revert("Deploy Liquidity failed");
-    }
+    // Emit Liquidity event
+    emit LiquidityDeployed(
+      token,
+      creator,
+      lpTokenId,
+      amount0,
+      amount1,
+      liquidity,
+      block.timestamp
+    );
   }
 
   /**
@@ -136,7 +139,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   }
 
   function updateRouter(address newRouter) external onlyOwner {
-    dexRouter = ISomniaExchangeRouter02(newRouter);
+    dexRouter = INonfungiblePositionManager(newRouter);
     emit RouterUpdated(newRouter, block.timestamp);
   }
 

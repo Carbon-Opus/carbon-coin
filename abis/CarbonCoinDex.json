@@ -15,6 +15,16 @@
         "internalType": "address",
         "name": "_config",
         "type": "address"
+      },
+      {
+        "internalType": "int24",
+        "name": "_tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "_tickUpper",
+        "type": "int24"
       }
     ],
     "stateMutability": "nonpayable",
@@ -123,10 +133,10 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "pair",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -273,17 +283,22 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "amountA",
+        "name": "amount0",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "amountB",
+        "name": "amount1",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "liquidity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpTokenId",
         "type": "uint256"
       }
     ],
@@ -295,7 +310,7 @@
     "name": "dexRouter",
     "outputs": [
       {
-        "internalType": "contract ISomniaExchangeRouter02",
+        "internalType": "contract INonfungiblePositionManager",
         "name": "",
         "type": "address"
       }

@@ -23,7 +23,7 @@
       },
       {
         "internalType": "address",
-        "name": "_controller",
+        "name": "_paymaster",
         "type": "address"
       },
       {
@@ -350,19 +350,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newController",
-        "type": "address"
-      }
-    ],
-    "name": "ControllerUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "creator",
         "type": "address"
       },
@@ -421,6 +408,12 @@
         "internalType": "address",
         "name": "token",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -492,6 +485,19 @@
       }
     ],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newPaymaster",
+        "type": "address"
+      }
+    ],
+    "name": "PaymasterUpdated",
     "type": "event"
   },
   {
@@ -967,26 +973,6 @@
         "internalType": "uint256",
         "name": "minTokensOut",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
       }
     ],
     "name": "buyOnBehalf",
@@ -1616,11 +1602,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newController",
+        "name": "newPaymaster",
         "type": "address"
       }
     ],
-    "name": "updateController",
+    "name": "updatePaymaster",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

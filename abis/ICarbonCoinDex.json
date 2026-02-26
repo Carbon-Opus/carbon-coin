@@ -65,10 +65,10 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "pair",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -155,6 +155,11 @@
       {
         "internalType": "uint256",
         "name": "liquidity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpTokenId",
         "type": "uint256"
       }
     ],

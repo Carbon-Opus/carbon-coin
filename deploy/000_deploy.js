@@ -1,8 +1,6 @@
-const { run }= require('hardhat');
-const { chainNameById, chainIdByName, isHardhat, log } = require('../js-helpers/utils');
+const { chainNameById, chainIdByName, isHardhat, findNearestValidTick, log } = require('../js-helpers/utils');
 const { verifyContract } = require('../js-helpers/verifyContract');
 const globals = require('../js-helpers/globals');
-const carbonCoinAbi = require('../abis/CarbonCoin.json');
 const _ = require('lodash');
 
 module.exports = async (hre) => {
@@ -17,13 +15,28 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   const usdcAddress = globals.addresses[chainId].usdc;
   const nftUri = globals.opusNftUri[chainId];
-  const useExistingOpusContract = isHardhat(network) ? '' : '';
-  const useExistingConfigContract = isHardhat(network) ? '' : '';
-  const useExistingDexContract = isHardhat(network) ? '' : '';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '';
-  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
-  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x491DC6e249d0595993751DEED326e12B96Fa38dF';
+  const tickLower = BigInt(findNearestValidTick(60, true));
+  const tickUpper = BigInt(findNearestValidTick(60, false));
+
+  // SOMNIA TESTNET
+  const useExistingOpusContract = isHardhat(network) ? '' : '0x53569368Fd01580d3B5285991925Ca8Abc689F78';
+  const useExistingConfigContract = isHardhat(network) ? '' : '0x9d983Cd5e3233ce6802F22e3DA83E8740ce46376';
+  const useExistingDexContract = isHardhat(network) ? '' : '0xd1B569162263C9AAe4f71811596A9aCDEb6DadE8';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '0xC4093f1F11d09B85210ab87bF5EdA102fF555C31';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0x55c1Cd9641AfeA42Ab6e2D06F45927C220492ecE';
+  const useExistingPaymasterContract = isHardhat(network) ? '' : '0x7319D6bB8da5fdE0a4871d5F87E488081E92f239';
+  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x505EadB7119e7363Af54f80C0b9fd5b2f44c1F65';
+  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xC663aBefB9d88b7eDc50d571560463Fdf1478615';
+
+  // SEI TESTNET
+  // const useExistingOpusContract = isHardhat(network) ? '' : '0xAd368881763e7B80A73798e5327092F3FC45336a';
+  // const useExistingConfigContract = isHardhat(network) ? '' : '0xd7240874cf781531520ce59373624B30d788d27f';
+  // const useExistingDexContract = isHardhat(network) ? '' : '0x39af2c049b52D9408E3f63Ef55f3eD28f0d7750a';
+  // const useExistingProtectionContract = isHardhat(network) ? '' : '0xd8bFF003AcfF6067B5F6AB1EC966eD650C6f0740';
+  // const useExistingLauncherContract = isHardhat(network) ? '' : '0x62a961BAF49d015075e6B0e1a8F59e29d0aa4588';
+  // const useExistingPaymasterContract = isHardhat(network) ? '' : '';
+  // const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x63106e73AaeAaC5DF3345A3c32ea735c40D1Dc2C';
+  // const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x653bca3d87630e0Bd826ccfFa39De9f776a554FB';
 
   const sampleCarbonCoinArgs = [
     'Carbon Coin',
@@ -120,6 +133,8 @@ module.exports = async (hre) => {
       usdcAddress,
       dexRouter,
       carbonCoinConfig.address,
+      tickLower,
+      tickUpper,
     ];
     await deploy('CarbonCoinDex', {
       from: deployer,
@@ -134,6 +149,30 @@ module.exports = async (hre) => {
     carbonCoinDex = await ethers.getContract('CarbonCoinDex');
   } else {
     carbonCoinDex = await ethers.getContractAt('CarbonCoinDex', useExistingDexContract);
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
+  // Deploy CarbonCoinPaymaster
+  if (useExistingPaymasterContract.length === 0) {
+    log('  Deploying CarbonCoinPaymaster...');
+    const constructorArgs = [
+      usdcAddress,
+    ];
+    await deploy('CarbonCoinPaymaster', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+  }
+
+  // Get Deployed CarbonCoinPaymaster
+  let carbonCoinPaymaster;
+  if (useExistingPaymasterContract.length === 0) {
+    carbonCoinPaymaster = await ethers.getContract('CarbonCoinPaymaster');
+  } else {
+    carbonCoinPaymaster = await ethers.getContractAt('CarbonCoinPaymaster', useExistingPaymasterContract);
   }
 
   //
@@ -170,6 +209,7 @@ module.exports = async (hre) => {
       carbonCoinConfig.address,
       usdcAddress,
       carbonCoinProtection.address,
+      carbonCoinPaymaster.address,
     ];
     await deploy('CarbonCoinLauncher', {
       from: deployer,
@@ -305,12 +345,32 @@ module.exports = async (hre) => {
       usdcAddress,
       dexRouter,
       carbonCoinConfig.address,
+      tickLower,
+      tickUpper,
     ];
     if (!isHardhat(network)) {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinDex...: ${useExistingDexContract}`);
         const contract = carbonCoinDex || await ethers.getContractAt('CarbonCoinDex', useExistingDexContract);
         await verifyContract('CarbonCoinDex', contract, constructorArgs);
+      // }, 1000);
+    }
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
+  // Verify CarbonCoinPaymaster
+  if (carbonCoinPaymaster || useExistingPaymasterContract.length !== 0) {
+    log('  Verifying CarbonCoinPaymaster...');
+    const constructorArgs = [
+      usdcAddress,
+    ];
+    if (!isHardhat(network)) {
+      // setTimeout(async () => {
+        console.log(`  Verifying CarbonCoinPaymaster...: ${useExistingPaymasterContract}`);
+        const contract = carbonCoinPaymaster || await ethers.getContractAt('CarbonCoinPaymaster', useExistingPaymasterContract);
+        await verifyContract('CarbonCoinPaymaster', contract, constructorArgs);
       // }, 1000);
     }
   }
@@ -343,6 +403,7 @@ module.exports = async (hre) => {
       carbonCoinConfig.address,
       usdcAddress,
       carbonCoinProtection.address,
+      carbonCoinPaymaster.address,
     ];
     if (!isHardhat(network)) {
       // setTimeout(async () => {

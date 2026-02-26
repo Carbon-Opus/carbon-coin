@@ -29,7 +29,7 @@ interface ICarbonCoinDex {
    * @notice Emitted when liquidity is deployed for a graduated token
    * @param token The address of the CarbonCoin token
    * @param creator The address of the token creator
-   * @param pair The address of the DEX pair created
+   * @param lpTokenId The Token ID of the Liquidity Position NFT
    * @param tokenAmount The amount of tokens added to liquidity
    * @param usdcAmount The amount of USDC added to liquidity
    * @param liquidity The amount of LP tokens minted
@@ -38,7 +38,7 @@ interface ICarbonCoinDex {
   event LiquidityDeployed(
     address indexed token,
     address indexed creator,
-    address indexed pair,
+    uint256 lpTokenId,
     uint256 tokenAmount,
     uint256 usdcAmount,
     uint256 liquidity,
@@ -79,5 +79,5 @@ interface ICarbonCoinDex {
    */
   function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
     external
-    returns (uint256 amountA, uint256 amountB, uint256 liquidity);
+    returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
 }

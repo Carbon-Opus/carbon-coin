@@ -121,7 +121,7 @@ const config: HardhatUserConfig = {
         count: 10,
       },
       chainId: 1328, // Sei testnet chain ID
-      gasPrice: 2000000000 // 2 gwei = 2 nsei
+      // gasPrice: 2000000000 // 2 gwei = 2 nsei
     },
     somnia: {
       chainId: 5031,

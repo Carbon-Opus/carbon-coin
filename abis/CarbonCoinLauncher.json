@@ -15,6 +15,11 @@
         "internalType": "address",
         "name": "_protectionAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_paymasterAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -240,43 +245,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "coinAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "buyer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "usdcAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokensOut",
-        "type": "uint256"
-      }
-    ],
-    "name": "TokenBuy",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
       },
@@ -325,43 +293,6 @@
       }
     ],
     "name": "TokenGraduated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "coinAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "seller",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokensAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "usdcOut",
-        "type": "uint256"
-      }
-    ],
-    "name": "TokenSell",
     "type": "event"
   },
   {
@@ -560,6 +491,19 @@
   },
   {
     "inputs": [],
+    "name": "paymasterAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "protectionAddress",
     "outputs": [
       {
@@ -665,72 +609,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "coinAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "buyer",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "usdcAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokensOut",
-        "type": "uint256"
-      }
-    ],
-    "name": "trackCoinBuy",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "coinAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "seller",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokensAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "usdcOut",
-        "type": "uint256"
-      }
-    ],
-    "name": "trackCoinSell",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

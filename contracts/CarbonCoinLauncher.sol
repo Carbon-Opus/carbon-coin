@@ -50,6 +50,8 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   address public usdcAddress;
   /// @notice The address of the CarbonCoinProtection contract for initializing new tokens with protection features.
   address public protectionAddress;
+  /// @notice The address of the CarbonCoinPaymaster contract.
+  address public paymasterAddress;
   /// @notice The address of the controller of the contract.
   address internal _controller;
   /// @notice The maximum number of tokens that a single address can create.
@@ -72,11 +74,13 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
    * @param _configAddress The address of the CarbonCoinConfig contract.
    * @param _usdcAddress The address of the USDC token.
    * @param _protectionAddress The address of the CarbonCoinProtection contract.
+   * @param _paymasterAddress The address of the CarbonCoinPaymaster contract.
    */
   constructor(
     address _configAddress,
     address _usdcAddress,
-    address _protectionAddress
+    address _protectionAddress,
+    address _paymasterAddress
   ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
     if (_configAddress == address(0) || _usdcAddress == address(0) || _protectionAddress == address(0))
       revert InvalidParameters();
@@ -84,6 +88,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     configAddress = _configAddress;
     usdcAddress = _usdcAddress;
     protectionAddress = _protectionAddress;
+    paymasterAddress = _paymasterAddress;
     _controller = msg.sender;
   }
 
@@ -117,7 +122,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
       symbol,
       creatorAddress,
       usdcAddress,
-      _controller,
+      paymasterAddress,
       configAddress,
       protectionAddress,
       curveConfig
@@ -165,14 +170,6 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
       tokens[tokenAddress].graduated = true;
       emit TokenGraduated(tokenAddress, block.timestamp);
     }
-  }
-
-  function trackCoinBuy(address coinAddress, address buyer, uint256 usdcAmount, uint256 fee, uint256 tokensOut) external {
-    emit TokenBuy(coinAddress, buyer, usdcAmount, fee, tokensOut);
-  }
-
-  function trackCoinSell(address coinAddress, address seller, uint256 tokensAmount, uint256 fee, uint256 usdcOut) external {
-    emit TokenSell(coinAddress, seller, tokensAmount, fee, usdcOut);
   }
 
   /**

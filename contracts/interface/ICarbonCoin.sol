@@ -67,6 +67,7 @@ interface ICarbonCoin {
   );
   event Graduated(
     address indexed token,
+    uint256 lpTokenId,
     uint256 liquidityTokens,
     uint256 liquidityUsdc,
     uint256 finalPrice,
@@ -77,7 +78,7 @@ interface ICarbonCoin {
   event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
-  event ControllerUpdated(address indexed newController);
+  event PaymasterUpdated(address indexed newPaymaster);
 
   // State tracking events
   event PriceUpdate(uint256 price, uint256 usdcReserves, uint256 tokenSupply, uint256 timestamp);
@@ -192,11 +193,7 @@ interface ICarbonCoin {
   function buyOnBehalf(
         address receiver,
         uint256 usdcAmount,
-        uint256 minTokensOut,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        uint256 minTokensOut
     ) external;
 
   /**

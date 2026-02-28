@@ -47,6 +47,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     uint256 public immutable GRADUATION_THRESHOLD;
 
     // State variables
+    uint256 public lastGraduationAttempt;
+    uint256 public constant GRADUATION_COOLDOWN = 1 hours;
     uint256 public realUsdcReserves;
     uint256 public realTokenSupply;
     uint256 public immutable launchTime;
@@ -54,15 +56,9 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address public immutable config;
     address public immutable launcher;
     address public immutable protection;
-    address internal paymaster;
-    bool public hasGraduated;
-
-    // USDC token integration
+    address public immutable paymaster;
     IERC20 public immutable USDC;
-
-    // Emergency withdrawal protection
-    uint256 public lastGraduationAttempt;
-    uint256 public constant GRADUATION_COOLDOWN = 1 hours;
+    bool public hasGraduated;
 
     /**
      * @notice Constructor for the CarbonCoinUSDC contract.
@@ -126,29 +122,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
             GRADUATION_THRESHOLD,
             block.timestamp
         );
-    }
-
-    /**
-     * @notice Get total supply including creator reserve
-     */
-    function getTotalMaxSupply() external view returns (uint256) {
-        return MAX_SUPPLY;
-    }
-
-    /**
-     * @notice Get bonding curve supply (excludes creator reserve)
-     */
-    function getBondingCurveMaxSupply() external view returns (uint256) {
-        return CURVE_SUPPLY;
-    }
-
-    /**
-     * @notice Get the liquidity supply for the bonding curve.
-     * @dev This determines how much of the total supply is allocated to liquidity vs creator reserve.
-     * @return The liquidity supply amount.
-     */
-    function getLiquiditySupply() external view returns (uint256) {
-        return LIQUIDITY_SUPPLY;
     }
 
     /**
@@ -307,8 +280,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     /**
-     * @notice
-     * @dev
+     * @notice Allows a user to buy tokens with USDC using the Paymaster (Managed Wallets Only).
      * @param receiver The address of the user receiving the tokens.
      * @param usdcAmount The amount of USDC to spend.
      * @ param minTokensOut The minimum number of tokens the user is willing to accept.
@@ -327,6 +299,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     /**
      * @notice Allows a user to sell tokens for USDC.
+     * @dev No token approval/transfer required as this is the token contract, and we just burn the tokens.
      * @dev This function is the main entry point for selling tokens.
      * @param tokensIn The amount of tokens to sell.
      * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
@@ -353,6 +326,38 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         }
 
         _executeSell(msg.sender, tokensIn, minUsdcOut, usdcOut, feeAmount);
+    }
+
+    /**
+     * @notice Allows a user to sell tokens for USDC.
+     * @dev No token approval/transfer required as this is the token contract, and we just burn the tokens.
+     * @dev This function is the main entry point for selling tokens.
+     * @param receiver The address of the user receiving the tokens.
+     * @param tokensIn The amount of tokens to sell.
+     * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
+     */
+    function sellOnBehalf(address receiver, uint256 tokensIn, uint256 minUsdcOut) external nonReentrant whenNotPaused onlyPaymaster {
+        ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
+
+        if (hasGraduated) revert AlreadyGraduated();
+        if (tokensIn == 0) revert InvalidAmount();
+        if (balanceOf(receiver) < tokensIn) revert InvalidAmount();
+
+        (uint256 usdcOut, uint256 feeAmount) = calculateUsdcOutWithFee(tokensIn);
+
+        // Check whale intent
+        (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
+            address(this),
+            receiver,
+            usdcOut + feeAmount,
+            false
+        );
+
+        if (requiresIntent && !canProceed) {
+            revert WhaleIntentRequired();
+        }
+
+        _executeSell(receiver, tokensIn, minUsdcOut, usdcOut, feeAmount);
     }
 
     /**
@@ -546,14 +551,14 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     // Emergency withdrawal (only if something goes wrong before graduation)
-    function emergencyWithdraw() external onlyAuthorized {
+    function emergencyWithdraw() external onlyOwner {
         if (hasGraduated) revert AlreadyGraduated();
         require(paused(), "Must be paused first");
 
         uint256 balance = USDC.balanceOf(address(this));
-        require(USDC.transfer(launcher, balance), "Withdrawal failed");
+        require(USDC.transfer(msg.sender, balance), "Withdrawal failed");
 
-        emit EmergencyWithdraw(launcher, balance, block.timestamp);
+        emit EmergencyWithdraw(msg.sender, balance, block.timestamp);
         emit LiquiditySnapshot(0, 0, 0, block.timestamp);
     }
 
@@ -564,12 +569,6 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
         uint256 virtualTokens
     ) {
         return (realUsdcReserves, realTokenSupply, VIRTUAL_USDC, VIRTUAL_TOKENS);
-    }
-
-    function updatePaymaster(address newPaymaster) external onlyAuthorized {
-      require(newPaymaster != address(0), "Invalid paymaster");
-      paymaster = newPaymaster;
-      emit PaymasterUpdated(newPaymaster);
     }
 
     function _owner() internal view returns (address) {
@@ -586,6 +585,11 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     function _getWhaleLimitConfig() internal view returns (ICarbonCoinConfig.WhaleLimitConfig memory) {
       return ICarbonCoinConfig(config).getWhaleLimitConfig();
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != _owner()) revert Unauthorized();
+        _;
     }
 
     modifier onlyAuthorized() {

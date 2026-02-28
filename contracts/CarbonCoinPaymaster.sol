@@ -75,6 +75,23 @@ contract CarbonCoinPaymaster is ICarbonCoinPaymaster, ReentrancyGuard, Ownable {
     emit TokenBuy(creatorCoin, receiver, usdcAmount, minTokensOut);
   }
 
+  function sellOnBehalf(
+    address receiver,
+    address creatorCoin,
+    uint256 amount,
+    uint256 minUsdcOut
+  ) external nonReentrant onlyController {
+    // Execute Sale
+    ICarbonCoin(creatorCoin).buyOnBehalf(
+      receiver,
+      amount,
+      minUsdcOut
+    );
+
+    // Emit event
+    emit TokenBuy(creatorCoin, receiver, amount, minUsdcOut);
+  }
+
   function updateController(address newController) external onlyOwner {
     require(newController != address(0), "Invalid controller");
     controller = newController;

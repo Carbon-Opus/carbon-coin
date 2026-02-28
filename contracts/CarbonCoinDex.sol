@@ -27,13 +27,12 @@ pragma solidity 0.8.27;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
 
 
-contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
+contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable {
   // USDC token integration
   IERC20 public immutable USDC;
   address public config;
@@ -53,7 +52,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     address _config,
     int24 _tickLower,
     int24 _tickUpper
-  ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
+  ) Ownable(msg.sender) ReentrancyGuard() {
     // Validate inputs
     require(_usdc != address(0), "Invalid USDC address");
     require(_router != address(0), "Invalid router");
@@ -71,13 +70,9 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
    * @dev Creates a USDC/Token liquidity pool.
    */
   function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
-    external onlyAuthorized(token) nonReentrant whenNotPaused
+    external onlyAuthorized(token) nonReentrant
     returns (uint256 amount0, uint256 amount1, uint256 liquidity, uint256 lpTokenId)
   {
-    // Ensure the caller has approved the DEX to spend their tokens and USDC
-    // require(IERC20(token).allowance(msg.sender, address(this)) >= tokensAmount, "Insufficient token allowance");
-    // require(USDC.allowance(msg.sender, address(this)) >= usdcAmount, "Insufficient USDC allowance");
-
     // Transfer tokens and USDC from the caller to this contract
     require(IERC20(token).transferFrom(msg.sender, address(this), tokensAmount), "Token transfer failed");
     require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
@@ -112,22 +107,6 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
       liquidity,
       block.timestamp
     );
-  }
-
-  /**
-   * @notice Pause the DEX
-   */
-  function pause() external onlyOwner {
-    _pause();
-    emit DexPaused(block.timestamp);
-  }
-
-  /**
-   * @notice Unpause the DEX
-   */
-  function unpause() external onlyOwner {
-    _unpause();
-    emit DexUnpaused(block.timestamp);
   }
 
   /**

@@ -41,4 +41,11 @@ interface ICarbonCoinPaymaster {
     bytes32 r,
     bytes32 s
   ) external;
+
+  function sellOnBehalf(
+    address receiver,
+    address creatorCoin,
+    uint256 amount,
+    uint256 minUsdcOut
+  ) external;
 }

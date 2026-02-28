@@ -97,15 +97,6 @@ interface ICarbonCoin {
   error CreatorCannotSellBeforeGraduation();
 
   /**
-   * @notice Get total supply including creator reserve
-   */
-  function getTotalMaxSupply() external view returns (uint256);
-  /**
-   * @notice Get bonding curve supply (excludes creator reserve)
-   */
-  function getBondingCurveMaxSupply() external view returns (uint256);
-
-  /**
    * @notice Get the current token price in USDC.
    * @dev Calculates the price based on the bonding curve's virtual and real reserves.
    * @return The current price of one token in USDC (with 6 decimals for USDC).
@@ -191,10 +182,10 @@ interface ICarbonCoin {
   function buy(uint256 usdcAmount, uint256 minTokensOut) external;
 
   function buyOnBehalf(
-        address receiver,
-        uint256 usdcAmount,
-        uint256 minTokensOut
-    ) external;
+    address receiver,
+    uint256 usdcAmount,
+    uint256 minTokensOut
+  ) external;
 
   /**
    * @notice Allows a user to sell tokens for USDC.
@@ -203,6 +194,12 @@ interface ICarbonCoin {
    * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
    */
   function sell(uint256 tokensIn, uint256 minUsdcOut) external;
+
+  function sellOnBehalf(
+    address receiver,
+    uint256 tokensIn,
+    uint256 minUsdcOut
+  ) external;
 
   function getReserves() external view returns (
     uint256 usdcReserves,

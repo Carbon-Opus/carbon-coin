@@ -23,9 +23,9 @@ module.exports = async (hre) => {
   const useExistingConfigContract = isHardhat(network) ? '' : '0x9d983Cd5e3233ce6802F22e3DA83E8740ce46376';
   const useExistingDexContract = isHardhat(network) ? '' : '0xd1B569162263C9AAe4f71811596A9aCDEb6DadE8';
   const useExistingProtectionContract = isHardhat(network) ? '' : '0xC4093f1F11d09B85210ab87bF5EdA102fF555C31';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x55c1Cd9641AfeA42Ab6e2D06F45927C220492ecE';
-  const useExistingPaymasterContract = isHardhat(network) ? '' : '0x7319D6bB8da5fdE0a4871d5F87E488081E92f239';
-  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x505EadB7119e7363Af54f80C0b9fd5b2f44c1F65';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0xe7382cf98B999465C164bB25Db1C1Afac4Cf7Ebc';
+  const useExistingPaymasterContract = isHardhat(network) ? '' : '0xf042beb22da3ac19BbcFcd35DCadB7e37048dEb4';
+  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0xF1f3D2Fc707a41b7858e69AC7df0bA9900C2003C';
   const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xC663aBefB9d88b7eDc50d571560463Fdf1478615';
 
   // SEI TESTNET

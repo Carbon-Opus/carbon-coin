@@ -76,7 +76,7 @@ interface INonfungiblePositionManager {
         uint256 deadline;
     }
 
-    /// @notice Increases the amount of liquidity in a position, with tokens paid by the `msg.sender`
+    /// @notice Increases the amount of liquidity in a position, with tokens paid by the `_msgSender()`
     /// @param params tokenId The ID of the token for which liquidity is being increased,
     /// amount0Desired The desired amount of token0 to be spent,
     /// amount1Desired The desired amount of token1 to be spent,

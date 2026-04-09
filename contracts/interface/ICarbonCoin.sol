@@ -67,7 +67,6 @@ interface ICarbonCoin {
   );
   event Graduated(
     address indexed token,
-    uint256 lpTokenId,
     uint256 liquidityTokens,
     uint256 liquidityUsdc,
     uint256 finalPrice,
@@ -75,7 +74,7 @@ interface ICarbonCoin {
   );
 
   // Admin events
-  event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
+  event EmergencyWithdraw(address indexed sender, address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
   event PaymasterUpdated(address indexed newPaymaster);

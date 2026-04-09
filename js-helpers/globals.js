@@ -41,11 +41,11 @@ const globals = {
   // Standard Parameters
   maxTokensPerCreator: 100,
   opusNftUri: {
-    1329: 'https://api-6mceyrhrja-uc.a.run.app/metadata/{id}.json',
-    1328: 'https://api-plxgamnywq-uc.a.run.app/metadata/{id}.json',
-    5031: 'https://api-6mceyrhrja-uc.a.run.app/metadata/{id}.json',
-    50312: 'https://api-plxgamnywq-uc.a.run.app/metadata/{id}.json',
-    34443: 'https://api-plxgamnywq-uc.a.run.app/metadata/{id}.json',
+    1329: 'https://api-6mceyrhrja-uc.a.run.app/nft/{id}.json',
+    1328: 'https://api-plxgamnywq-uc.a.run.app/nft/{id}.json',
+    5031: 'https://api-6mceyrhrja-uc.a.run.app/nft/{id}.json',
+    50312: 'https://api-plxgamnywq-uc.a.run.app/nft/{id}.json',
+    34443: 'https://api-plxgamnywq-uc.a.run.app/nft/{id}.json',
   },
 
   // ABIs

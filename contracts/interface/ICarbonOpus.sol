@@ -45,17 +45,16 @@ interface ICarbonOpus {
     event RewardsClaimed(bytes32 indexed memberId, address indexed account, uint256 amount);
     event RewardsDistributed(bytes32 indexed artist, bytes32 indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
     event SongCreated(uint256 indexed tokenId, bytes32 indexed artist, uint256 price, uint256 referralPct);
-    event SongPurchased(uint256 indexed tokenId, bytes32 indexed buyer, bytes32 indexed referrer, uint256 price);
+    event SongPurchased(uint256 indexed tokenId, bytes32 indexed buyer, bytes32 indexed referrer, uint256 price, bool inBatch);
+    event BatchPurchased(address indexed memberAddress, bytes32 indexed memberId);
     event SongPriceUpdated(uint256 indexed tokenId, uint256 newPrice);
     event SongReferralPctUpdated(uint256 indexed tokenId, uint256 newPct);
     event SongPriceScaled(uint256 indexed tokenId, uint256 newPrice);
     event ProtocolFeeUpdated(uint256 newFee);
-    event CreationFeeUpdated(uint256 newFee);
     event ControllerUpdated(address indexed newController);
     event MemberAddressUpdated(bytes32 indexed memberId, address indexed newAddress);
 
     function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
-    function createMusicWithFee(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct, uint256 fee, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
     function purchaseMusicOnBehalf(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external;

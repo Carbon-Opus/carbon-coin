@@ -43,7 +43,6 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
 
   IUSDC public usdcToken;
   uint256 public protocolFee;
-  uint256 public creationFee;
   uint256 private _nextTokenId;
   address internal _controller;
 
@@ -53,33 +52,12 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
   constructor(string memory uri, address usdcTokenAddress) ERC1155(uri) Ownable(_msgSender()) {
     _nextTokenId = 1;
     protocolFee = 100; // 1% fee (100 basis points)
-    creationFee = 1 * (10**6); // 1 USDC
     _controller = _msgSender();
     usdcToken = IUSDC(usdcTokenAddress);
   }
 
   function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external {
     if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
-
-    // Create new song
-    uint256 tokenId = _nextTokenId++;
-    _memberSongsCreated[memberId].push(tokenId);
-    _memberSongsOwned[memberAddress].push(tokenId);
-    songs[tokenId] = Song(memberId, price, referralPct);
-
-    // Mint the song to the artist
-    _mint(memberAddress, tokenId, 1, "");
-
-    // Emit event
-    emit SongCreated(tokenId, memberId, price, referralPct);
-  }
-
-  function createMusicWithFee(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct, uint256 fee, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-    // if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
-    require(fee >= creationFee, "Invalid fee");
-
-    // Collect payment
-    _collectPaymentWithPermit(memberAddress, fee, deadline, v, r, s);
 
     // Create new song
     uint256 tokenId = _nextTokenId++;
@@ -191,12 +169,6 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     emit ProtocolFeeUpdated(newFee);
   }
 
-  function updateCreationFee(uint256 newFee) external onlyOwner {
-    if (newFee < 30 || newFee > 1000) revert InvalidFee(newFee);
-    creationFee = newFee;
-    emit CreationFeeUpdated(newFee);
-  }
-
   function updateController(address newController) external onlyOwner {
     if (newController == address(0)) revert InvalidAddress(newController);
     _controller = newController;
@@ -254,7 +226,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     _mint(memberAddress, tokenId, 1, "");
 
     // Track Purchase
-    emit SongPurchased(tokenId, memberId, referrer, song.price);
+    emit SongPurchased(tokenId, memberId, referrer, song.price, false);
   }
 
   function _purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) internal {
@@ -269,11 +241,13 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
 
       // Track Purchase
       amounts[i] = 1;
-      emit SongPurchased(tokenId, memberId, referrer, song.price);
+      emit SongPurchased(tokenId, memberId, referrer, song.price, true);
     }
 
     // Mint Batch of Songs
     _mintBatch(memberAddress, tokenIds, amounts, "");
+
+    emit BatchPurchased(memberAddress, memberId);
   }
 
   function _update(

@@ -19,7 +19,7 @@
     "coverage": "hardhat --show-stack-traces coverage --temp coverage_build",
     "gas": "REPORT_GAS=true hardhat test",
     "start": "hardhat node --port 8545",
-    "deploy": "hardhat deploy --tags CarbonCoinLauncher --network",
+    "deploy": "hardhat deploy --tags Everything --network",
     "deploy-mock": "hardhat deploy --tags ERC20Mintable --network"
   },
   "dependencies": {

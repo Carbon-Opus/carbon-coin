@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// ICarbonCoinDex.sol
-// Copyright (c) 2025 CarbonOpus
+// IPhoenixSig.sol
+// Copyright (c) 2025 Firma Lux Labs, Inc. <https://carbonopus.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-//
 
-pragma solidity 0.8.27;
+pragma solidity >=0.8.0;
 
-interface ICarbonCoinDex {
-    event LiquidityDeployed(
-        address indexed token,
-        address indexed creator,
-        uint256 indexed lpTokenId,
-        uint256 tokenAmount,
-        uint256 usdcAmount,
-        uint256 liquidity,
-        uint256 timestamp
-    );
-    event LiquidityRemoved(address indexed token, address indexed to, uint256 amountA, uint256 amountB, uint256 timestamp);
-    event TokensSwapped(address indexed token, address indexed to, uint256 amountIn, uint256 amountOut, address[] path, uint256 timestamp);
-    event DexPaused(uint256 timestamp);
-    event DexUnpaused(uint256 timestamp);
-    event ConfigUpdated(address indexed newConfig, uint256 timestamp);
-    event RouterUpdated(address indexed newRouter, uint256 timestamp);
+interface IPhoenixSig {
+  function recoverSigner(
+    uint256 tokenId,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) external view returns (address);
 
-    error Unauthorized();
-
-    function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
-      external
-      returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
+  // solhint-disable-next-line func-name-mixedcase
+  function DOMAIN_SEPARATOR() external view returns (bytes32);
 }

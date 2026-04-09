@@ -42,6 +42,16 @@ const config: HardhatUserConfig = {
         version: '0.7.6',
       },
       {
+        version: '0.8.20',
+        settings: {
+          optimizer: {
+            enabled: !optimizerDisabled,
+            runs: 200,
+          },
+          viaIR: true,
+        },
+      },
+      {
         version: '0.8.27',
         settings: {
           optimizer: {
@@ -203,6 +213,10 @@ const config: HardhatUserConfig = {
       'CarbonCoinDex',
       'PermitAndTransfer',
       'ERC20Mintable',
+      'PhoenixEggs',
+      'PhoenixNFT_v1',
+      'PhoenixNFT_v2',
+      'PhoenixToken',
     ],
     except: [],
   },

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// ICarbonCoinDex.sol
-// Copyright (c) 2025 CarbonOpus
+// PhoenixSig.sol
+// Copyright (c) 2025 Firma Lux Labs, Inc. <https://carbonopus.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-//
 
-pragma solidity 0.8.27;
+pragma solidity >=0.8.0;
 
-interface ICarbonCoinDex {
-    event LiquidityDeployed(
-        address indexed token,
-        address indexed creator,
-        uint256 indexed lpTokenId,
-        uint256 tokenAmount,
-        uint256 usdcAmount,
-        uint256 liquidity,
-        uint256 timestamp
-    );
-    event LiquidityRemoved(address indexed token, address indexed to, uint256 amountA, uint256 amountB, uint256 timestamp);
-    event TokensSwapped(address indexed token, address indexed to, uint256 amountIn, uint256 amountOut, address[] path, uint256 timestamp);
-    event DexPaused(uint256 timestamp);
-    event DexUnpaused(uint256 timestamp);
-    event ConfigUpdated(address indexed newConfig, uint256 timestamp);
-    event RouterUpdated(address indexed newRouter, uint256 timestamp);
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-    error Unauthorized();
+import "../interface/IPhoenixSig.sol";
 
-    function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
-      external
-      returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
+abstract contract PhoenixSig is IPhoenixSig, EIP712 {
+  bytes32 private constant _SIG_TYPEHASH =
+    keccak256("PhoenixSig(uint256 tokenId,uint256 deadline)");
+
+  constructor(string memory name) EIP712(name, "1") {}
+
+  function recoverSigner(
+    uint256 tokenId,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) public virtual view override returns (address signer) {
+    require(block.timestamp <= deadline, "PhoenixSig: expired deadline");
+
+    bytes32 structHash = keccak256(abi.encode(_SIG_TYPEHASH, tokenId, deadline));
+    bytes32 hash = _hashTypedDataV4(structHash);
+    signer = ECDSA.recover(hash, v, r, s);
+  }
+
+  // solhint-disable-next-line func-name-mixedcase
+  function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+    return _domainSeparatorV4();
+  }
 }

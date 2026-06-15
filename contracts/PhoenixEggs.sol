@@ -308,7 +308,7 @@ contract PhoenixEggs is
     * @dev Set Phoenix NFT Contract - Only Owner
     */
   function setPhoenixNFT(address _phoenixNft) external onlyOwner {
-    if (address(_phoenixNft) != address(0)) {
+    if (address(phoenixNft) != address(0)) {
       require(phoenixNft.totalSupply() == 0, "already started");
     }
     phoenixNft = IPhoenixNFT(_phoenixNft);

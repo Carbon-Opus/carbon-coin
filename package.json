@@ -13,7 +13,7 @@
     "verify": "yarn hint && yarn test",
     "compile": "hardhat --show-stack-traces --max-memory 8192 compile",
     "clean-test": "rm -rf abis && rm -rf build && rm -rf cache && yarn test",
-    "test": "yarn hardhat test --deploy-fixture --network hardhat ./tests/CarbonCoin.test.ts",
+    "test": "yarn hardhat test --deploy-fixture --network hardhat ./test/CarbonCoin.test.ts",
     "watch-test": "hardhat watch test",
     "hint": "solhint \"contracts/**/*.sol\"",
     "coverage": "hardhat --show-stack-traces coverage --temp coverage_build",

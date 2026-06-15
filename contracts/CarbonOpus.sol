@@ -40,6 +40,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
 
   mapping (uint256 => Song) public songs;  // stored by tokenId
   mapping (bytes32 => uint256) public rewards; // stored by memberId
+  mapping (uint256 => uint256) public songRewards; // stored by tokenId
 
   IUSDC public usdcToken;
   uint256 public protocolFee;
@@ -62,8 +63,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     // Create new song
     uint256 tokenId = _nextTokenId++;
     _memberSongsCreated[memberId].push(tokenId);
-    _memberSongsOwned[memberAddress].push(tokenId);
-    songs[tokenId] = Song(memberId, price, referralPct);
+    songs[tokenId] = Song(memberId, price, referralPct, false);
 
     // Mint the song to the artist
     _mint(memberAddress, tokenId, 1, "");
@@ -78,6 +78,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     // Check if song exists
     Song storage song = songs[tokenId];
     if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
+    if (song.locked) revert SongLocked(tokenId);
 
     // Collect payment
     _collectPayment(song.price);
@@ -92,6 +93,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     // Check if song exists
     Song storage song = songs[tokenId];
     if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
+    if (song.locked) revert SongLocked(tokenId);
 
     // Collect payment
     _collectPaymentWithPermit(memberAddress, song.price, deadline, v, r, s);
@@ -126,6 +128,13 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
 
   function getRewards(bytes32 memberId) external view returns (uint256 amount) {
     amount = rewards[memberId];
+    uint256[] storage createdSongs = _memberSongsCreated[memberId];
+    for (uint256 i = 0; i < createdSongs.length; i++) {
+      uint256 tokenId = createdSongs[i];
+      if (!songs[tokenId].locked) {
+        amount += songRewards[tokenId];
+      }
+    }
   }
 
   function claimRewards(bytes32 memberId, address memberAddress) external {
@@ -133,8 +142,19 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     if (memberId != TREASURY_ID && _msgSender() != _controller) revert NotAuthorized(_msgSender());
 
     uint256 amount = rewards[memberId];
-    if (amount == 0) revert NoRewardsToClaim(memberId);
     rewards[memberId] = 0;
+
+    // Accumulate and claim from all created songs that are NOT locked
+    uint256[] storage createdSongs = _memberSongsCreated[memberId];
+    for (uint256 i = 0; i < createdSongs.length; i++) {
+      uint256 tokenId = createdSongs[i];
+      if (!songs[tokenId].locked) {
+        amount += songRewards[tokenId];
+        songRewards[tokenId] = 0;
+      }
+    }
+
+    if (amount == 0) revert NoRewardsToClaim(memberId);
     usdcToken.transfer(memberAddress, amount);
     emit RewardsClaimed(memberId, memberAddress, amount);
   }
@@ -161,6 +181,54 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     if (newPct > 9999) revert ReferralPercentTooHigh(newPct);
     song.referralPct = newPct;
     emit SongReferralPctUpdated(tokenId, newPct);
+  }
+
+  function updateSongLockStatus(uint256 tokenId, bool locked) external {
+    if (_msgSender() != _controller && _msgSender() != owner()) revert NotAuthorized(_msgSender());
+    Song storage song = songs[tokenId];
+    if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
+
+    song.locked = locked;
+    emit SongLockStatusUpdated(tokenId, locked);
+  }
+
+  function reassignSong(uint256 tokenId, bytes32 newMemberId, address oldMemberAddress, address newMemberAddress) external {
+    if (_msgSender() != _controller && _msgSender() != owner()) revert NotAuthorized(_msgSender());
+    Song storage song = songs[tokenId];
+    if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
+
+    bytes32 oldMemberId = song.memberId;
+    if (oldMemberId == newMemberId) return;
+
+    // Update song creator
+    song.memberId = newMemberId;
+
+    // Move tokenId in _memberSongsCreated
+    _removeSongFromMemberCreated(oldMemberId, tokenId);
+    _memberSongsCreated[newMemberId].push(tokenId);
+
+    // Transfer the minted NFT to the new owner if they have a balance
+    uint256 oldBalance = balanceOf(oldMemberAddress, tokenId);
+    if (oldBalance > 0) {
+      uint256[] memory ids = new uint256[](1);
+      ids[0] = tokenId;
+      uint256[] memory values = new uint256[](1);
+      values[0] = oldBalance;
+      _update(oldMemberAddress, newMemberAddress, ids, values);
+    }
+
+    emit SongReassigned(tokenId, oldMemberId, newMemberId, newMemberAddress);
+  }
+
+  function _removeSongFromMemberCreated(bytes32 memberId, uint256 tokenId) internal {
+    uint256[] storage createdSongs = _memberSongsCreated[memberId];
+    for (uint256 i = 0; i < createdSongs.length; i++) {
+      if (createdSongs[i] == tokenId) {
+        createdSongs[i] = createdSongs[createdSongs.length - 1];
+        createdSongs.pop();
+        break;
+      }
+    }
   }
 
   function updateProtocolFee(uint256 newFee) external onlyOwner {
@@ -202,7 +270,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
       artistAmount += referralAmount;
       referralAmount = 0;
     }
-    rewards[song.memberId] += artistAmount;
+    songRewards[tokenId] += artistAmount;
 
     emit RewardsDistributed(song.memberId, referrer, artistAmount, referralAmount, protocolAmount);
   }
@@ -212,6 +280,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     for (uint256 i = 0; i < tokenIds.length; i++) {
       Song storage song = songs[tokenIds[i]];
       if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenIds[i]);
+      if (song.locked) revert SongLocked(tokenIds[i]);
       totalCost += song.price;
     }
   }
@@ -256,20 +325,27 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     uint256[] memory ids,
     uint256[] memory values
   ) internal override {
-    // Restrict transfers to only minting and burning
-    // if (from != address(0) && to != address(0)) {
-    //     revert("Tokens are non-transferable");
-    // }
+    // If it's a transfer between non-zero addresses, update the ownership mappings
+    if (from != address(0) && to != address(0)) {
+      for (uint256 i = 0; i < ids.length; i++) {
+        uint256 tokenId = ids[i];
+        uint256 value = values[i];
 
-    if (from == address(0)) { // Mint
+        if (balanceOf(from, tokenId) == value) {
+          _removeTokenFromUser(from, tokenId);
+        }
+
+        if (balanceOf(to, tokenId) == 0) {
+          _memberSongsOwned[to].push(tokenId);
+        }
+      }
+    } else if (from == address(0)) { // Mint
       for (uint256 i = 0; i < ids.length; i++) {
         if (balanceOf(to, ids[i]) == 0) {
           _memberSongsOwned[to].push(ids[i]);
         }
       }
-    }
-
-    if (to == address(0)) { // Burn
+    } else if (to == address(0)) { // Burn
       for (uint256 i = 0; i < ids.length; i++) {
         if (balanceOf(from, ids[i]) == values[i]) {
           _removeTokenFromUser(from, ids[i]);

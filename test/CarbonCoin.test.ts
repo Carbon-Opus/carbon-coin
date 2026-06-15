@@ -10,7 +10,6 @@ describe("CarbonCoin", () => {
 
   beforeEach(async () => {
     await deployments.fixture(["CarbonCoinLauncher"]);
-    const { deploy } = deployments;
     const namedAccounts = await ethers.getNamedSigners();
     deployer = namedAccounts.deployer;
 
@@ -18,17 +17,20 @@ describe("CarbonCoin", () => {
     carbonCoinLauncher = await ethers.getContract<CarbonCoinLauncher>("CarbonCoinLauncher");
 
     const bondingCurveParams = {
-      virtualEth: ethers.utils.parseEther("30"),
-      virtualTokens: ethers.utils.parseEther("1073000000"),
-      maxSupply: ethers.utils.parseEther("1000000000"),
-      graduationThreshold: ethers.utils.parseEther("85"),
+      virtualUsdc: ethers.utils.parseUnits("5000", 6),
+      virtualTokens: ethers.utils.parseEther("6000000"),
+      creatorReserve: ethers.utils.parseEther("1000000"),
+      liquiditySupply: ethers.utils.parseEther("4500000"),
+      curveSupply: ethers.utils.parseEther("4500000"),
+      maxSupply: ethers.utils.parseEther("10000000"),
+      graduationThreshold: ethers.utils.parseUnits("15000", 6)
     };
 
     const createTokenTx = await carbonCoinLauncher.createToken(
       "Test Carbon Coin",
       "TCC",
-      bondingCurveParams,
-      { value: ethers.utils.parseEther("0.0001") }
+      deployer.address,
+      bondingCurveParams
     );
 
     const receipt = await createTokenTx.wait();

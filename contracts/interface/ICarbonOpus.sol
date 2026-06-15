@@ -29,6 +29,7 @@ interface ICarbonOpus {
         bytes32 memberId;
         uint256 price;
         uint256 referralPct;
+        bool locked;
     }
 
     error SongDoesNotExist(uint256 tokenId);
@@ -41,6 +42,7 @@ interface ICarbonOpus {
     error InvalidFee(uint256 newFee);
     error InvalidAddress(address addr);
     error InputArrayLengthMismatch();
+    error SongLocked(uint256 tokenId);
 
     event RewardsClaimed(bytes32 indexed memberId, address indexed account, uint256 amount);
     event RewardsDistributed(bytes32 indexed artist, bytes32 indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
@@ -53,6 +55,8 @@ interface ICarbonOpus {
     event ProtocolFeeUpdated(uint256 newFee);
     event ControllerUpdated(address indexed newController);
     event MemberAddressUpdated(bytes32 indexed memberId, address indexed newAddress);
+    event SongLockStatusUpdated(uint256 indexed tokenId, bool locked);
+    event SongReassigned(uint256 indexed tokenId, bytes32 indexed oldMemberId, bytes32 indexed newMemberId, address newMemberAddress);
 
     function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
     function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
@@ -68,4 +72,6 @@ interface ICarbonOpus {
     function updateProtocolFee(uint256 newFee) external;
     function updateController(address newController) external;
     function setURI(string memory newUri) external;
+    function updateSongLockStatus(uint256 tokenId, bool locked) external;
+    function reassignSong(uint256 tokenId, bytes32 newMemberId, address oldMemberAddress, address newMemberAddress) external;
 }

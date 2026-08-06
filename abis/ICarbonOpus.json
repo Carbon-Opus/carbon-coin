@@ -579,7 +579,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "purchaseBatchOnBehalf",
+    "name": "purchaseBatchWithPermit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -655,7 +655,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "purchaseMusicOnBehalf",
+    "name": "purchaseMusicWithPermit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

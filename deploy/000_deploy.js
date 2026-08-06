@@ -33,18 +33,18 @@ module.exports = async (hre) => {
   // const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xB186B434d7A2b6c462b92C5B93296163D66a011D';
 
   // SOMNIA Mainnet
-  const useExistingOpusContract = '0x54b32b288d7904D5d98Be1910975a80e45DA5e8d';
-  const useExistingConfigContract = '0xB55E96d519Fbf225b1E5fb3e22ACEa9B7e255224';
-  const useExistingDexContract = '0x660De54CEA09838d11Df0812E2754eD8D08CD2f7';
-  const useExistingProtectionContract = '0x7A8f5B15CFbFf4eaAc055524EC139Ed75Ef6D40A';
-  const useExistingLauncherContract = '0x0288280Df6221E7e9f23c1BB398c820ae0Aa6c10';
-  const useExistingPaymasterContract = '0xaB1a1410EA40930755C1330Cc0fB3367897C8c41';
-  const useExistingCarbonCoinContract = '0x644A09EaD4ff0E0c1CC0304C761ac5930386Ed8B';
-  const useExistingPhoenixDexContract = '0x76a5df1c6F53A4B80c8c8177edf52FBbC368E825';
-  const useExistingPhoenixEggsContract = '0x96D7791dA7928F0B35f7848b173f25773C7Cc06f';
-  const useExistingPhoenixNFT_v1Contract = '0xe2a9b15E283456894246499Fb912CCe717f83319';
-  const useExistingPhoenixTokenContract = '0x63174FA9680C674a5580f7d747832B2a2133Ad8f';
-  const useExistingPermitAndTransferContract = '0xB29256073C63960daAa398f1227D0adBC574341C';
+  const useExistingOpusContract = '0x35D46329504D7932C53DdBa267d068b55F745F52';
+  const useExistingConfigContract = '0x951dC5368D9E9bAC32b23fEeb14763bE82583D05';
+  const useExistingDexContract = '0xFeCd92Eb8Da13F514D36EeA72E0d82Bc2539Fe31';
+  const useExistingProtectionContract = '0x701Fc1756d65C2704D498b4eA68eBb9129806B45';
+  const useExistingLauncherContract = '0x307aB9b7cE20e0A316CD16A6d367AeE06A7d8cAe';
+  const useExistingPaymasterContract = '0x0CAD87D2Aee9527B181f5EDc33a4B8e7cC9ccAe8';
+  const useExistingCarbonCoinContract = '0xD2B40D8B72Da6B74959474F88f04CB8d2F763A90';
+  const useExistingPhoenixDexContract = '0x77E7bcfeE826b12cD498Faa9831d7055b7478272';
+  const useExistingPhoenixEggsContract = '0x2ED20E4b6B8bA41bE239F9552Cb93FfDa04A2fea';
+  const useExistingPhoenixNFT_v1Contract = '0xFef17855bBD1B29CEe5d829D184B8C33e3E64d61';
+  const useExistingPhoenixTokenContract = '0x29C0067CBdA4a5504df670B6C9Da64D34a78907c';
+  const useExistingPermitAndTransferContract = '0xb8bF185d0EFa5314eA77b6608Bb0Cbb126211e2e';
 
   const sampleCarbonCoinArgs = [
     'Carbon Coin',
@@ -447,7 +447,7 @@ module.exports = async (hre) => {
     const constructorArgs = [];
     if (!isHardhat(network)) {
       setTimeout(async () => {
-        await verifyContract('PermitAndTransfer', await ethers.getContract('PermitAndTransfer'), constructorArgs);
+        await verifyContract('PermitAndTransfer', await ethers.getContract('PermitAndTransfer'), constructorArgs, 'contracts/PermitAndTransfer.sol:PermitAndTransfer');
       }, 1000);
     }
   }
@@ -463,7 +463,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinConfig...: ${useExistingConfigContract}`);
         const contract = carbonCoinConfig || await ethers.getContractAt('CarbonCoinConfig', useExistingConfigContract);
-        await verifyContract('CarbonCoinConfig', contract, constructorArgs);
+        await verifyContract('CarbonCoinConfig', contract, constructorArgs, 'contracts/CarbonCoinConfig.sol:CarbonCoinConfig');
       // }, 1000);
     }
   }
@@ -485,7 +485,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinDex...: ${useExistingDexContract}`);
         const contract = carbonCoinDex || await ethers.getContractAt('CarbonCoinDex', useExistingDexContract);
-        await verifyContract('CarbonCoinDex', contract, constructorArgs);
+        await verifyContract('CarbonCoinDex', contract, constructorArgs, 'contracts/CarbonCoinDex.sol:CarbonCoinDex');
       // }, 1000);
     }
   }
@@ -503,7 +503,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinPaymaster...: ${useExistingPaymasterContract}`);
         const contract = carbonCoinPaymaster || await ethers.getContractAt('CarbonCoinPaymaster', useExistingPaymasterContract);
-        await verifyContract('CarbonCoinPaymaster', contract, constructorArgs);
+        await verifyContract('CarbonCoinPaymaster', contract, constructorArgs, 'contracts/CarbonCoinPaymaster.sol:CarbonCoinPaymaster');
       // }, 1000);
     }
   }
@@ -521,7 +521,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinProtection...: ${useExistingProtectionContract}`);
         const contract = carbonCoinProtection || await ethers.getContractAt('CarbonCoinProtection', useExistingProtectionContract);
-        await verifyContract('CarbonCoinProtection', contract, constructorArgs);
+        await verifyContract('CarbonCoinProtection', contract, constructorArgs, 'contracts/CarbonCoinProtection.sol:CarbonCoinProtection');
       // }, 1000);
     }
   }
@@ -542,7 +542,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoinLauncher...: ${useExistingLauncherContract}`);
         const contract = carbonCoinLauncher || await ethers.getContractAt('CarbonCoinLauncher', useExistingLauncherContract);
-        await verifyContract('CarbonCoinLauncher', contract, constructorArgs);
+        await verifyContract('CarbonCoinLauncher', contract, constructorArgs, 'contracts/CarbonCoinLauncher.sol:CarbonCoinLauncher');
       // }, 1000);
     }
   }
@@ -567,7 +567,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonCoin...: ${useExistingCarbonCoinContract}`);
         const contract = carbonCoin || await ethers.getContractAt('CarbonCoin', useExistingCarbonCoinContract);
-        await verifyContract('CarbonCoin', contract, constructorArgs);
+        await verifyContract('CarbonCoin', contract, constructorArgs, 'contracts/CarbonCoin.sol:CarbonCoin');
       // }, 1000);
     }
   }
@@ -586,7 +586,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying CarbonOpus...: ${useExistingOpusContract}`);
         const contract = carbonOpus || await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
-        await verifyContract('CarbonOpus', contract, constructorArgs);
+        await verifyContract('CarbonOpus', contract, constructorArgs, 'contracts/CarbonOpus.sol:CarbonOpus');
       // }, 1000);
     }
   }
@@ -602,7 +602,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying PhoenixEggs...: ${useExistingPhoenixEggsContract}`);
         const contract = phoenixEggs || await ethers.getContractAt('PhoenixEggs', useExistingPhoenixEggsContract);
-        await verifyContract('PhoenixEggs', contract, constructorArgs);
+        await verifyContract('PhoenixEggs', contract, constructorArgs, 'contracts/PhoenixEggs.sol:PhoenixEggs');
       // }, 1000);
     }
   }
@@ -618,7 +618,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying PhoenixToken...: ${useExistingPhoenixTokenContract}`);
         const contract = phoenixToken || await ethers.getContractAt('PhoenixToken', useExistingPhoenixTokenContract);
-        await verifyContract('PhoenixToken', contract, constructorArgs);
+        await verifyContract('PhoenixToken', contract, constructorArgs, 'contracts/PhoenixToken.sol:PhoenixToken');
       // }, 1000);
     }
   }
@@ -639,7 +639,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying PhoenixDex...: ${useExistingPhoenixDexContract}`);
         const contract = phoenixDex || await ethers.getContractAt('PhoenixDex', useExistingPhoenixDexContract);
-        await verifyContract('PhoenixDex', contract, constructorArgs);
+        await verifyContract('PhoenixDex', contract, constructorArgs, 'contracts/PhoenixDex.sol:PhoenixDex');
       // }, 1000);
     }
   }
@@ -655,7 +655,7 @@ module.exports = async (hre) => {
       // setTimeout(async () => {
         console.log(`  Verifying PhoenixNFT_v1...: ${useExistingPhoenixNFT_v1Contract}`);
         const contract = phoenixNFT_v1 || await ethers.getContractAt('PhoenixNFT_v1', useExistingPhoenixNFT_v1Contract);
-        await verifyContract('PhoenixNFT_v1', contract, constructorArgs);
+        await verifyContract('PhoenixNFT_v1', contract, constructorArgs, 'contracts/PhoenixNFT_v1.sol:PhoenixNFT_v1');
       // }, 1000);
     }
   }

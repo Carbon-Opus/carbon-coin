@@ -60,9 +60,9 @@ interface ICarbonOpus {
 
     function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
     function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
-    function purchaseMusicOnBehalf(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function purchaseMusicWithPermit(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external;
-    function purchaseBatchOnBehalf(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function purchaseBatchWithPermit(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function getRewards(bytes32 memberId) external view returns (uint256 amount);
     function claimRewards(bytes32 memberId, address memberAddress) external;
     function musicBalance(address memberAddress) external view returns (uint256[] memory, uint256[] memory);

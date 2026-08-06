@@ -9,7 +9,13 @@ export const verifyContract = async (contractName: string, contract: any, constr
     }
 
     console.log(`  - Verifying contract "${contractName}" at address: ${contractAddress}`);
-    await run('verify:verify', { address: contractAddress, constructorArguments, ...fullyQualifiedContractName });
+    await run('verify:verify', {
+      address: contractAddress,
+      constructorArguments,
+      ...fullyQualifiedContractName,
+      // verifier: 'blockscout',
+      // verifierUrl: 'https://explorer.somnia.network/api',
+    });
     console.log(`   -- ${contractName} Verification Complete!\n`);
   } catch ( err ) {
     console.log(`[ERROR] Failed to Verify ${contractName}`);

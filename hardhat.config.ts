@@ -111,31 +111,9 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
-    // Sei mainnet configuration
-    seiMainnet: {
-      url: 'https://evm-rpc.sei-apis.com',
-      accounts: {
-        mnemonic: mnemonic.testnet,
-        initialIndex: 0,
-        count: 10,
-      },
-      chainId: 1329, // Sei mainnet chain ID
-      // gasPrice: 2000000000 // 2 gwei = 2 nsei
-    },
-    // Sei testnet configuration
-    seiTestnet: {
-      url: 'https://evm-rpc-testnet.sei-apis.com',
-      accounts: {
-        mnemonic: mnemonic.testnet,
-        initialIndex: 0,
-        count: 10,
-      },
-      chainId: 1328, // Sei testnet chain ID
-      // gasPrice: 2000000000 // 2 gwei = 2 nsei
-    },
-    somnia: {
+    somniaMainnet: {
       chainId: 5031,
-      url: "https://api.infra.mainnet.somnia.network/",
+      url: "https://api.infra.mainnet.somnia.network",
       accounts: {
         mnemonic: mnemonic.mainnet,
         initialIndex: 0,
@@ -153,34 +131,13 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: {
-      somnia: "empty",
-      somniaTestnet: "empty",
-      sei: "dummy", // Sei explorers (Seitrace/Blockscout) don't require a real key
-      seiTestnet: "dummy",
-    },
+    apiKey: "empty", // No API key needed for Somnia verification
     customChains: [
       {
-        network: "seiMainnet",
-        chainId: 1329,
-        urls: {
-          apiURL: "https://seitrace.com/pacific-1/api",
-          browserURL: "https://seitrace.com",
-        },
-      },
-      {
-        network: "seiTestnet",
-        chainId: 1328,
-        urls: {
-          apiURL: "https://seitrace.com/atlantic-2/api",
-          browserURL: "https://seitrace.com",
-        },
-      },
-      {
-        network: "somnia",
+        network: "somniaMainnet",
         chainId: 5031,
         urls: {
-          apiURL: "https://explorer.somnia.network/api",
+          apiURL: "https://api.infra.mainnet.somnia.network",
           browserURL: "https://explorer.somnia.network",
         },
       },

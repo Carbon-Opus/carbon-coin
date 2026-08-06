@@ -35,7 +35,7 @@ module.exports = async (hre) => {
     await verifyContract('ERC20Mintable', erc20, constructorArgs);
   }
 
-  const amount = ethers.utils.parseUnits('5000', 6);
+  const amount = ethers.utils.parseUnits('5000000', 6);
   log(`  Minting ${amount} Tokens to Deployer: ${deployer}`);
   await erc20.mint(deployer, amount);
 };

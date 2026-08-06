@@ -73,7 +73,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
   }
 
   function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external {
-    if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
+    // if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
 
     // Check if song exists
     Song storage song = songs[tokenId];
@@ -87,8 +87,8 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     _purchaseMusic(memberId, memberAddress, tokenId, referrer);
   }
 
-  function purchaseMusicOnBehalf(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-    if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
+  function purchaseMusicWithPermit(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    // if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
 
     // Check if song exists
     Song storage song = songs[tokenId];
@@ -103,7 +103,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
   }
 
   function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external {
-    if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
+    // if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
     if (tokenIds.length != referrers.length) revert InputArrayLengthMismatch();
 
     // Collect payment
@@ -114,8 +114,8 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     _purchaseBatch(memberId, memberAddress, tokenIds, referrers);
   }
 
-  function purchaseBatchOnBehalf(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-    if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
+  function purchaseBatchWithPermit(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    // if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
     if (tokenIds.length != referrers.length) revert InputArrayLengthMismatch();
 
     // Collect payment

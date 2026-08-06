@@ -33,7 +33,7 @@ const chainIdByName = (chainName) => {
     case 'mainnet': return 1;
     case 'hardhat': return 34443;
     case 'coverage': return 31337;
-    case 'somnia': return 5031;
+    case 'somniamainnet': return 5031;
     case 'somniatestnet': return 50312;
     default: return 0;
   }

@@ -57,6 +57,17 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     usdcToken = IUSDC(usdcTokenAddress);
   }
 
+  function purchaseAiCreditsWithPermit(bytes32 memberId, address memberAddress, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    // Collect payment
+    _collectPaymentWithPermit(memberAddress, price, deadline, v, r, s);
+
+    // Distribute payment
+    rewards[TREASURY_ID] += price;
+
+    // Emit event
+    emit AiCreditsPurchased(memberId, memberAddress, price);
+  }
+
   function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external {
     if (_msgSender() != _controller) revert NotAuthorized(_msgSender());
 

@@ -44,6 +44,7 @@ interface ICarbonOpus {
     error InputArrayLengthMismatch();
     error SongLocked(uint256 tokenId);
 
+    event AiCreditsPurchased(bytes32 indexed memberId, address indexed memberAddress, uint256 price);
     event RewardsClaimed(bytes32 indexed memberId, address indexed account, uint256 amount);
     event RewardsDistributed(bytes32 indexed artist, bytes32 indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
     event SongCreated(uint256 indexed tokenId, bytes32 indexed artist, uint256 price, uint256 referralPct);

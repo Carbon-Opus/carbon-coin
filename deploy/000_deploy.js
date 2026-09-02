@@ -19,32 +19,32 @@ module.exports = async (hre) => {
   const tickUpper = BigInt(findNearestValidTick(60, false));
 
   // SOMNIA TESTNET
-  // const useExistingOpusContract = isHardhat(network) ? '' : '0x383AdAe8837f6Ef807d59b6cd3FB9a914348e6b2';
-  // const useExistingConfigContract = isHardhat(network) ? '' : '0x3418FE1D6983BD939A4489AF9B69Dad08d937119';
-  // const useExistingDexContract = isHardhat(network) ? '' : '0xcDBD208D03b73451Ad44E16eAb82AFD5dd99936f';
-  // const useExistingProtectionContract = isHardhat(network) ? '' : '0x066DC275F91a2946C0eCCF7e024d44E3a776D140';
-  // const useExistingLauncherContract = isHardhat(network) ? '' : '0x65B9C4e18631e7f6331EC6c3813c082265fdEbd2';
-  // const useExistingPaymasterContract = isHardhat(network) ? '' : '0x7229dcC37da168Ca9b761Dc69e5e6E31211F1ba6';
-  // const useExistingCarbonCoinContract = isHardhat(network) ? '' : '0x73CAc5E7a6FedCFe0987C5daccf41Ea16c7Ea822';
-  // const useExistingPhoenixDexContract = isHardhat(network) ? '0x0000000000000000000000000000000000000001' : '0xE0e31277327F73B1a3D07Fbb486C514E9aaB4bE7';
-  // const useExistingPhoenixEggsContract = isHardhat(network) ? '' : '0x978c2dC96eAdc9703C7af3ae88B89D1e39606Ea4';
-  // const useExistingPhoenixNFT_v1Contract = isHardhat(network) ? '' : '0x7329cE38b205E63663EC4a9e33aE1F421FFf8255';
-  // const useExistingPhoenixTokenContract = isHardhat(network) ? '' : '0x2aEF61f7e8ce921139d0a724E0C10f016F572d32';
-  // const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xB186B434d7A2b6c462b92C5B93296163D66a011D';
+  const useExistingOpusContract = isHardhat(network) ? '' : '';
+  const useExistingConfigContract = isHardhat(network) ? '' : '';
+  const useExistingDexContract = isHardhat(network) ? '' : '';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '';
+  const useExistingPaymasterContract = isHardhat(network) ? '' : '';
+  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
+  const useExistingPhoenixDexContract = isHardhat(network) ? '0x0000000000000000000000000000000000000001' : '0xE0e31277327F73B1a3D07Fbb486C514E9aaB4bE7';
+  const useExistingPhoenixEggsContract = isHardhat(network) ? '' : '0x978c2dC96eAdc9703C7af3ae88B89D1e39606Ea4';
+  const useExistingPhoenixNFT_v1Contract = isHardhat(network) ? '' : '0x7329cE38b205E63663EC4a9e33aE1F421FFf8255';
+  const useExistingPhoenixTokenContract = isHardhat(network) ? '' : '0x2aEF61f7e8ce921139d0a724E0C10f016F572d32';
+  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xB186B434d7A2b6c462b92C5B93296163D66a011D';
 
   // SOMNIA Mainnet
-  const useExistingOpusContract = '0x35D46329504D7932C53DdBa267d068b55F745F52';
-  const useExistingConfigContract = '0x951dC5368D9E9bAC32b23fEeb14763bE82583D05';
-  const useExistingDexContract = '0xFeCd92Eb8Da13F514D36EeA72E0d82Bc2539Fe31';
-  const useExistingProtectionContract = '0x701Fc1756d65C2704D498b4eA68eBb9129806B45';
-  const useExistingLauncherContract = '0x307aB9b7cE20e0A316CD16A6d367AeE06A7d8cAe';
-  const useExistingPaymasterContract = '0x0CAD87D2Aee9527B181f5EDc33a4B8e7cC9ccAe8';
-  const useExistingCarbonCoinContract = '0xD2B40D8B72Da6B74959474F88f04CB8d2F763A90';
-  const useExistingPhoenixDexContract = '0x77E7bcfeE826b12cD498Faa9831d7055b7478272';
-  const useExistingPhoenixEggsContract = '0x2ED20E4b6B8bA41bE239F9552Cb93FfDa04A2fea';
-  const useExistingPhoenixNFT_v1Contract = '0xFef17855bBD1B29CEe5d829D184B8C33e3E64d61';
-  const useExistingPhoenixTokenContract = '0x29C0067CBdA4a5504df670B6C9Da64D34a78907c';
-  const useExistingPermitAndTransferContract = '0xb8bF185d0EFa5314eA77b6608Bb0Cbb126211e2e';
+  // const useExistingOpusContract = '';
+  // const useExistingConfigContract = '';
+  // const useExistingDexContract = '';
+  // const useExistingProtectionContract = '';
+  // const useExistingLauncherContract = '';
+  // const useExistingPaymasterContract = '';
+  // const useExistingCarbonCoinContract = '';
+  // const useExistingPhoenixDexContract = '0x77E7bcfeE826b12cD498Faa9831d7055b7478272';
+  // const useExistingPhoenixEggsContract = '0x2ED20E4b6B8bA41bE239F9552Cb93FfDa04A2fea';
+  // const useExistingPhoenixNFT_v1Contract = '0xFef17855bBD1B29CEe5d829D184B8C33e3E64d61';
+  // const useExistingPhoenixTokenContract = '0x29C0067CBdA4a5504df670B6C9Da64D34a78907c';
+  // const useExistingPermitAndTransferContract = '0xb8bF185d0EFa5314eA77b6608Bb0Cbb126211e2e';
 
   const sampleCarbonCoinArgs = [
     'Carbon Coin',

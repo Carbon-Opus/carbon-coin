@@ -162,6 +162,7 @@ const config: HardhatUserConfig = {
     clear: true,
     flat: true,
     only: [
+      'CarbonTreasury',
       'CarbonOpus',
       'CarbonCoin',
       'CarbonCoinConfig',

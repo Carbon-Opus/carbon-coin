@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 // CarbonOpus.sol
-// Copyright (c) 2025 CarbonOpus
+// Copyright (c) 2026 Firma Lux Labs, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,11 +28,12 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Permit, ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { BlackholePrevention } from "./lib/BlackholePrevention.sol";
 import { ICarbonOpus } from "./interface/ICarbonOpus.sol";
 
 interface IUSDC is IERC20, IERC20Permit {}
 
-contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
+contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
   bytes32 constant private TREASURY_ID = bytes32("treasury");
 
   mapping (address => uint256[]) internal _memberSongsOwned;    // stored by memberAddress
@@ -55,17 +56,6 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
     protocolFee = 100; // 1% fee (100 basis points)
     _controller = _msgSender();
     usdcToken = IUSDC(usdcTokenAddress);
-  }
-
-  function purchaseAiCreditsWithPermit(bytes32 memberId, address memberAddress, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-    // Collect payment
-    _collectPaymentWithPermit(memberAddress, price, deadline, v, r, s);
-
-    // Distribute payment
-    rewards[TREASURY_ID] += price;
-
-    // Emit event
-    emit AiCreditsPurchased(memberId, memberAddress, price);
   }
 
   function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external {
@@ -256,6 +246,22 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable {
 
   function setURI(string memory newUri) external onlyOwner {
     _setURI(newUri);
+  }
+
+  function withdrawEther(address payable receiver, uint256 amount) external onlyOwner {
+    _withdrawEther(receiver, amount);
+  }
+
+  function withdrawErc20(address payable receiver, address tokenAddress, uint256 amount) external onlyOwner {
+    _withdrawERC20(receiver, tokenAddress, amount);
+  }
+
+  function withdrawERC721(address payable receiver, address tokenAddress, uint256 tokenId) external onlyOwner {
+    _withdrawERC721(receiver, tokenAddress, tokenId);
+  }
+
+  function withdrawERC1155(address payable receiver, address tokenAddress, uint256 tokenId, uint256 amount) external onlyOwner {
+    _withdrawERC1155(receiver, tokenAddress, tokenId, amount);
   }
 
   function _collectPayment(uint256 amount) internal {

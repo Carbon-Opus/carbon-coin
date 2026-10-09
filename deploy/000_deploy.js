@@ -19,32 +19,34 @@ module.exports = async (hre) => {
   const tickUpper = BigInt(findNearestValidTick(60, false));
 
   // SOMNIA TESTNET
-  const useExistingOpusContract = isHardhat(network) ? '' : '';
-  const useExistingConfigContract = isHardhat(network) ? '' : '';
-  const useExistingDexContract = isHardhat(network) ? '' : '';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '';
-  const useExistingPaymasterContract = isHardhat(network) ? '' : '';
-  const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
-  const useExistingPhoenixDexContract = isHardhat(network) ? '0x0000000000000000000000000000000000000001' : '0xE0e31277327F73B1a3D07Fbb486C514E9aaB4bE7';
-  const useExistingPhoenixEggsContract = isHardhat(network) ? '' : '0x978c2dC96eAdc9703C7af3ae88B89D1e39606Ea4';
-  const useExistingPhoenixNFT_v1Contract = isHardhat(network) ? '' : '0x7329cE38b205E63663EC4a9e33aE1F421FFf8255';
-  const useExistingPhoenixTokenContract = isHardhat(network) ? '' : '0x2aEF61f7e8ce921139d0a724E0C10f016F572d32';
-  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xB186B434d7A2b6c462b92C5B93296163D66a011D';
+  // const useExistingTreasuryContract = isHardhat(network) ? '' : '0xAA55c7De883C93e07a966e1A928F4bB0169f8953';
+  // const useExistingOpusContract = isHardhat(network) ? '' : '0xBB3f6814E3097f161481c8118a7b20ee549e5a3f';
+  // const useExistingConfigContract = isHardhat(network) ? '' : '0x67741171C85a7e2dE803E13429f70aB7E24239A5';
+  // const useExistingDexContract = isHardhat(network) ? '' : '0x2559835DbD0b5197f789c72a6B9e8f9bE41f7327';
+  // const useExistingProtectionContract = isHardhat(network) ? '' : '0xD2a01E9e77A93c3f2FEf15bef72B6271dBF007aB';
+  // const useExistingLauncherContract = isHardhat(network) ? '' : '0xCFb987E131765392bC6E67d26ba608B527F0d175';
+  // const useExistingPaymasterContract = isHardhat(network) ? '' : '0x8aa680EC62f72D1518F2B6b43e7E5d1EB6cab153';
+  // const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
+  // const useExistingPhoenixDexContract = isHardhat(network) ? '0x0000000000000000000000000000000000000001' : '0xE0e31277327F73B1a3D07Fbb486C514E9aaB4bE7';
+  // const useExistingPhoenixEggsContract = isHardhat(network) ? '' : '0x978c2dC96eAdc9703C7af3ae88B89D1e39606Ea4';
+  // const useExistingPhoenixNFT_v1Contract = isHardhat(network) ? '' : '0x7329cE38b205E63663EC4a9e33aE1F421FFf8255';
+  // const useExistingPhoenixTokenContract = isHardhat(network) ? '' : '0x2aEF61f7e8ce921139d0a724E0C10f016F572d32';
+  // const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0xf3198C26880EC1C67062F0c53D15E9D987cc73A4';
 
   // SOMNIA Mainnet
-  // const useExistingOpusContract = '';
-  // const useExistingConfigContract = '';
-  // const useExistingDexContract = '';
-  // const useExistingProtectionContract = '';
-  // const useExistingLauncherContract = '';
-  // const useExistingPaymasterContract = '';
-  // const useExistingCarbonCoinContract = '';
-  // const useExistingPhoenixDexContract = '0x77E7bcfeE826b12cD498Faa9831d7055b7478272';
-  // const useExistingPhoenixEggsContract = '0x2ED20E4b6B8bA41bE239F9552Cb93FfDa04A2fea';
-  // const useExistingPhoenixNFT_v1Contract = '0xFef17855bBD1B29CEe5d829D184B8C33e3E64d61';
-  // const useExistingPhoenixTokenContract = '0x29C0067CBdA4a5504df670B6C9Da64D34a78907c';
-  // const useExistingPermitAndTransferContract = '0xb8bF185d0EFa5314eA77b6608Bb0Cbb126211e2e';
+  const useExistingTreasuryContract = '0xce2C372cF4040092F9911fa9B62A4536Ec445e8D';
+  const useExistingOpusContract = '0xaa6b594C52f75b9A371f4C8c27ad0aBd5FF3222c';
+  const useExistingConfigContract = '0x9A74B7549B38Dc072A2C32c95cDD38f74D730D0d';
+  const useExistingDexContract = '0x02810002Fc8DfE70bCdB7918F35609b0dA877827';
+  const useExistingProtectionContract = '0x20969ebb98356a57389c5cbd86f286D6DfB0e405';
+  const useExistingLauncherContract = '0xF2339865c7148F59B1Eb6dDC971D05D92E597466';
+  const useExistingPaymasterContract = '0x4dd3037B52f12B6dD593020A7f9d1e254fe6894D';
+  const useExistingCarbonCoinContract = '';
+  const useExistingPhoenixDexContract = '0x77E7bcfeE826b12cD498Faa9831d7055b7478272';
+  const useExistingPhoenixEggsContract = '0x2ED20E4b6B8bA41bE239F9552Cb93FfDa04A2fea';
+  const useExistingPhoenixNFT_v1Contract = '0xFef17855bBD1B29CEe5d829D184B8C33e3E64d61';
+  const useExistingPhoenixTokenContract = '0x29C0067CBdA4a5504df670B6C9Da64D34a78907c';
+  const useExistingPermitAndTransferContract = '0x86eE63cBE4cd6af1f84D1B42c74e17F18516C555';
 
   const sampleCarbonCoinArgs = [
     'Carbon Coin',
@@ -107,6 +109,28 @@ module.exports = async (hre) => {
       args: constructorArgs,
       log: true,
     });
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
+  // Deploy CarbonTreasury
+  if (useExistingTreasuryContract.length === 0) {
+    log('  Deploying CarbonTreasury...');
+    const constructorArgs = [ usdcAddress ];
+    await deploy('CarbonTreasury', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+  }
+
+  // Get Deployed CarbonTreasury
+  let carbonTreasury;
+  if (useExistingTreasuryContract.length === 0) {
+    carbonTreasury = await ethers.getContract('CarbonTreasury');
+  } else {
+    carbonTreasury = await ethers.getContractAt('CarbonTreasury', useExistingTreasuryContract);
   }
 
   //
@@ -264,32 +288,32 @@ module.exports = async (hre) => {
   //////////////////////////////////////////////////////////////
   //
   // Deploy CarbonCoin (Sample)
-  if (useExistingCarbonCoinContract.length === 0) {
-    log('  Deploying CarbonCoin...');
-    const constructorArgs = [
-      sampleCarbonCoinArgs[0],
-      sampleCarbonCoinArgs[1],
-      sampleCarbonCoinArgs[2],
-      usdcAddress,
-      deployer,
-      carbonCoinConfig.address,
-      carbonCoinProtection.address,
-      sampleCarbonCoinArgs[3]
-    ];
-    await deploy('CarbonCoin', {
-      from: deployer,
-      args: constructorArgs,
-      log: true,
-    });
-  }
+  // if (useExistingCarbonCoinContract.length === 0) {
+  //   log('  Deploying CarbonCoin...');
+  //   const constructorArgs = [
+  //     sampleCarbonCoinArgs[0],
+  //     sampleCarbonCoinArgs[1],
+  //     sampleCarbonCoinArgs[2],
+  //     usdcAddress,
+  //     deployer,
+  //     carbonCoinConfig.address,
+  //     carbonCoinProtection.address,
+  //     sampleCarbonCoinArgs[3]
+  //   ];
+  //   await deploy('CarbonCoin', {
+  //     from: deployer,
+  //     args: constructorArgs,
+  //     log: true,
+  //   });
+  // }
 
   // Get Deployed CarbonCoin
   let carbonCoin;
-  if (useExistingCarbonCoinContract.length === 0) {
-    carbonCoin = await ethers.getContract('CarbonCoin');
-  } else {
-    carbonCoin = await ethers.getContractAt('CarbonCoin', useExistingCarbonCoinContract);
-  }
+  // if (useExistingCarbonCoinContract.length === 0) {
+  //   carbonCoin = await ethers.getContract('CarbonCoin');
+  // } else {
+  //   carbonCoin = await ethers.getContractAt('CarbonCoin', useExistingCarbonCoinContract);
+  // }
 
   //
   //////////////////////////////////////////////////////////////

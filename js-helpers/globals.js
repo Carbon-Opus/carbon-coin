@@ -10,8 +10,8 @@ const globals = {
     5031: {
       WETH: '0x046EDe9564A72571df6F5e44d0405360c0f4dCab', // WSOMI
       router: '0xCdE9aFDca1AdAb5b5C6E4F9e16c9802C88Dc7e1A', // Somnia Exchange (Router V02)
-      // usdc: '0x28BEc7E30E6faee657a03e19Bf1128AaD7632A00', // real
-      usdc: '0x3A5281972B7B986116c0f58909689Dc67386e4de', // fake
+      usdc: '0x28BEc7E30E6faee657a03e19Bf1128AaD7632A00', // real
+      // usdc: '0x3A5281972B7B986116c0f58909689Dc67386e4de', // fake
     },
     // Somnia Testnet
     50312: {

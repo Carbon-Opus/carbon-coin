@@ -160,7 +160,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
       whaleConfig.maxSellPercentage,
       whaleConfig.whaleThreshold,
       whaleConfig.whaleDelay,
-      (realTokenSupply * whaleConfig.maxSellPercentage) / 10000
+      (whaleConfig.maxSellPercentage * realTokenSupply) / 10000
     );
   }
 

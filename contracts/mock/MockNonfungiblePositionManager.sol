@@ -50,8 +50,8 @@ contract MockNonfungiblePositionManager is INonfungiblePositionManager {
         require(params.token0 < params.token1, "token0 must be < token1");
         require(params.tickLower < params.tickUpper, "tickLower must be < tickUpper");
 
-        IERC20(params.token0).transferFrom(msg.sender, address(this), params.amount0Desired);
-        IERC20(params.token1).transferFrom(msg.sender, address(this), params.amount1Desired);
+        require(IERC20(params.token0).transferFrom(msg.sender, address(this), params.amount0Desired));
+        require(IERC20(params.token1).transferFrom(msg.sender, address(this), params.amount1Desired));
 
         lastMint = MintRecord({
             token0: params.token0,

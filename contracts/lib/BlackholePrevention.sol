@@ -62,6 +62,8 @@ contract BlackholePrevention {
   function _withdrawERC721(address payable receiver, address tokenAddress, uint256 tokenId) internal virtual {
     require(receiver != address(0x0), "BHP:E-403");
     if (IERC721(tokenAddress).ownerOf(tokenId) == address(this)) {
+      // The `transferFrom` function in the IERC721 interface does not return a boolean.
+      // The `safeTransferFrom` function is recommended, but this function is only callable by the owner.
       IERC721(tokenAddress).transferFrom(address(this), receiver, tokenId);
       emit WithdrawStuckERC721(receiver, tokenAddress, tokenId);
     }

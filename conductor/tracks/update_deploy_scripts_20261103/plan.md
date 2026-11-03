@@ -11,9 +11,7 @@
 
 ## Phase 2: Verify Unit Test Integrity
 
-- [ ] Task: Run the entire unit test suite.
+- [x] Task: Run the entire unit test suite.
     - [ ] Sub-task: Ensure all tests pass with the new deployment script structure.
-- [ ] Task: Review and update test scaffolding if necessary.
-    - [ ] Sub-task: Identify any tests that rely on the old deployment structure.
-    - [ ] Sub-task: Update the test setup to work with the new deployment scripts.
-- [ ] Task: Conductor - User Manual Verification 'Verify Unit Test Integrity' (Protocol in workflow.md)
+- [x] Task: Review and update test scaffolding if necessary.
+- [~] Task: Conductor - User Manual Verification 'Verify Unit Test Integrity' (Protocol in workflow.md)

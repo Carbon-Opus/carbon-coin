@@ -16,7 +16,7 @@
 - [x] Task: Address `calls-loop` vulnerabilities. (N/A)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Medium-Severity Vulnerabilities' (Protocol in workflow.md)
 
-## Phase 3: Low-Severity and Informational Vulnerabilities
+## Phase 3: Low-Severity and Informational Vulnerabilities [checkpoint: 44acd56]
 
 - [x] Task: Address `incorrect-exp` vulnerabilities. (N/A)
 - [x] Task: Address `uninitialized-state` vulnerabilities. (N/A)

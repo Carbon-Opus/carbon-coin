@@ -10,5 +10,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Slither Security Updates**
+- [x] **Track: Slither Security Updates**
 *Link: [./tracks/slither_security_updates_20261102/](./tracks/slither_security_updates_20261102/)*

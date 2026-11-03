@@ -30,17 +30,13 @@ interface ICarbonTreasury {
     event LpRewardsCollected(
         address indexed positionManager,
         uint256 indexed tokenId,
-        address indexed recipient,
         uint256 amount0,
         uint256 amount1,
         uint256 timestamp
     );
 
-    error Unauthorized();
-
-    function purchase(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price) external;
     function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function withdraw(address to, uint256 amount) external;
-    function collectLpRewards(address positionManager, uint256 tokenId, address recipient) external returns (uint256 amount0, uint256 amount1);
-    function collectLpRewardsWithLimits(address positionManager, uint256 tokenId, address recipient, uint128 amount0Max, uint128 amount1Max) external returns (uint256 amount0, uint256 amount1);
+    function collectLpRewards(address positionManager, uint256 tokenId) external returns (uint256 amount0, uint256 amount1);
+    function collectLpRewardsWithLimits(address positionManager, uint256 tokenId, uint128 amount0Max, uint128 amount1Max) external returns (uint256 amount0, uint256 amount1);
 }

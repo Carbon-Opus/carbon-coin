@@ -40,6 +40,7 @@ interface ICarbonCoinDex {
     event DexUnpaused(uint256 timestamp);
     event ConfigUpdated(address indexed newConfig, uint256 timestamp);
     event RouterUpdated(address indexed newRouter, uint256 timestamp);
+    event PoolFeeUpdated(uint24 newFee, uint256 timestamp);
 
     error Unauthorized();
 

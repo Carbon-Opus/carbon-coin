@@ -23,6 +23,7 @@
 //
 
 pragma solidity 0.8.28;
+pragma abicoder v2;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -41,6 +42,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   INonfungiblePositionManager public dexRouter;
   int24 internal tickLower;
   int24 internal tickUpper;
+  uint24 public poolFee;
 
   /**
    * @notice Constructor for the CarbonCoinDex contract.
@@ -65,6 +67,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     dexRouter = INonfungiblePositionManager(_router);
     tickLower = _tickLower;
     tickUpper = _tickUpper;
+    poolFee = 100; // Default to 0.01% fee tier
   }
 
   /**
@@ -79,13 +82,9 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     if (lpRecipient == address(0)) {
       lpRecipient = ICarbonCoinConfig(config).getTreasury();
       if (lpRecipient == address(0)) {
-        lpRecipient = _owner();
+        lpRecipient = owner();
       }
     }
-
-    // Ensure the caller has approved the DEX to spend their tokens and USDC
-    // require(IERC20(token).allowance(msg.sender, address(this)) >= tokensAmount, "Insufficient token allowance");
-    // require(USDC.allowance(msg.sender, address(this)) >= usdcAmount, "Insufficient USDC allowance");
 
     // Transfer tokens and USDC from the caller to this contract
     require(IERC20(token).transferFrom(msg.sender, address(this), tokensAmount), "Token transfer failed");
@@ -102,16 +101,33 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     uint256 amount0Min = (amount0Desired * 95) / 100; // 5% slippage tolerance
     uint256 amount1Min = (amount1Desired * 95) / 100;
 
-    int24 positionTickLower = isUsdc0 ? tickLower : -tickUpper;
-    int24 positionTickUpper = isUsdc0 ? tickUpper : -tickLower;
+    // Fetch pool specific tick spacing matching the current poolFee configuration
+    int24 spacing = _getTickSpacing(poolFee);
+
+    // Compute and align ticks accurately to the pool's tick spacing framework
+    int24 rawLower = isUsdc0 ? tickLower : -tickUpper;
+    int24 rawUpper = isUsdc0 ? tickUpper : -tickLower;
+
+    int24 positionTickLower = _roundToTickSpacing(rawLower, spacing);
+    int24 positionTickUpper = _roundToTickSpacing(rawUpper, spacing);
+
+    // Strictly safeguard tick boundary orientation ordering rules
+    if (positionTickLower > positionTickUpper) {
+        (positionTickLower, positionTickUpper) = (positionTickUpper, positionTickLower);
+    } else if (positionTickLower == positionTickUpper) {
+        // Edge fallback: Prevent a zero-width range assignment error
+        positionTickUpper += spacing;
+    }
 
     // Approve router to spend tokens and USDC
     IERC20(token).approve(address(dexRouter), tokensAmount);
     USDC.approve(address(dexRouter), usdcAmount);
 
-    // Initialize pool if necessary
-    uint160 sqrtPriceX96 = uint160((Math.sqrt(amount1Desired) * (uint256(1) << 96)) / Math.sqrt(amount0Desired));
-    try dexRouter.createAndInitializePoolIfNecessary(token0, token1, sqrtPriceX96) {} catch {}
+    // Initialize pool with absolute high-precision scaling formula (scales by 2^192 first)
+    uint256 ratioX192 = Math.mulDiv(amount1Desired, uint256(1) << 192, amount0Desired);
+    uint160 sqrtPriceX96 = uint160(Math.sqrt(ratioX192));
+
+    dexRouter.createAndInitializePoolIfNecessary(token0, token1, poolFee, sqrtPriceX96);
 
     // Add liquidity
     uint256 minted0;
@@ -120,6 +136,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
       INonfungiblePositionManager.MintParams({
         token0: token0,
         token1: token1,
+        fee: poolFee,
         tickLower: positionTickLower,
         tickUpper: positionTickUpper,
         amount0Desired: amount0Desired,
@@ -134,6 +151,10 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     amountA = isUsdc0 ? minted0 : minted1; // USDC
     amountB = isUsdc0 ? minted1 : minted0; // Tokens
 
+    // Clear residual allowances to prevent active router vulnerability surface
+    IERC20(token).approve(address(dexRouter), 0);
+    USDC.approve(address(dexRouter), 0);
+
     // Emit Liquidity event
     emit LiquidityDeployed(
       token,
@@ -144,6 +165,28 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
       liquidity,
       block.timestamp
     );
+  }
+
+  /**
+   * @notice Maps active Uniswap V3 pool fee tiers to corresponding tick spacings.
+   */
+  function _getTickSpacing(uint24 fee) internal pure returns (int24) {
+    if (fee == 100) return 1;     // 0.01% fee tier
+    if (fee == 500) return 10;    // 0.05% fee tier
+    if (fee == 3000) return 60;   // 0.30% fee tier
+    if (fee == 10000) return 200; // 1.00% fee tier
+    revert("Unsupported fee tier");
+  }
+
+  /**
+   * @notice Helper function forcing raw boundaries to snap to valid tick multiples.
+   */
+  function _roundToTickSpacing(int24 tick, int24 spacing) internal pure returns (int24) {
+    int24 rounded = tick / spacing;
+    if (tick < 0 && tick % spacing != 0) {
+      rounded -= 1;
+    }
+    return rounded * spacing;
   }
 
   /**
@@ -175,12 +218,13 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     emit RouterUpdated(newRouter, block.timestamp);
   }
 
-  function _owner() internal view returns (address) {
-    return Ownable(config).owner();
+  function updatePoolFee(uint24 newFee) external onlyOwner {
+    poolFee = newFee;
+    emit PoolFeeUpdated(newFee, block.timestamp);
   }
 
   modifier onlyAuthorized(address token) {
-    if (msg.sender != _owner() && msg.sender != token) revert Unauthorized();
+    if (msg.sender != owner() && msg.sender != token) revert Unauthorized();
     _;
   }
 }

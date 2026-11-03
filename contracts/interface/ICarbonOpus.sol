@@ -54,6 +54,8 @@ interface ICarbonOpus {
     event SongPriceScaled(uint256 indexed tokenId, uint256 newPrice);
     event ProtocolFeeUpdated(uint256 newFee);
     event ControllerUpdated(address indexed newController);
+    event TreasuryUpdated(address indexed newTreasury, uint256 timestamp);
+    event OpusVaultUpdated(address indexed newVault, uint256 timestamp);
     event MemberAddressUpdated(bytes32 indexed memberId, address indexed newAddress);
     event SongLockStatusUpdated(uint256 indexed tokenId, bool locked);
     event SongReassigned(uint256 indexed tokenId, bytes32 indexed oldMemberId, bytes32 indexed newMemberId, address newMemberAddress);

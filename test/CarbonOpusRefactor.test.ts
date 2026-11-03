@@ -141,4 +141,16 @@ describe("CarbonOpus Refactor", () => {
         expect(await carbonOpusVault.rewards(treasuryId)).to.equal(0);
     });
   });
+
+  describe("CarbonOpus Contract Refactor Verification", () => {
+    it("should not have a rewards mapping", async () => {
+        const contract = new ethers.Contract(carbonOpus.address, carbonOpus.interface, ethers.provider);
+        expect(contract.rewards).to.be.undefined;
+    });
+
+    it("should not have a claimRewards function", async () => {
+        const contract = new ethers.Contract(carbonOpus.address, carbonOpus.interface, ethers.provider);
+        expect(contract.claimRewards).to.be.undefined;
+    });
+  });
 });

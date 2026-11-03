@@ -21,11 +21,11 @@
 - [ ] Task: Address `incorrect-exp` vulnerabilities.
 - [ ] Task: Address `uninitialized-state` vulnerabilities.
 - [ ] Task: Address `locked-ether` vulnerabilities.
-- [ ] Task: Address `unused-return` vulnerabilities.
-- [ ] Task: Address `shadowing-local` vulnerabilities.
+- [x] Task: Address `unused-return` vulnerabilities. (032a998)
+- [x] Task: Address `shadowing-local` vulnerabilities. (032a998)
 - [ ] Task: Address `events-access` vulnerabilities.
 - [ ] Task: Address `events-maths` vulnerabilities.
-- [ ] Task: Address `missing-zero-check` vulnerabilities.
+- [x] Task: Address `missing-zero-check` vulnerabilities. (032a998)
 - [ ] Task: Address `reentrancy-benign` vulnerabilities.
 - [ ] Task: Address `reentrancy-events` vulnerabilities.
 - [ ] Task: Address `naming-convention` issues.

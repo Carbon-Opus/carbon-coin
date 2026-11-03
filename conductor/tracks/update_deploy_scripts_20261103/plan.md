@@ -1,6 +1,6 @@
 # Implementation Plan: Update Deploy Scripts
 
-## Phase 1: Refactor Deploy and Verification Scripts
+## Phase 1: Refactor Deploy and Verification Scripts [checkpoint: fb4f713]
 
 - [x] Task: Create a new deploy script `deploy/002_deploy_phoenix.js` for Phoenix Contracts.
 - [x] Task: Create a new verification script `deploy/003_verify_carbon.js` for Carbon Contracts.

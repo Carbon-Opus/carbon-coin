@@ -2,7 +2,7 @@
 
 ## Phase 1: Analysis & Design
 
-- [ ] Task: Thoroughly review the existing implementations of `CarbonOpus.sol`, `CarbonOpusVault.sol`, and `CarbonTreasury.sol` to understand the current logic.
+- [~] Task: Thoroughly review the existing implementations of `CarbonOpus.sol`, `CarbonOpusVault.sol`, and `CarbonTreasury.sol` to understand the current logic.
 - [ ] Task: Design the precise data structures for storing reward balances within `CarbonOpusVault.sol`.
 - [ ] Task: Define the function signatures and interfaces required for the interaction between the three contracts (e.g., `CarbonOpus` calling `Vault` to record a sale, `Treasury` calling `Vault` to claim fees).
 - [ ] Task: Create or update local tests to replicate the current functionality, which will be used to verify the refactor.

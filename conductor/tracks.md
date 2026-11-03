@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Refactor CarbonOpus NFT and Rewards Contracts**
+- [~] **Track: Refactor CarbonOpus NFT and Rewards Contracts**
   *Link: [./tracks/refactor_nft_rewards_20261102/](./tracks/refactor_nft_rewards_20261102/)*

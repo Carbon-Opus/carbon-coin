@@ -23,7 +23,7 @@
 
 ## Phase 3: Integration & Verification
 
-- [ ] Task: Update the Hardhat deployment scripts to correctly deploy and link the three refactored contracts.
+- [x] Task: Update the Hardhat deployment scripts to correctly deploy and link the three refactored contracts. [bc629e7]
 - [ ] Task: Write comprehensive integration tests that simulate the entire lifecycle:
     - [ ] Test: A user purchases an NFT.
     - [ ] Test: The correct amounts are sent to the `CarbonOpusVault`.

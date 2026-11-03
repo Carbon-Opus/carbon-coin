@@ -1,5 +1,10 @@
 [
   {
+    "inputs": [],
+    "name": "Unauthorized",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -79,6 +84,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "vaultAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RewardsClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "caller",
         "type": "address"
       },
@@ -103,6 +127,19 @@
     ],
     "name": "Withdrawn",
     "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "vaultAddress",
+        "type": "address"
+      }
+    ],
+    "name": "claimRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -169,6 +206,39 @@
         "type": "uint256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "memberId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "memberAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "orderId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "orderType",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "purchase",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

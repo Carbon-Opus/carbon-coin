@@ -98,6 +98,7 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
     expect(await mockPositionManager.lastPoolToken0()).to.equal(usdc.address);
     expect(await mockPositionManager.lastPoolToken1()).to.equal(creatorToken.address);
     expect(await mockPositionManager.lastSqrtPriceX96()).to.be.gt(0);
+    expect(await mockPositionManager.lastFee()).to.equal(100);
   });
 
   it("should deploy liquidity with correct token ordering when token < address(USDC) (Token is token0)", async () => {

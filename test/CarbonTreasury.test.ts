@@ -158,7 +158,7 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       // Non-owner withdraw attempt reverts
       await expect(
         carbonTreasury.connect(attacker).withdraw(attacker.address, price)
-      ).to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount");
+      ).to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount").withArgs(attacker.address);
 
       // Owner withdraw succeeds
       await expect(
@@ -169,32 +169,22 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       expect(await usdcToken.balanceOf(carbonTreasury.address)).to.equal(0);
     });
 
-    it("should allow owner to collect LP fee rewards to any recipient (e.g. creator)", async () => {
+    it("should allow owner to collect LP fee rewards", async () => {
       const MockNPMFactory = await ethers.getContractFactory("MockNonfungiblePositionManager");
       const mockPositionManager = await MockNPMFactory.deploy();
 
       const tokenId = 42;
-      const creatorRecipient = receiver.address;
 
       await expect(
         carbonTreasury.connect(deployer).collectLpRewards(
           mockPositionManager.address,
-          tokenId,
-          creatorRecipient
+          tokenId
         )
-      ).to.emit(carbonTreasury, "LpRewardsCollected")
-        .withArgs(
-          mockPositionManager.address,
-          tokenId,
-          creatorRecipient,
-          1000,
-          2000,
-          (val: any) => val > 0
-        );
+      ).to.emit(carbonTreasury, "LpRewardsCollected");
 
       const lastCollect = await mockPositionManager.lastCollect();
       expect(lastCollect.tokenId).to.equal(tokenId);
-      expect(lastCollect.recipient).to.equal(creatorRecipient);
+      expect(lastCollect.recipient).to.equal(carbonTreasury.address);
       expect(lastCollect.amount0Max).to.equal(ethers.constants.MaxUint256.shr(128)); // type(uint128).max
       expect(lastCollect.amount1Max).to.equal(ethers.constants.MaxUint256.shr(128));
     });
@@ -204,19 +194,17 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       const mockPositionManager = await MockNPMFactory.deploy();
 
       const tokenId = 42;
-      const creatorRecipient = receiver.address;
 
       await carbonTreasury.connect(deployer).collectLpRewardsWithLimits(
         mockPositionManager.address,
         tokenId,
-        creatorRecipient,
         50,
         75
       );
 
       const lastCollect = await mockPositionManager.lastCollect();
       expect(lastCollect.tokenId).to.equal(tokenId);
-      expect(lastCollect.recipient).to.equal(creatorRecipient);
+      expect(lastCollect.recipient).to.equal(carbonTreasury.address);
       expect(lastCollect.amount0Max).to.equal(50);
       expect(lastCollect.amount1Max).to.equal(75);
     });
@@ -228,28 +216,18 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       await expect(
         carbonTreasury.connect(attacker).collectLpRewards(
           mockPositionManager.address,
-          42,
-          attacker.address
+          42
         )
-      ).to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount");
+      ).to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount").withArgs(attacker.address);
     });
 
-    it("should revert collectLpRewards if invalid position manager or recipient is provided", async () => {
+    it("should revert collectLpRewards if invalid position manager is provided", async () => {
       await expect(
         carbonTreasury.connect(deployer).collectLpRewards(
           ethers.constants.AddressZero,
-          42,
-          receiver.address
+          42
         )
       ).to.be.revertedWith("Invalid position manager");
-
-      await expect(
-        carbonTreasury.connect(deployer).collectLpRewards(
-          receiver.address,
-          42,
-          ethers.constants.AddressZero
-        )
-      ).to.be.revertedWith("Invalid recipient");
     });
   });
 });

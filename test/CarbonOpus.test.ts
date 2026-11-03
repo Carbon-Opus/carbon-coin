@@ -188,7 +188,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
       );
     });
 
-    it("should correctly track and accumulate rewards per song", async () => {
+    it("should correctly track and accumulate rewards in the vault", async () => {
       // Buy the song once
       await carbonOpus.connect(controller).purchaseMusic(
         buyerMemberId,
@@ -197,14 +197,19 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         referrerMemberId
       );
 
-      // protocol fee = 1% (100 basis points) of 10 USDC = 0.1 USDC = 100,000 (with 6 decimals)
-      // referral pct = 5% (500 basis points) of 10 USDC = 0.5 USDC = 500,000
-      // artist share = 10 USDC - 0.1 USDC - 0.5 USDC = 9.4 USDC = 9,400,000
-      expect(await carbonOpus.songRewards(tokenId)).to.equal(9400000);
-      expect(await carbonOpus.getRewards(memberIdA)).to.equal(9400000);
+      // protocol fee = 10% (1000 basis points) of 10 USDC = 1 USDC = 1,000,000 (with 6 decimals)
+      // referral pct = 5% (500 basis points) of 9 USDC = 0.45 USDC = 450,000
+      // artist share = 9 USDC - 0.45 USDC = 8.55 USDC = 8,550,000
+      const protocolFee = (songPrice.mul(100)) / 10000;
+      const referralShare = (songPrice.sub(protocolFee).mul(referralPct)) / 10000;
+      const artistShare = songPrice.sub(protocolFee).sub(referralShare);
+
+      expect(await carbonOpusVault.rewards(memberIdA)).to.equal(artistShare);
+      expect(await carbonOpusVault.rewards(referrerMemberId)).to.equal(referralShare);
+      expect(await carbonOpusVault.rewards(treasuryId)).to.equal(protocolFee);
     });
 
-    it("should lock rewards of a song from being claimed when the song is locked", async () => {
+    it("should allow artist to claim their rewards from the vault", async () => {
       // Buy the song
       await carbonOpus.connect(controller).purchaseMusic(
         buyerMemberId,
@@ -213,48 +218,17 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         referrerMemberId
       );
 
-      // Create a second song and buy it too so artist has rewards from two songs
-      await carbonOpus.connect(controller).createMusic(
-        memberIdA,
-        artistA.address,
-        songPrice,
-        referralPct
-      );
-      await carbonOpus.connect(controller).purchaseMusic(
-        buyerMemberId,
-        buyer.address,
-        2,
-        referrerMemberId
-      );
-
-      // Total rewards: 2 * 9.4 USDC = 18.8 USDC
-      expect(await carbonOpus.getRewards(memberIdA)).to.equal(18800000);
-
-      // Lock the first song
-      await carbonOpus.connect(controller).updateSongLockStatus(1, true);
-
-      // Now `getRewards` should only return the claimable amount from the unlocked song (9.4 USDC)
-      expect(await carbonOpus.getRewards(memberIdA)).to.equal(9400000);
+      const protocolFee = (songPrice.mul(100)) / 10000;
+      const referralShare = (songPrice.sub(protocolFee).mul(referralPct)) / 10000;
+      const artistShare = songPrice.sub(protocolFee).sub(referralShare);
 
       // Claim rewards
       const oldBalance = await usdcToken.balanceOf(artistA.address);
-      await carbonOpus.connect(controller).claimRewards(memberIdA, artistA.address);
+      await carbonOpusVault.connect(artistA).claimRewards(memberIdA, artistA.address);
       const newBalance = await usdcToken.balanceOf(artistA.address);
 
-      // Artist should have only claimed 9.4 USDC
-      expect(newBalance.sub(oldBalance)).to.equal(9400000);
-
-      // The rewards for the locked song (1) should still be in songRewards[1]
-      expect(await carbonOpus.songRewards(1)).to.equal(9400000);
-      expect(await carbonOpus.songRewards(2)).to.equal(0);
-
-      // Unlock the first song
-      await carbonOpus.connect(controller).updateSongLockStatus(1, false);
-
-      // Claim again
-      await carbonOpus.connect(controller).claimRewards(memberIdA, artistA.address);
-      expect((await usdcToken.balanceOf(artistA.address)).sub(oldBalance)).to.equal(18800000);
-      expect(await carbonOpus.songRewards(1)).to.equal(0);
+      expect(newBalance.sub(oldBalance)).to.equal(artistShare);
+      expect(await carbonOpusVault.rewards(memberIdA)).to.equal(0);
     });
   });
 
@@ -278,9 +252,13 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
       );
     });
 
-    it("should reattribute song, future rewards, and unclaimed rewards to new member", async () => {
-      // Historical rewards are currently 9.4 USDC
-      expect(await carbonOpus.songRewards(tokenId)).to.equal(9400000);
+    it("should reattribute song and future rewards to new member, but not unclaimed rewards", async () => {
+      const protocolFee = (songPrice.mul(100)) / 10000;
+      const referralShare = (songPrice.sub(protocolFee).mul(referralPct)) / 10000;
+      const artistShare = songPrice.sub(protocolFee).sub(referralShare);
+
+      // Historical rewards are currently with Artist A
+      expect(await carbonOpusVault.rewards(memberIdA)).to.equal(artistShare);
 
       // Reassign song from Artist A to Artist B
       await expect(
@@ -298,11 +276,11 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
       const song = await carbonOpus.songs(tokenId);
       expect(song.memberId).to.equal(memberIdB);
 
-      // Artist A should have 0 claimable rewards
-      expect(await carbonOpus.getRewards(memberIdA)).to.equal(0);
+      // Artist A should still have their claimable rewards
+      expect(await carbonOpusVault.rewards(memberIdA)).to.equal(artistShare);
 
-      // Artist B should now be able to claim the 9.4 USDC unclaimed historical rewards!
-      expect(await carbonOpus.getRewards(memberIdB)).to.equal(9400000);
+      // Artist B should have no rewards yet
+      expect(await carbonOpusVault.rewards(memberIdB)).to.equal(0);
 
       // Purchase the song again
       await carbonOpus.connect(controller).purchaseMusic(
@@ -312,18 +290,22 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         referrerMemberId
       );
 
-      // Artist B should now have 18.8 USDC claimable rewards (9.4 historical + 9.4 new)
-      expect(await carbonOpus.getRewards(memberIdB)).to.equal(18800000);
+      // Artist B should now have their new rewards
+      expect(await carbonOpusVault.rewards(memberIdB)).to.equal(artistShare);
 
       // Check NFT balances
-      // Artist A had 1 minted edition. It should be transferred to Artist B.
       expect(await carbonOpus.balanceOf(artistA.address, tokenId)).to.equal(0);
-      expect(await carbonOpus.balanceOf(artistB.address, tokenId)).to.equal(1); // 1 transferred
+      expect(await carbonOpus.balanceOf(artistB.address, tokenId)).to.equal(1);
 
+      // Claim rewards for Artist A
+      const oldBalanceA = await usdcToken.balanceOf(artistA.address);
+      await carbonOpusVault.connect(artistA).claimRewards(memberIdA, artistA.address);
+      expect((await usdcToken.balanceOf(artistA.address)).sub(oldBalanceA)).to.equal(artistShare);
+      
       // Claim rewards for Artist B
-      const oldBalance = await usdcToken.balanceOf(artistB.address);
-      await carbonOpus.connect(controller).claimRewards(memberIdB, artistB.address);
-      expect((await usdcToken.balanceOf(artistB.address)).sub(oldBalance)).to.equal(18800000);
+      const oldBalanceB = await usdcToken.balanceOf(artistB.address);
+      await carbonOpusVault.connect(artistB).claimRewards(memberIdB, artistB.address);
+      expect((await usdcToken.balanceOf(artistB.address)).sub(oldBalanceB)).to.equal(artistShare);
     });
 
     it("should correctly update ownership lists (musicBalance) upon reassignment", async () => {
@@ -440,7 +422,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
       expect(await carbonOpus.balanceOf(artistB.address, tokenId)).to.equal(0);
     });
 
-    it("should allow referrers to claim rewards even if the associated song is locked", async () => {
+    it("should allow referrers to claim their rewards", async () => {
       // Buy the song once to generate referral rewards for the referrer
       await carbonOpus.connect(controller).purchaseMusic(
         buyerMemberId,
@@ -449,27 +431,18 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         referrerMemberId
       );
 
-      // Referrer has 5% of 10 USDC = 0.5 USDC = 500,000
-      expect(await carbonOpus.getRewards(referrerMemberId)).to.equal(500000);
+      const protocolFee = (songPrice.mul(100)) / 10000;
+      const referralShare = (songPrice.sub(protocolFee).mul(referralPct)) / 10000;
 
-      // Lock the song
-      await carbonOpus.connect(controller).updateSongLockStatus(tokenId, true);
-
-      // Artist rewards should be locked (getRewards = 0)
-      expect(await carbonOpus.getRewards(memberIdA)).to.equal(0);
-
-      // Referrer rewards should STILL be claimable (getRewards = 0.5 USDC)
-      expect(await carbonOpus.getRewards(referrerMemberId)).to.equal(500000);
+      expect(await carbonOpusVault.rewards(referrerMemberId)).to.equal(referralShare);
 
       // Referrer claims successfully
       const oldBalance = await usdcToken.balanceOf(referrer.address);
-      await carbonOpus.connect(controller).claimRewards(referrerMemberId, referrer.address);
-      expect((await usdcToken.balanceOf(referrer.address)).sub(oldBalance)).to.equal(500000);
+      await carbonOpusVault.connect(referrer).claimRewards(referrerMemberId, referrer.address);
+      expect((await usdcToken.balanceOf(referrer.address)).sub(oldBalance)).to.equal(referralShare);
     });
 
-    it("should allow the treasury to claim protocol fees even if the associated song is locked", async () => {
-      const treasuryId = ethers.utils.formatBytes32String("treasury");
-
+    it("should allow the treasury to claim protocol fees", async () => {
       // Buy the song once to generate protocol fees
       await carbonOpus.connect(controller).purchaseMusic(
         buyerMemberId,
@@ -478,16 +451,13 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         referrerMemberId
       );
 
-      // Treasury has 1% of 10 USDC = 0.1 USDC = 100,000
-      expect(await carbonOpus.getRewards(treasuryId)).to.equal(100000);
+      const protocolFee = (songPrice.mul(100)) / 10000;
+      expect(await carbonOpusVault.rewards(treasuryId)).to.equal(protocolFee);
 
-      // Lock the song
-      await carbonOpus.connect(controller).updateSongLockStatus(tokenId, true);
-
-      // Treasury should STILL be able to claim protocol fees
-      const oldBalance = await usdcToken.balanceOf(deployer.address);
-      await carbonOpus.connect(deployer).claimRewards(treasuryId, deployer.address);
-      expect((await usdcToken.balanceOf(deployer.address)).sub(oldBalance)).to.equal(100000);
+      // Treasury claims successfully
+      const oldBalance = await usdcToken.balanceOf(carbonTreasury.address);
+      await carbonTreasury.connect(deployer).claimRewards(carbonOpusVault.address);
+      expect((await usdcToken.balanceOf(carbonTreasury.address)).sub(oldBalance)).to.equal(protocolFee);
     });
   });
 });

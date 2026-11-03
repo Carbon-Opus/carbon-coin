@@ -7,6 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import { ICarbonOpusVault } from "./interface/ICarbonOpusVault.sol";
 import { ICarbonTreasury } from "./interface/ICarbonTreasury.sol";
 import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
 import { BlackholePrevention } from "./lib/BlackholePrevention.sol";
@@ -32,9 +33,20 @@ contract CarbonTreasury is ICarbonTreasury, IERC721Receiver, Ownable, BlackholeP
     return this.onERC721Received.selector;
   }
 
+  function purchase(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price) external {
+    if (msg.sender != memberAddress) revert Unauthorized();
+    usdcToken.safeTransferFrom(memberAddress, address(this), price);
+    emit PurchaseCompleted(memberId, memberAddress, orderId, orderType, price);
+  }
+
   function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
     _collectPaymentWithPermit(memberAddress, price, deadline, v, r, s);
     emit PurchaseCompleted(memberId, memberAddress, orderId, orderType, price);
+  }
+
+  function claimRewards(address vaultAddress) external onlyOwner {
+    ICarbonOpusVault(vaultAddress).claimTreasuryRewards(address(this));
+    emit RewardsClaimed(vaultAddress, block.timestamp);
   }
 
   function withdraw(address to, uint256 amount) external onlyOwner {
@@ -97,8 +109,13 @@ contract CarbonTreasury is ICarbonTreasury, IERC721Receiver, Ownable, BlackholeP
   }
 
   function _collectPaymentWithPermit(address memberAddress, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) internal {
-    // try/catch handles potential front-running of the permit footprint gracefully
-    try usdcToken.permit(memberAddress, address(this), amount, deadline, v, r, s) {} catch {}
+    // The permit call is intentionally not wrapped in a try/catch block.
+    // A failed permit, due to an invalid signature or any other reason,
+    // must cause the transaction to revert. This prevents a potential attack
+    // where a malicious actor could bypass the permit check and use a pre-existing
+    // allowance by providing a garbage signature. This function must only
+    // succeed if the provided permit is valid.
+    usdcToken.permit(memberAddress, address(this), amount, deadline, v, r, s);
     usdcToken.safeTransferFrom(memberAddress, address(this), amount);
   }
 }

@@ -136,7 +136,7 @@ describe("CarbonOpus Refactor", () => {
         const treasuryReward = await carbonOpusVault.rewards(treasuryId);
         const oldBalance = await usdcToken.balanceOf(carbonTreasury.address);
 
-        await carbonTreasury.connect(deployer).claimTreasuryRewards();
+        await carbonTreasury.connect(deployer).claimRewards(carbonOpusVault.address);
 
         const newBalance = await usdcToken.balanceOf(carbonTreasury.address);
         expect(newBalance.sub(oldBalance)).to.equal(treasuryReward);

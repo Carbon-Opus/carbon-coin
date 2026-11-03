@@ -8,7 +8,7 @@
 
 ## Phase 2: Medium-Severity Vulnerabilities
 
-- [ ] Task: Address `arbitrary-send-erc20` vulnerabilities.
+- [~] Task: Address `arbitrary-send-erc20` vulnerabilities.
 - [ ] Task: Address `arbitrary-send-erc20-permit` vulnerabilities.
 - [ ] Task: Address `unchecked-transfer` vulnerabilities.
 - [ ] Task: Address `divide-before-multiply` vulnerabilities.

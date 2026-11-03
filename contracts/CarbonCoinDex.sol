@@ -78,6 +78,13 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     external onlyAuthorized(token) nonReentrant whenNotPaused
     returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId)
   {
+    uint256 size;
+    assembly {
+      size := extcodesize(token)
+    }
+    require(size > 0, "Token must be a contract");
+    require(token != address(USDC), "Token cannot be USDC");
+
     address lpRecipient = recipient;
     if (lpRecipient == address(0)) {
       lpRecipient = ICarbonCoinConfig(config).getTreasury();

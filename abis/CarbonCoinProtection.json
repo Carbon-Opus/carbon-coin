@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "controller",
+        "name": "_initialController",
         "type": "address"
       }
     ],
@@ -55,6 +55,11 @@
   {
     "inputs": [],
     "name": "WhaleDelayActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "WhaleIntentAlreadyExists",
     "type": "error"
   },
   {
@@ -227,6 +232,19 @@
       }
     ],
     "name": "ConfigUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newController",
+        "type": "address"
+      }
+    ],
+    "name": "ControllerUpdated",
     "type": "event"
   },
   {
@@ -642,6 +660,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "controller",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -948,6 +979,34 @@
         "internalType": "address",
         "name": "user",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      }
+    ],
+    "name": "registerWhaleIntent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
     "name": "removeFromWhitelist",
@@ -1017,6 +1076,16 @@
         "internalType": "uint256",
         "name": "lastVolatilityReset",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint128",
+        "name": "lastPrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "lastPriceTimestamp",
+        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -1085,6 +1154,19 @@
       }
     ],
     "name": "updateConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newController",
+        "type": "address"
+      }
+    ],
+    "name": "updateController",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -52,8 +52,9 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        version: '0.8.27',
+        version: '0.8.28',
         settings: {
+          evmVersion: 'cancun',
           optimizer: {
             enabled: !optimizerDisabled,
             runs: 200,
@@ -98,6 +99,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 34443,
+      hardfork: 'cancun',
       gasPrice: 'auto',
       forking: {
         // url: 'https://polygon-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_ETH_APIKEY,
@@ -129,6 +131,24 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
+    baseSepolia: {
+      chainId: 84532,
+      url: "https://sepolia.base.org",
+      accounts: {
+        mnemonic: mnemonic.testnet,
+        initialIndex: 0,
+        count: 10,
+      },
+    },
+    baseMainnet: {
+      chainId: 8453,
+      url: "https://mainnet.base.org",
+      accounts: {
+        mnemonic: mnemonic.mainnet,
+        initialIndex: 0,
+        count: 10,
+      },
+    },
   },
   etherscan: {
     apiKey: "empty", // No API key needed for Somnia verification
@@ -147,6 +167,22 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://shannon-explorer.somnia.network/api",
           browserURL: "https://shannon-explorer.somnia.network",
+        },
+      },
+      {
+        network: "baseSepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org",
+        },
+      },
+      {
+        network: "baseMainnet",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org",
         },
       },
     ],

@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 interface ICarbonCoinPaymaster {
   event TokenBuy(address indexed coinAddress, address buyer, uint256 usdcAmount, uint256 minTokensOut);
@@ -47,5 +47,12 @@ interface ICarbonCoinPaymaster {
     address creatorCoin,
     uint256 amount,
     uint256 minUsdcOut
+  ) external;
+
+  function registerWhaleIntent(
+    address user,
+    address creatorCoin,
+    uint256 amount,
+    bool isBuy
   ) external;
 }

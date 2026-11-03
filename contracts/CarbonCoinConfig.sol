@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
@@ -35,6 +35,7 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
   CircuitBreakerConfig internal defaultCircuitBreakerConfig;
   WhaleLimitConfig internal defaultWhaleLimitConfig;
   address internal carbonCoinDex;
+  address internal treasury;
 
   constructor() Ownable(msg.sender) {
     defaultFeeConfig = FeeConfig({
@@ -70,6 +71,10 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
     return carbonCoinDex;
   }
 
+  function getTreasury() external view returns (address) {
+    return treasury;
+  }
+
   function getFeeConfig() public view returns (FeeConfig memory) {
     return defaultFeeConfig;
   }
@@ -90,6 +95,12 @@ contract CarbonCoinConfig is ICarbonCoinConfig, Ownable {
     require(_dex != address(0), "Invalid DEX address");
     carbonCoinDex = _dex;
     emit DefaultConfigUpdated("Dex", block.timestamp);
+  }
+
+  function updateTreasury(address _treasury) external onlyOwner {
+    require(_treasury != address(0), "Invalid treasury address");
+    treasury = _treasury;
+    emit DefaultConfigUpdated("Treasury", block.timestamp);
   }
 
   function updateDefaultFeeConfig(FeeConfig memory newConfig) external onlyOwner {

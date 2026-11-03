@@ -22,24 +22,37 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Permit, ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { ICarbonTreasury } from "./interface/ICarbonTreasury.sol";
+import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
 import { BlackholePrevention } from "./lib/BlackholePrevention.sol";
 
 interface IUSDC is IERC20, IERC20Permit {}
 
-contract CarbonTreasury is ICarbonTreasury, Ownable, BlackholePrevention {
+contract CarbonTreasury is ICarbonTreasury, IERC721Receiver, Ownable, BlackholePrevention {
   IUSDC public usdcToken;
 
   constructor(address usdcTokenAddress) Ownable(_msgSender()) {
     usdcToken = IUSDC(usdcTokenAddress);
   }
 
+  function onERC721Received(
+    address,
+    address,
+    uint256,
+    bytes calldata
+  ) external pure override returns (bytes4) {
+    return this.onERC721Received.selector;
+  }
+
   function purchase(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price) external {
+    if (_msgSender() != memberAddress) revert Unauthorized();
+
     // Collect payment
     _collectPayment(memberAddress, price);
 
@@ -74,6 +87,46 @@ contract CarbonTreasury is ICarbonTreasury, Ownable, BlackholePrevention {
 
   function withdrawERC1155(address payable receiver, address tokenAddress, uint256 tokenId, uint256 amount) external onlyOwner {
     _withdrawERC1155(receiver, tokenAddress, tokenId, amount);
+  }
+
+  function collectLpRewards(
+    address positionManager,
+    uint256 tokenId,
+    address recipient
+  ) external onlyOwner returns (uint256 amount0, uint256 amount1) {
+    return _collectLpRewards(positionManager, tokenId, recipient, type(uint128).max, type(uint128).max);
+  }
+
+  function collectLpRewardsWithLimits(
+    address positionManager,
+    uint256 tokenId,
+    address recipient,
+    uint128 amount0Max,
+    uint128 amount1Max
+  ) external onlyOwner returns (uint256 amount0, uint256 amount1) {
+    return _collectLpRewards(positionManager, tokenId, recipient, amount0Max, amount1Max);
+  }
+
+  function _collectLpRewards(
+    address positionManager,
+    uint256 tokenId,
+    address recipient,
+    uint128 amount0Max,
+    uint128 amount1Max
+  ) internal returns (uint256 amount0, uint256 amount1) {
+    require(positionManager != address(0), "Invalid position manager");
+    require(recipient != address(0), "Invalid recipient");
+
+    INonfungiblePositionManager.CollectParams memory params = INonfungiblePositionManager.CollectParams({
+      tokenId: tokenId,
+      recipient: recipient,
+      amount0Max: amount0Max,
+      amount1Max: amount1Max
+    });
+
+    (amount0, amount1) = INonfungiblePositionManager(positionManager).collect(params);
+
+    emit LpRewardsCollected(positionManager, tokenId, recipient, amount0, amount1, block.timestamp);
   }
 
   function _collectPayment(address memberAddress, uint256 amount) internal {

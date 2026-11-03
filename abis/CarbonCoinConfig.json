@@ -184,6 +184,19 @@
   },
   {
     "inputs": [],
+    "name": "getTreasury",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getWhaleLimitConfig",
     "outputs": [
       {
@@ -399,6 +412,19 @@
       }
     ],
     "name": "updateDexAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_treasury",
+        "type": "address"
+      }
+    ],
+    "name": "updateTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

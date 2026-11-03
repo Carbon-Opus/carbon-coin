@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 interface ICarbonCoinConfig {
   struct FeeConfig {
@@ -61,6 +61,8 @@ interface ICarbonCoinConfig {
   function updateDefaultWhaleLimitConfig(WhaleLimitConfig memory newConfig) external;
 
   function getCarbonCoinDex() external view returns (address);
+  function getTreasury() external view returns (address);
+  function updateTreasury(address _treasury) external;
   function getFeeConfig() external view returns (FeeConfig memory);
   function getAntiBotConfig() external view returns (AntiBotConfig memory);
   function getCircuitBreakerConfig() external view returns (CircuitBreakerConfig memory);

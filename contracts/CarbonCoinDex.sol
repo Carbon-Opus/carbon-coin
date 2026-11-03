@@ -22,12 +22,13 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { ICarbonCoinDex } from "./interface/ICarbonCoinDex.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
@@ -70,10 +71,18 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
    * @notice Deploy Liquidity to Somnia Exchange with USDC/Token pair.
    * @dev Creates a USDC/Token liquidity pool.
    */
-  function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
+  function deployLiquidity(address recipient, address token, uint256 tokensAmount, uint256 usdcAmount)
     external onlyAuthorized(token) nonReentrant whenNotPaused
-    returns (uint256 amount0, uint256 amount1, uint256 liquidity, uint256 lpTokenId)
+    returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId)
   {
+    address lpRecipient = recipient;
+    if (lpRecipient == address(0)) {
+      lpRecipient = ICarbonCoinConfig(config).getTreasury();
+      if (lpRecipient == address(0)) {
+        lpRecipient = _owner();
+      }
+    }
+
     // Ensure the caller has approved the DEX to spend their tokens and USDC
     // require(IERC20(token).allowance(msg.sender, address(this)) >= tokensAmount, "Insufficient token allowance");
     // require(USDC.allowance(msg.sender, address(this)) >= usdcAmount, "Insufficient USDC allowance");
@@ -82,33 +91,56 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     require(IERC20(token).transferFrom(msg.sender, address(this), tokensAmount), "Token transfer failed");
     require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
 
+    // Sort tokens to satisfy token0 < token1 required by concentrated liquidity AMMs
+    bool isUsdc0 = address(USDC) < token;
+    address token0 = isUsdc0 ? address(USDC) : token;
+    address token1 = isUsdc0 ? token : address(USDC);
+
+    uint256 amount0Desired = isUsdc0 ? usdcAmount : tokensAmount;
+    uint256 amount1Desired = isUsdc0 ? tokensAmount : usdcAmount;
+
+    uint256 amount0Min = (amount0Desired * 95) / 100; // 5% slippage tolerance
+    uint256 amount1Min = (amount1Desired * 95) / 100;
+
+    int24 positionTickLower = isUsdc0 ? tickLower : -tickUpper;
+    int24 positionTickUpper = isUsdc0 ? tickUpper : -tickLower;
+
     // Approve router to spend tokens and USDC
     IERC20(token).approve(address(dexRouter), tokensAmount);
     USDC.approve(address(dexRouter), usdcAmount);
 
-    // Add liquidity (auto-creates USDC/Token pair)
+    // Initialize pool if necessary
+    uint160 sqrtPriceX96 = uint160((Math.sqrt(amount1Desired) * (uint256(1) << 96)) / Math.sqrt(amount0Desired));
+    try dexRouter.createAndInitializePoolIfNecessary(token0, token1, sqrtPriceX96) {} catch {}
+
+    // Add liquidity
+    uint256 minted0;
+    uint256 minted1;
     INonfungiblePositionManager.MintParams memory params =
       INonfungiblePositionManager.MintParams({
-        token0: address(USDC),
-        token1: token,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        amount0Desired: usdcAmount,
-        amount1Desired: tokensAmount,
-        amount0Min: (usdcAmount * 95) / 100, // 5% slippage tolerance
-        amount1Min: (tokensAmount * 95) / 100,
-        recipient: creator,
+        token0: token0,
+        token1: token1,
+        tickLower: positionTickLower,
+        tickUpper: positionTickUpper,
+        amount0Desired: amount0Desired,
+        amount1Desired: amount1Desired,
+        amount0Min: amount0Min,
+        amount1Min: amount1Min,
+        recipient: lpRecipient,
         deadline: block.timestamp
       });
-    (lpTokenId, liquidity, amount0, amount1) = dexRouter.mint(params);
+    (lpTokenId, liquidity, minted0, minted1) = dexRouter.mint(params);
+
+    amountA = isUsdc0 ? minted0 : minted1; // USDC
+    amountB = isUsdc0 ? minted1 : minted0; // Tokens
 
     // Emit Liquidity event
     emit LiquidityDeployed(
       token,
-      creator,
+      lpRecipient,
       lpTokenId,
-      amount0,
-      amount1,
+      amountB,
+      amountA,
       liquidity,
       block.timestamp
     );

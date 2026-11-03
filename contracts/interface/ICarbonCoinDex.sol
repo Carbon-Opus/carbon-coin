@@ -22,12 +22,12 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 interface ICarbonCoinDex {
     event LiquidityDeployed(
         address indexed token,
-        address indexed creator,
+        address indexed recipient,
         uint256 indexed lpTokenId,
         uint256 tokenAmount,
         uint256 usdcAmount,
@@ -43,7 +43,7 @@ interface ICarbonCoinDex {
 
     error Unauthorized();
 
-    function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
+    function deployLiquidity(address recipient, address token, uint256 tokensAmount, uint256 usdcAmount)
       external
       returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
 }

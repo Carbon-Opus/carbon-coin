@@ -61,7 +61,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "creator",
+        "name": "recipient",
         "type": "address"
       },
       {
@@ -201,7 +201,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "creator",
+        "name": "recipient",
         "type": "address"
       },
       {

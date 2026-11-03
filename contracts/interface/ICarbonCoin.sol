@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 interface ICarbonCoin {
   struct BondingCurveConfig {
@@ -94,6 +94,7 @@ interface ICarbonCoin {
   error GraduationCooldownActive();
   error WhaleIntentRequired();
   error CreatorCannotSellBeforeGraduation();
+  error ExceedsMaxSellAmount();
 
   /**
    * @notice Get the current token price in USDC.
@@ -199,6 +200,16 @@ interface ICarbonCoin {
     uint256 tokensIn,
     uint256 minUsdcOut
   ) external;
+
+  function registerWhaleIntent(uint256 amount, bool isBuy) external;
+
+  function registerWhaleIntentOnBehalf(
+    address user,
+    uint256 amount,
+    bool isBuy
+  ) external;
+
+  function cancelWhaleIntent() external;
 
   function getReserves() external view returns (
     uint256 usdcReserves,

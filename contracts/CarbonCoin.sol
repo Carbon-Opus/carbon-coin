@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -30,6 +30,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Permit, ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 import { ICarbonCoinLauncher } from "./interface/ICarbonCoinLauncher.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
@@ -165,6 +166,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
   /**
    * @notice Calculate the amount of tokens received for a given USDC input.
    * @dev The calculation is based on the bonding curve formula and includes the buy fee.
+   * Rounding is performed via Math.ceilDiv on total tokens to ensure fractional tokens round down
+   * in favor of the bonding curve reserves.
    * @param usdcIn The amount of USDC to be spent.
    * @return The amount of tokens that will be received.
    */
@@ -176,8 +179,10 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
 
     uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
     uint256 newTotalUsdc = VIRTUAL_USDC + realUsdcReserves + usdcAfterFee;
-    uint256 newTotalTokens = k / newTotalUsdc;
+    uint256 newTotalTokens = Math.ceilDiv(k, newTotalUsdc);
+    if (newTotalTokens >= VIRTUAL_TOKENS) return 0;
     uint256 newRealSupply = VIRTUAL_TOKENS - newTotalTokens;
+    if (newRealSupply <= realTokenSupply) return 0;
 
     return newRealSupply - realTokenSupply;
   }
@@ -185,6 +190,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
   /**
    * @notice Calculate the amount of USDC needed to buy a specific amount of tokens.
    * @dev The calculation is based on the bonding curve formula and includes the buy fee.
+   * Rounding is performed upwards to ensure the curve receives sufficient USDC reserves.
    * @param tokensOut The desired amount of tokens.
    * @return The amount of USDC required to purchase the specified tokens.
    */
@@ -196,11 +202,11 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
     uint256 newRealSupply = realTokenSupply + tokensOut;
     uint256 newTotalTokens = VIRTUAL_TOKENS - newRealSupply;
-    uint256 newTotalUsdc = k / newTotalTokens;
+    uint256 newTotalUsdc = Math.ceilDiv(k, newTotalTokens);
     uint256 newUsdcReserves = newTotalUsdc - VIRTUAL_USDC;
     uint256 usdcNeeded = newUsdcReserves - realUsdcReserves;
 
-    return (usdcNeeded * 10000) / (10000 - feeConfig.buyFee);
+    return Math.ceilDiv(usdcNeeded * 10000, 10000 - feeConfig.buyFee);
   }
 
   /**
@@ -217,6 +223,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
   /**
    * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
    * @dev The calculation is based on the bonding curve formula and includes the sell fee.
+   * Rounding is performed via Math.ceilDiv on total USDC so that newUsdcReserves rounds up,
+   * ensuring that USDC paid out to the seller rounds down in favor of the bonding curve reserves.
    * @param tokensIn The amount of tokens to be sold.
    * @return The amount of USDC that will be received.
    * @return The amount of fee that will be taken.
@@ -230,9 +238,9 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     uint256 k = (VIRTUAL_USDC + realUsdcReserves) * (VIRTUAL_TOKENS - realTokenSupply);
     uint256 newRealSupply = realTokenSupply - tokensIn;
     uint256 newTotalTokens = VIRTUAL_TOKENS - newRealSupply;
-    uint256 newTotalUsdc = k / newTotalTokens;
-    uint256 newUsdcReserves = newTotalUsdc - VIRTUAL_USDC;
-    uint256 usdcOut = realUsdcReserves - newUsdcReserves;
+    uint256 newTotalUsdc = Math.ceilDiv(k, newTotalTokens);
+    uint256 newUsdcReserves = newTotalUsdc > VIRTUAL_USDC ? newTotalUsdc - VIRTUAL_USDC : 0;
+    uint256 usdcOut = realUsdcReserves > newUsdcReserves ? realUsdcReserves - newUsdcReserves : 0;
     uint256 usdcAmount = (usdcOut * (10000 - feeConfig.sellFee)) / 10000;
     uint256 feeAmount = usdcOut - usdcAmount;
     return (usdcAmount, feeAmount);
@@ -245,6 +253,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
    * @param minTokensOut The minimum number of tokens the user is willing to accept.
    */
   function buy(uint256 usdcAmount, uint256 minTokensOut) external nonReentrant whenNotPaused {
+    if (hasGraduated) revert AlreadyGraduated();
+
     // Execute payment
     require(USDC.transferFrom(_msgSender(), address(this), usdcAmount), "USDC transfer failed");
 
@@ -271,6 +281,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     bytes32 r,
     bytes32 s
   ) external nonReentrant whenNotPaused {
+    if (hasGraduated) revert AlreadyGraduated();
+
     // Execute payment
     IERC20Permit(address(USDC)).permit(_msgSender(), address(this), usdcAmount, deadline, v, r, s);
     require(USDC.transferFrom(_msgSender(), address(this), usdcAmount), "USDC transfer failed");
@@ -290,6 +302,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     uint256 usdcAmount,
     uint256 minTokensOut
   ) external nonReentrant whenNotPaused onlyPaymaster {
+    if (hasGraduated) revert AlreadyGraduated();
+
     // Execute payment
     require(USDC.transferFrom(paymaster, address(this), usdcAmount), "USDC transfer failed");
 
@@ -308,16 +322,29 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
 
     if (hasGraduated) revert AlreadyGraduated();
+    if (_msgSender() == creator) revert CreatorCannotSellBeforeGraduation();
     if (tokensIn == 0) revert InvalidAmount();
     if (balanceOf(_msgSender()) < tokensIn) revert InvalidAmount();
 
+    ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+    if (whaleConfig.maxSellPercentage > 0) {
+      uint256 maxSellTokens = (realTokenSupply * whaleConfig.maxSellPercentage) / 10000;
+      if (tokensIn > maxSellTokens) {
+        if (!ICarbonCoinProtection(protection).whitelist(address(this), _msgSender())) {
+          revert ExceedsMaxSellAmount();
+        }
+      }
+    }
+
     (uint256 usdcOut, uint256 feeAmount) = calculateUsdcOutWithFee(tokensIn);
+
+    ICarbonCoinProtection(protection).checkTradeSizeLimit(address(this), _msgSender(), usdcOut + feeAmount);
 
     // Check whale intent
     (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
       address(this),
       _msgSender(),
-      usdcOut + feeAmount,
+      tokensIn,
       false
     );
 
@@ -340,16 +367,29 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     ICarbonCoinProtection(protection).checkCircuitBreaker(address(this));
 
     if (hasGraduated) revert AlreadyGraduated();
+    if (receiver == creator) revert CreatorCannotSellBeforeGraduation();
     if (tokensIn == 0) revert InvalidAmount();
     if (balanceOf(receiver) < tokensIn) revert InvalidAmount();
 
+    ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+    if (whaleConfig.maxSellPercentage > 0) {
+      uint256 maxSellTokens = (realTokenSupply * whaleConfig.maxSellPercentage) / 10000;
+      if (tokensIn > maxSellTokens) {
+        if (!ICarbonCoinProtection(protection).whitelist(address(this), receiver)) {
+          revert ExceedsMaxSellAmount();
+        }
+      }
+    }
+
     (uint256 usdcOut, uint256 feeAmount) = calculateUsdcOutWithFee(tokensIn);
+
+    ICarbonCoinProtection(protection).checkTradeSizeLimit(address(this), receiver, usdcOut + feeAmount);
 
     // Check whale intent
     (bool requiresIntent, bool canProceed) = ICarbonCoinProtection(protection).checkWhaleIntent(
       address(this),
       receiver,
-      usdcOut + feeAmount,
+      tokensIn,
       false
     );
 
@@ -358,6 +398,24 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     }
 
     _executeSell(receiver, tokensIn, minUsdcOut, usdcOut, feeAmount);
+  }
+
+  function registerWhaleIntent(uint256 amount, bool isBuy) external nonReentrant whenNotPaused {
+    if (hasGraduated) revert AlreadyGraduated();
+    ICarbonCoinProtection(protection).registerWhaleIntent(address(this), _msgSender(), amount, isBuy);
+  }
+
+  function registerWhaleIntentOnBehalf(
+    address user,
+    uint256 amount,
+    bool isBuy
+  ) external nonReentrant whenNotPaused onlyPaymaster {
+    if (hasGraduated) revert AlreadyGraduated();
+    ICarbonCoinProtection(protection).registerWhaleIntent(address(this), user, amount, isBuy);
+  }
+
+  function cancelWhaleIntent() external nonReentrant whenNotPaused {
+    ICarbonCoinProtection(protection).cancelWhaleIntent(address(this), _msgSender());
   }
 
   /**
@@ -515,8 +573,13 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     _approve(address(this), dexAddress, LIQUIDITY_SUPPLY);
     USDC.approve(dexAddress, realUsdcReserves);
 
+    address treasury = ICarbonCoinConfig(config).getTreasury();
+    if (treasury == address(0)) {
+      treasury = _owner();
+    }
+
     (uint256 amountA, uint256 amountB, uint256 liquidity, ) = ICarbonCoinDex(dexAddress)
-      .deployLiquidity(creator, address(this), LIQUIDITY_SUPPLY, realUsdcReserves);
+      .deployLiquidity(treasury, address(this), LIQUIDITY_SUPPLY, realUsdcReserves);
 
     ICarbonCoinLauncher(launcher).markTokenGraduated(address(this));
 
@@ -554,10 +617,13 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     if (hasGraduated) revert AlreadyGraduated();
     require(paused(), "Must be paused first");
 
-    uint256 balance = USDC.balanceOf(address(this));
-    require(USDC.transfer(creator, balance), "Withdrawal failed");
+    address treasury = ICarbonCoinConfig(config).getTreasury();
+    address recipient = treasury != address(0) ? treasury : _owner();
 
-    emit EmergencyWithdraw(_msgSender(), creator, balance, block.timestamp);
+    uint256 balance = USDC.balanceOf(address(this));
+    require(USDC.transfer(recipient, balance), "Withdrawal failed");
+
+    emit EmergencyWithdraw(_msgSender(), recipient, balance, block.timestamp);
     emit LiquiditySnapshot(0, 0, 0, block.timestamp);
   }
 
@@ -606,10 +672,10 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
    * @dev This hook is called before any token transfer
    */
   function _update(address from, address to, uint256 amount) internal virtual override {
-    // Prevent creator from selling/transferring before graduation
-    // Allow minting (from == address(0)) and burning (to == address(0))
-    if (from == creator && to != address(0) && !hasGraduated) {
-        revert CreatorCannotSellBeforeGraduation();
+    // Prevent creator from selling or transferring before graduation
+    // Minting to creator (from == address(0)) is allowed
+    if (from == creator && !hasGraduated) {
+      revert CreatorCannotSellBeforeGraduation();
     }
 
     super._update(from, to, amount);

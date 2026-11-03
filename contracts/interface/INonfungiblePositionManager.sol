@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 interface INonfungiblePositionManager {
 
     /// @notice Returns the position information associated with a given token ID.
@@ -48,6 +48,17 @@ interface INonfungiblePositionManager {
         address recipient;
         uint256 deadline;
     }
+
+    /// @notice Creates a new pool if it does not exist, then initializes if not initialized
+    /// @param token0 The contract address of token0 of the pool
+    /// @param token1 The contract address of token1 of the pool
+    /// @param sqrtPriceX96 The initial square root price of the pool as a Q64.96 value
+    /// @return pool Returns the pool address of the new pool
+    function createAndInitializePoolIfNecessary(
+        address token0,
+        address token1,
+        uint160 sqrtPriceX96
+    ) external payable returns (address pool);
 
     /// @notice Creates a new position wrapped in a NFT
     /// @dev Call this when the pool does exist and is initialized. Note that if the pool is created but not initialized

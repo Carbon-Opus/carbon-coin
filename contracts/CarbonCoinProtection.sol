@@ -22,11 +22,12 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ICarbonCoinConfig } from "./interface/ICarbonCoinConfig.sol";
 import { ICarbonCoinProtection } from "./interface/ICarbonCoinProtection.sol";
+import { ICarbonCoin } from "./interface/ICarbonCoin.sol";
 
 /**
  * @title CarbonCoinProtection
@@ -56,8 +57,8 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
     address public launcher;
     address internal _controller;
 
-    constructor(address controller) Ownable(msg.sender) {
-        _controller = controller;
+    constructor(address _initialController) Ownable(msg.sender) {
+        _controller = _initialController;
     }
 
     /**
@@ -153,6 +154,59 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
     }
 
     /**
+     * @notice Register a whale trade intent
+     * @param token The token address
+     * @param user The user address
+     * @param amount The trade amount (USDC amount if isBuy, tokensIn if !isBuy)
+     * @param isBuy Whether the trade is a buy or sell
+     */
+    function registerWhaleIntent(
+        address token,
+        address user,
+        uint256 amount,
+        bool isBuy
+    ) external {
+        require(msg.sender == user || msg.sender == token || msg.sender == _controller, "Unauthorized");
+        require(!isBlacklisted[token][user], "Blacklisted");
+
+        ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
+
+        uint256 usdcValue = amount;
+        if (!isBuy) {
+            (uint256 usdcOut, uint256 feeAmount) = ICarbonCoin(token).calculateUsdcOutWithFee(amount);
+            usdcValue = usdcOut + feeAmount;
+        }
+
+        require(usdcValue >= whaleConfig.whaleThreshold, "Amount below whale threshold");
+
+        // Check cooldown from last executed whale trade
+        if (lastWhaleTradeTime[token][user] > 0) {
+            if (block.timestamp < lastWhaleTradeTime[token][user] + whaleConfig.whaleDelay) {
+                revert WhaleDelayActive();
+            }
+        }
+
+        WhaleIntent storage intent = pendingWhaleIntents[token][user];
+        if (intent.intentTime > 0 && !intent.executed) {
+            revert WhaleIntentAlreadyExists();
+        }
+
+        intent.amount = amount;
+        intent.intentTime = block.timestamp;
+        intent.isBuy = isBuy;
+        intent.executed = false;
+
+        emit WhaleIntentRegistered(
+            token,
+            user,
+            amount,
+            isBuy,
+            block.timestamp + whaleConfig.whaleDelay,
+            block.timestamp
+        );
+    }
+
+    /**
      * @notice Check if whale intent is required and handle it
      * @return requiresIntent Whether a whale intent is required
      * @return canProceed Whether the trade can proceed
@@ -168,11 +222,17 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         ICarbonCoinConfig.WhaleLimitConfig memory whaleConfig = _getWhaleLimitConfig();
 
         // Not a whale trade if whitelisted or below threshold
-        if (whitelist[token][user] || amount < whaleConfig.whaleThreshold) {
+        uint256 usdcValue = amount;
+        if (!isBuy) {
+            (uint256 usdcOut, uint256 feeAmount) = ICarbonCoin(token).calculateUsdcOutWithFee(amount);
+            usdcValue = usdcOut + feeAmount;
+        }
+
+        if (whitelist[token][user] || usdcValue < whaleConfig.whaleThreshold) {
             return (false, true);
         }
 
-        // Check cooldown
+        // Check cooldown from last executed whale trade
         if (lastWhaleTradeTime[token][user] > 0) {
             if (block.timestamp < lastWhaleTradeTime[token][user] + whaleConfig.whaleDelay) {
                 revert WhaleDelayActive();
@@ -183,20 +243,6 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
 
         // No intent exists
         if (intent.intentTime == 0) {
-            intent.amount = amount;
-            intent.intentTime = block.timestamp;
-            intent.isBuy = isBuy;
-            intent.executed = false;
-
-            emit WhaleIntentRegistered(
-                token,
-                user,
-                amount,
-                isBuy,
-                block.timestamp + whaleConfig.whaleDelay,
-                block.timestamp
-            );
-
             return (true, false);
         }
 
@@ -239,20 +285,14 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         if (block.timestamp > state.lastVolatilityReset + cbConfig.volatilityWindow) {
             state.volatilityMoveCount = 0;
             state.lastVolatilityReset = block.timestamp;
-            delete state.recentPrices;
+            state.lastPrice = 0;
+            state.lastPriceTimestamp = 0;
         }
 
-        // Record price snapshot
-        state.recentPrices.push(PriceSnapshot({
-            price: currentPrice,
-            timestamp: block.timestamp
-        }));
+        uint256 lastPrice = state.lastPrice;
 
-        uint256 pricesLength = state.recentPrices.length;
-
-        // Check for significant price moves
-        if (pricesLength > 1) {
-            uint256 lastPrice = state.recentPrices[pricesLength - 2].price;
+        // Check for significant price moves if there was a previous price in this window
+        if (lastPrice > 0) {
             uint256 priceChange = currentPrice > lastPrice
                 ? ((currentPrice - lastPrice) * 10000) / lastPrice
                 : ((lastPrice - currentPrice) * 10000) / lastPrice;
@@ -267,6 +307,12 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
                 }
             }
         }
+
+        require(currentPrice <= type(uint128).max, "Price overflow");
+
+        // Record price snapshot in packed storage slot
+        state.lastPrice = uint128(currentPrice);
+        state.lastPriceTimestamp = uint128(block.timestamp);
     }
 
     /**
@@ -299,11 +345,13 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         if (priceImpact > cbConfig.maxPriceImpact) {
             emit HighPriceImpact(token, user, priceImpact, block.timestamp);
 
-            // Trigger circuit breaker for extreme impact
+            // Revert on extreme impact without attempting a discarded state write
             if (priceImpact > cbConfig.maxPriceImpact * 2) {
-                _triggerCircuitBreaker(token, "Excessive price impact");
                 revert PriceImpactTooHigh();
             }
+
+            // Trigger circuit breaker for high impact
+            _triggerCircuitBreaker(token, "High price impact detected");
         }
     }
 
@@ -319,7 +367,7 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
     }
 
     function cancelWhaleIntent(address token, address user) external {
-        require(msg.sender == user || msg.sender == owner(), "Unauthorized");
+        require(msg.sender == user || msg.sender == owner() || msg.sender == token || msg.sender == _controller, "Unauthorized");
 
         WhaleIntent storage intent = pendingWhaleIntents[token][user];
         if (intent.intentTime == 0) revert NoWhaleIntentFound();
@@ -430,7 +478,8 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         state.circuitBreakerTriggeredAt = 0;
         state.volatilityMoveCount = 0;
         state.lastVolatilityReset = block.timestamp;
-        delete state.recentPrices;
+        state.lastPrice = 0;
+        state.lastPriceTimestamp = 0;
         emit CircuitBreakerReset(token, block.timestamp);
     }
 
@@ -444,6 +493,16 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         require(newLauncher != address(0), "Invalid launcher");
         launcher = newLauncher;
         emit LauncherUpdated(newLauncher, block.timestamp);
+    }
+
+    function updateController(address newController) external onlyOwner {
+        require(newController != address(0), "Invalid controller");
+        _controller = newController;
+        emit ControllerUpdated(newController);
+    }
+
+    function controller() external view returns (address) {
+        return _controller;
     }
 
     // Internal helper functions

@@ -209,7 +209,7 @@ When the contract's USDC balance (`realUsdcReserves`) reaches the `GRADUATION_TH
 2.  The `buy()` and `sell()` functions on the `CarbonCoin` contract are permanently disabled.
 3.  The contract mints its remaining token supply.
 4.  It takes all the USDC it holds and all the newly minted tokens and adds them as a liquidity pair on the designated DEX (e.g., Somnia Exchange) via `CarbonCoinDex`.
-5.  The LP (Liquidity Provider) tokens are sent to the original `creator` of the coin.
+5.  The LP (Liquidity Provider) tokens/NFTs are sent to the protocol `CarbonTreasury` to permanently protect against rug pulls.
 
 #### **Dapp Integration After Graduation**
 

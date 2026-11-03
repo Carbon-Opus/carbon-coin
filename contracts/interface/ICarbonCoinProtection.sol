@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 interface ICarbonCoinProtection {
     struct PriceSnapshot {
@@ -42,7 +42,8 @@ interface ICarbonCoinProtection {
         uint256 circuitBreakerTriggeredAt;
         uint256 volatilityMoveCount;
         uint256 lastVolatilityReset;
-        PriceSnapshot[] recentPrices;
+        uint128 lastPrice;
+        uint128 lastPriceTimestamp;
     }
 
     // Events
@@ -58,11 +59,13 @@ interface ICarbonCoinProtection {
     event WhaleIntentCancelled(address indexed token, address indexed trader, uint256 timestamp);
     event ConfigUpdated(address indexed newConfig, uint256 timestamp);
     event LauncherUpdated(address indexed newLauncher, uint256 timestamp);
+    event ControllerUpdated(address indexed newController);
 
     // Custom errors
     error WhaleDelayActive();
     error WhaleIntentRequired();
     error WhaleIntentNotReady();
+    error WhaleIntentAlreadyExists();
     error NoWhaleIntentFound();
     error CircuitBreakerActive();
     error PriceImpactTooHigh();
@@ -72,6 +75,16 @@ interface ICarbonCoinProtection {
      * @notice Initialize protection for a new token
      */
     function initializeToken(address token, address creator) external;
+
+    /**
+     * @notice Register a whale trade intent
+     */
+    function registerWhaleIntent(
+        address token,
+        address user,
+        uint256 amount,
+        bool isBuy
+    ) external;
 
     /**
      * @notice Check if anti-bot protection should be applied
@@ -157,4 +170,10 @@ interface ICarbonCoinProtection {
     );
 
     function getUserCooldown(address token, address user) external view returns (uint256);
+
+    function whitelist(address token, address user) external view returns (bool);
+
+    function updateController(address newController) external;
+
+    function controller() external view returns (address);
 }

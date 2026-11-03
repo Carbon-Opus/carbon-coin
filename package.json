@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "engines": {
-    "node": ">=20.17.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "reinstall": "rm -rf abis && rm -rf build && rm -rf cache && rm -rf typechain-types && rm -rf node_modules && rm -f yarn.lock && yarn clean && yarn",
@@ -56,7 +56,7 @@
     "hardhat-watcher": "^2.1.1",
     "lodash": "^4.17.21",
     "mocha-junit-reporter": "^2.2.1",
-    "solc": "0.8.27",
+    "solc": "0.8.28",
     "solhint": "^3.0.0",
     "solidity-coverage": "^0.8.14",
     "solidity-docgen": "^0.5.3",

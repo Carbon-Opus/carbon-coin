@@ -11,6 +11,11 @@
   },
   {
     "inputs": [],
+    "name": "ExceedsMaxSellAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ExceedsMaxSupply",
     "type": "error"
   },
@@ -552,6 +557,13 @@
   },
   {
     "inputs": [],
+    "name": "cancelWhaleIntent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getCurrentPrice",
     "outputs": [
       {
@@ -622,6 +634,47 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      }
+    ],
+    "name": "registerWhaleIntent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuy",
+        "type": "bool"
+      }
+    ],
+    "name": "registerWhaleIntentOnBehalf",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

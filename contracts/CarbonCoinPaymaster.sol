@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-pragma solidity 0.8.27;
+pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -82,14 +82,23 @@ contract CarbonCoinPaymaster is ICarbonCoinPaymaster, ReentrancyGuard, Ownable {
     uint256 minUsdcOut
   ) external nonReentrant onlyController {
     // Execute Sale
-    ICarbonCoin(creatorCoin).buyOnBehalf(
+    ICarbonCoin(creatorCoin).sellOnBehalf(
       receiver,
       amount,
       minUsdcOut
     );
 
     // Emit event
-    emit TokenBuy(creatorCoin, receiver, amount, minUsdcOut);
+    emit TokenSell(creatorCoin, receiver, amount, minUsdcOut);
+  }
+
+  function registerWhaleIntent(
+    address user,
+    address creatorCoin,
+    uint256 amount,
+    bool isBuy
+  ) external onlyController {
+    ICarbonCoin(creatorCoin).registerWhaleIntentOnBehalf(user, amount, isBuy);
   }
 
   function updateController(address newController) external onlyOwner {

@@ -42,7 +42,7 @@
 - [ ] Task: Address `assembly` usage.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Low-Severity and Informational Vulnerabilities' (Protocol in workflow.md)
 
-## Phase 4: Reporting
+## Phase 4: Reporting [checkpoint: ad9069d]
 
 - [ ] Task: Create a new markdown file for the remediation report.
 - [x] Task: For each vulnerability, document the issue and the implemented fix.

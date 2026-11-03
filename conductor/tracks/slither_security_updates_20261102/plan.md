@@ -1,6 +1,6 @@
 # Implementation Plan: Slither Security Vulnerability Remediation
 
-## Phase 1: High-Severity Vulnerabilities
+## Phase 1: High-Severity Vulnerabilities [checkpoint: 78e9882]
 
 - [x] Task: Address `reentrancy-no-eth` vulnerabilities. (b67103c)
 - [x] Task: Address `tx-origin` vulnerabilities. (9efb4fa)

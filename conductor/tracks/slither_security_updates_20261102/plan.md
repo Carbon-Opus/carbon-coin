@@ -6,7 +6,7 @@
 - [x] Task: Address `tx-origin` vulnerabilities. (9efb4fa)
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: High-Severity Vulnerabilities' (Protocol in workflow.md)
 
-## Phase 2: Medium-Severity Vulnerabilities
+## Phase 2: Medium-Severity Vulnerabilities [checkpoint: 7dabeb4]
 
 - [x] Task: Address `arbitrary-send-erc20` vulnerabilities. (e270e53)
 - [x] Task: Address `arbitrary-send-erc20-permit` vulnerabilities. (858d22b)

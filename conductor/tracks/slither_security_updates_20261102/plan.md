@@ -12,7 +12,7 @@
 - [x] Task: Address `arbitrary-send-erc20-permit` vulnerabilities. (858d22b)
 - [x] Task: Address `unchecked-transfer` vulnerabilities. (52ce8d4)
 - [x] Task: Address `divide-before-multiply` vulnerabilities. (c4e4d8b)
-- [ ] Task: Address `incorrect-equality` vulnerabilities.
+- [x] Task: Address `incorrect-equality` vulnerabilities. (N/A)
 - [ ] Task: Address `calls-loop` vulnerabilities.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Medium-Severity Vulnerabilities' (Protocol in workflow.md)
 

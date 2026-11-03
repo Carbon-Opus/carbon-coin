@@ -11,7 +11,7 @@ module.exports = async (hre) => {
   const dexRouter = globals.addresses[chainId].router;
   let usdcAddress = globals.addresses[chainId].usdc;
 
-  const useExistingPhoenixDexContract = isHardhat(network) ? '0x0000000000000000000000000000000000000001' : '';
+  const useExistingPhoenixDexContract = isHardhat(network) ? '' : '';
   const useExistingPhoenixEggsContract = isHardhat(network) ? '' : '';
   const useExistingPhoenixNFT_v1Contract = isHardhat(network) ? '' : '';
   const useExistingPhoenixTokenContract = isHardhat(network) ? '' : '';

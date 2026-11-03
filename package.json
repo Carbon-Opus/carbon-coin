@@ -21,7 +21,9 @@
     "coverage": "hardhat --show-stack-traces coverage --temp coverage_build",
     "gas": "REPORT_GAS=true hardhat test",
     "start": "hardhat node --port 8545",
-    "deploy": "hardhat deploy --tags Everything --network",
+    "deploy-all": "hardhat deploy --tags Carbon,Phoenix,CarbonVerification,PhoenixVerification --network",
+    "deploy-carbon": "hardhat deploy --tags Carbon,CarbonVerification --network",
+    "deploy-phoenix": "hardhat deploy --tags Phoenix,PhoenixVerification --network",
     "deploy-mock": "hardhat deploy --tags ERC20Mintable --network"
   },
   "dependencies": {

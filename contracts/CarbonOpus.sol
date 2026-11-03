@@ -33,10 +33,11 @@ import { BlackholePrevention } from "./lib/BlackholePrevention.sol";
 import { ICarbonOpus } from "./interface/ICarbonOpus.sol";
 import { ICarbonTreasury } from "./interface/ICarbonTreasury.sol";
 import { ICarbonOpusVault } from "./interface/ICarbonOpusVault.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 interface IUSDC is IERC20, IERC20Permit {}
 
-contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
+contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, ReentrancyGuard {
   using SafeERC20 for IUSDC;
 
   bytes32 constant private TREASURY_ID = bytes32("treasury");
@@ -81,7 +82,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     emit SongCreated(tokenId, memberId, price, referralPct);
   }
 
-  function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external {
+  function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external nonReentrant {
     // if (_msgSender() != controller) revert NotAuthorized(_msgSender());
 
     // Check if song exists
@@ -96,7 +97,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     _purchaseMusic(memberId, memberAddress, tokenId, referrer);
   }
 
-  function purchaseMusicWithPermit(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+  function purchaseMusicWithPermit(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
     // if (_msgSender() != controller) revert NotAuthorized(_msgSender());
 
     // Check if song exists
@@ -111,7 +112,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     _purchaseMusic(memberId, memberAddress, tokenId, referrer);
   }
 
-  function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external {
+  function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external nonReentrant {
     // if (_msgSender() != controller) revert NotAuthorized(_msgSender());
     if (tokenIds.length != referrers.length) revert InputArrayLengthMismatch();
 
@@ -125,7 +126,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     _purchaseBatch(memberId, memberAddress, tokenIds, referrers);
   }
 
-  function purchaseBatchWithPermit(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+  function purchaseBatchWithPermit(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
     // if (_msgSender() != controller) revert NotAuthorized(_msgSender());
     if (tokenIds.length != referrers.length) revert InputArrayLengthMismatch();
 

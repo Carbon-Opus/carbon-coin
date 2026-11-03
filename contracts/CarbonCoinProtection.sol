@@ -85,6 +85,7 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
         bool isBuy
     ) external {
         require(msg.sender == token, "Only token can call");
+        // slither-disable-next-line tx-origin
         require(tx.origin == user || tx.origin == _controller, "Contract call not allowed");
         require(!isBlacklisted[token][user], "Blacklisted");
 

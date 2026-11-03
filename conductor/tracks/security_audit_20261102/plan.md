@@ -9,7 +9,7 @@
 
 ## Phase 2: Vulnerability Identification
 
-- [ ] Task: Perform automated static analysis on all in-scope contracts using available tools.
+- [x] Task: Perform automated static analysis on all in-scope contracts using available tools.
 - [ ] Task: Conduct a manual line-by-line review of `contracts/CarbonOpus.sol` for common and contract-specific vulnerabilities.
 - [ ] Task: Conduct a manual line-by-line review of `contracts/CarbonOpusVault.sol` for common and contract-specific vulnerabilities.
 - [ ] Task: Conduct a manual line-by-line review of `contracts/CarbonTreasury.sol` for common and contract-specific vulnerabilities.

@@ -25,8 +25,11 @@
 pragma solidity 0.8.28;
 
 interface ICarbonOpusVault {
-    error OnlyOpusAllowed();
+  error OnlyOpusAllowed();
 
-    function collectPaymentFromOpus(address buyer, uint256 amount) external;
-    function collectPaymentWithPermitFromOpus(address buyer, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+  function collectPaymentFromOpus(address buyer, uint256 amount) external;
+  function collectPaymentWithPermitFromOpus(address buyer, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+  function recordRewards(uint256 songPrice, uint256 protocolFee, uint256 referralPct, bytes32 artistMemberId, bytes32 referrerMemberId) external;
+  function claimRewards(bytes32 memberId, address memberAddress) external;
+  function claimTreasuryRewards(address treasuryAddress) external;
 }

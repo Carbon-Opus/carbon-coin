@@ -45,7 +45,6 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
   mapping (bytes32 => uint256[]) internal _memberSongsCreated;  // stored by memberId
 
   mapping (uint256 => Song) public songs;  // stored by tokenId
-  mapping (bytes32 => uint256) public rewards; // Flat ledger tracker ensuring cheap O(1) gas footprints
 
   IUSDC public immutable usdcToken;
   address public treasury;
@@ -140,24 +139,9 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     _purchaseBatch(memberId, memberAddress, tokenIds, referrers);
   }
 
-  function getRewards(bytes32 memberId) external view returns (uint256 amount) {
-    return rewards[memberId];
-  }
 
-  function claimRewards(bytes32 memberId, address memberAddress) external {
-    if (memberId == TREASURY_ID && _msgSender() != controller && _msgSender() != owner()) revert NotAuthorized(_msgSender());
-    if (memberId != TREASURY_ID && _msgSender() != controller) revert NotAuthorized(_msgSender());
 
-    uint256 amount = rewards[memberId];
-    if (amount == 0) revert NoRewardsToClaim(memberId);
 
-    rewards[memberId] = 0;
-
-    // TODO: Pull From Vault NOT directly from contract
-    // usdcToken.safeTransfer(memberAddress, amount);
-
-    emit RewardsClaimed(memberId, memberAddress, amount);
-  }
 
   function musicBalance(address memberAddress) external view returns (uint256[] memory, uint256[] memory) {
     uint256[] memory tokenIds = _memberSongsOwned[memberAddress];
@@ -279,7 +263,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     Song memory song = songs[tokenId];
 
     // Instantly calculate and log fractions on-buy to completely bypass historical loops
-    _processSplits(song, referrer);
+    ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrer);
 
     _mint(memberAddress, tokenId, 1, "");
     _memberSongsOwned[memberAddress].push(tokenId);
@@ -296,7 +280,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
       if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
       if (song.locked) revert SongLocked(tokenId);
 
-      _processSplits(song, referrers[i]);
+      ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
       amounts[i] = 1;
       _memberSongsOwned[memberAddress].push(tokenId);
       emit SongPurchased(tokenId, memberId, referrers[i], song.price, true);
@@ -317,19 +301,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
     return totalCost;
   }
 
-  function _processSplits(Song memory song, bytes32 referrer) internal {
-    uint256 platformShare = (song.price * protocolFee) / 10000;
-    uint256 remaining = song.price - platformShare;
-    rewards[TREASURY_ID] += platformShare;
 
-    if (referrer != bytes32(0) && song.referralPct > 0) {
-      uint256 referralShare = (remaining * song.referralPct) / 10000;
-      rewards[referrer] += referralShare;
-      remaining -= referralShare;
-    }
-
-    rewards[song.memberId] += remaining;
-  }
 
   function _update(
     address from,

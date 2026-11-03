@@ -9,7 +9,7 @@
 ## Phase 2: Medium-Severity Vulnerabilities
 
 - [x] Task: Address `arbitrary-send-erc20` vulnerabilities. (e270e53)
-- [ ] Task: Address `arbitrary-send-erc20-permit` vulnerabilities.
+- [~] Task: Address `arbitrary-send-erc20-permit` vulnerabilities.
 - [ ] Task: Address `unchecked-transfer` vulnerabilities.
 - [ ] Task: Address `divide-before-multiply` vulnerabilities.
 - [ ] Task: Address `incorrect-equality` vulnerabilities.

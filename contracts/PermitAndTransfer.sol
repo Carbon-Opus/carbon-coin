@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
 interface IERC20Permit {
   function permit(
     address owner,
@@ -16,8 +18,22 @@ interface IERC20Permit {
   function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
-contract PermitAndTransfer {
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract PermitAndTransfer is Ownable {
+  mapping(address => bool) public isWhitelisted;
+
   event PermitTransfer(bytes32 indexed senderId, address indexed token, address owner, address spender, uint256 value, bytes32 uuid);
+
+  constructor() Ownable(msg.sender) {}
+
+  function addToken(address token) external onlyOwner {
+    isWhitelisted[token] = true;
+  }
+
+  function removeToken(address token) external onlyOwner {
+    isWhitelisted[token] = false;
+  }
 
   function permitAndTransfer(
     bytes32 senderId, // for filtering on Events
@@ -31,6 +47,7 @@ contract PermitAndTransfer {
     bytes32 r,
     bytes32 s
   ) external {
+    require(isWhitelisted[token], "Token not whitelisted");
     IERC20Permit(token).permit(owner, address(this), amount, deadline, v, r, s);
     require(
       IERC20Permit(token).transferFrom(owner, to, amount),

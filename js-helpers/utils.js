@@ -36,7 +36,7 @@ const chainIdByName = (chainName) => {
     case 'somniamainnet': return 5031;
     case 'somniatestnet': return 50312;
     case 'basemainnet': return 8453;
-    case 'basetestnet': return 84532;
+    case 'basesepolia': return 84532;
     default: return 0;
   }
 };
@@ -48,7 +48,7 @@ const chainNameById = (chainId) => {
     case 5031: return 'Somnia Mainnet';
     case 50312: return 'Somnia Testnet';
     case 8453: return 'Base Mainnet';
-    case 84532: return 'Base Testnet';
+    case 84532: return 'Base Sepolia';
     default: return 'Unknown';
   }
 };

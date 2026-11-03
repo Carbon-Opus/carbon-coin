@@ -14,7 +14,7 @@ describe("CarbonCoin", () => {
   let trader: SignerWithAddress;
 
   beforeEach(async () => {
-    await deployments.fixture(["Everything"]);
+    await deployments.fixture(["Carbon"]);
     const signers = await ethers.getSigners();
     deployer = signers[0];
     trader = signers[2];

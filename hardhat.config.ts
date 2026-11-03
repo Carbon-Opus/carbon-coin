@@ -134,6 +134,7 @@ const config: HardhatUserConfig = {
     baseSepolia: {
       chainId: 84532,
       url: "https://sepolia.base.org",
+      // url: 'https://sepolia-preconf.base.org',
       accounts: {
         mnemonic: mnemonic.testnet,
         initialIndex: 0,
@@ -151,7 +152,7 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: "empty", // No API key needed for Somnia verification
+    apiKey: "proapi_eEVhAPagn8KzTejIUiBeOfl38vsp7GPENA1oQclGBP72TH2OxueUqyMfxSwwkMtGa_9BMWy",
     customChains: [
       {
         network: "somniaMainnet",
@@ -173,8 +174,10 @@ const config: HardhatUserConfig = {
         network: "baseSepolia",
         chainId: 84532,
         urls: {
-          apiURL: "https://api-sepolia.basescan.org/api",
-          browserURL: "https://sepolia.basescan.org",
+          // apiURL: "https://api-sepolia.basescan.org/api",
+          // browserURL: "https://sepolia.basescan.org",
+          apiURL: "https://api.blockscout.com/84532/api",
+          browserURL: "https://base-sepolia.blockscout.com",
         },
       },
       {
@@ -199,6 +202,7 @@ const config: HardhatUserConfig = {
     flat: true,
     only: [
       'CarbonTreasury',
+      'CarbonOpusVault',
       'CarbonOpus',
       'CarbonCoin',
       'CarbonCoinConfig',

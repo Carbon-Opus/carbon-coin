@@ -27,7 +27,7 @@ const globals = {
     84532: {
       WETH: '0x4200000000000000000000000000000000000006',
       router: '0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2', // Uniswap V3 Router
-      usdc: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+      usdc: '0xc5c2f7691da0558F4a04225C4D1Ee32f9eedDCB4', // '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     },
     // Hardhat
     34443: {

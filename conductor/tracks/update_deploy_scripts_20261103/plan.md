@@ -2,20 +2,12 @@
 
 ## Phase 1: Refactor Deploy and Verification Scripts
 
-- [ ] Task: Create a new deploy script `deploy/002_deploy_phoenix.js` for Phoenix Contracts.
-    - [ ] Sub-task: Move the deployment logic for Phoenix Contracts from `deploy/000_deploy.js` to the new script.
-    - [ ] Sub-task: Ensure the new script follows Hardhat best practices.
-- [ ] Task: Create a new verification script `deploy/003_verify_carbon.js` for Carbon Contracts.
-    - [ ] Sub-task: Move the verification logic for Carbon Contracts from `deploy/000_deploy.js` to the new script.
-- [ ] Task: Create a new verification script `deploy/005_verify_phoenix.js` for Phoenix Contracts.
-    - [ ] Sub-task: Move the verification logic for Phoenix Contracts from `deploy/000_deploy.js` to the new script.
-- [ ] Task: Update the existing `deploy/000_deploy.js` script.
-    - [ ] Sub-task: Remove the deployment logic for Phoenix Contracts.
-    - [ ] Sub-task: Remove all contract verification logic.
-- [ ] Task: Review and update all deployment scripts to adhere to Hardhat best practices.
-    - [ ] Sub-task: Use named accounts where applicable.
-    - [ ] Sub-task: Utilize `hre.deployments` for idempotent deployments.
-- [ ] Task: Conductor - User Manual Verification 'Refactor Deploy and Verification Scripts' (Protocol in workflow.md)
+- [x] Task: Create a new deploy script `deploy/002_deploy_phoenix.js` for Phoenix Contracts.
+- [x] Task: Create a new verification script `deploy/003_verify_carbon.js` for Carbon Contracts.
+- [x] Task: Create a new verification script `deploy/005_verify_phoenix.js` for Phoenix Contracts.
+- [x] Task: Update the existing `deploy/000_deploy.js` script.
+- [x] Task: Review and update all deployment scripts to adhere to Hardhat best practices.
+- [~] Task: Conductor - User Manual Verification 'Refactor Deploy and Verification Scripts' (Protocol in workflow.md)
 
 ## Phase 2: Verify Unit Test Integrity
 

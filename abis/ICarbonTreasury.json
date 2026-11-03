@@ -1,10 +1,5 @@
 [
   {
-    "inputs": [],
-    "name": "Unauthorized",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -18,12 +13,6 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
       },
       {
         "indexed": false,
@@ -126,11 +115,6 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
       }
     ],
     "name": "collectLpRewards",
@@ -162,11 +146,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
         "internalType": "uint128",
         "name": "amount0Max",
         "type": "uint128"
@@ -190,39 +169,6 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "memberId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "memberAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "orderId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "orderType",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "purchase",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

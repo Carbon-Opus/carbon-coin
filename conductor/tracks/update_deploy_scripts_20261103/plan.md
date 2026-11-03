@@ -9,7 +9,7 @@
 - [x] Task: Review and update all deployment scripts to adhere to Hardhat best practices.
 - [~] Task: Conductor - User Manual Verification 'Refactor Deploy and Verification Scripts' (Protocol in workflow.md)
 
-## Phase 2: Verify Unit Test Integrity
+## Phase 2: Verify Unit Test Integrity [checkpoint: ee47e74]
 
 - [x] Task: Run the entire unit test suite.
     - [ ] Sub-task: Ensure all tests pass with the new deployment script structure.

@@ -18,7 +18,7 @@
 
 ## Phase 3: Low-Severity and Informational Vulnerabilities
 
-- [ ] Task: Address `incorrect-exp` vulnerabilities.
+- [x] Task: Address `incorrect-exp` vulnerabilities. (N/A)
 - [ ] Task: Address `uninitialized-state` vulnerabilities.
 - [ ] Task: Address `locked-ether` vulnerabilities.
 - [x] Task: Address `unused-return` vulnerabilities. (032a998)

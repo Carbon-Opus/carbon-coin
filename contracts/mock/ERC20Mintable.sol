@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
  * At construction, the deployer of the contract is the only minter.
  */
 contract ERC20Mintable is ERC20, ERC20Permit {
-  constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) ERC20Permit(_name) {}
+  constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) ERC20Permit(name_) {}
 
   function decimals() public pure override returns (uint8) {
     return 6;

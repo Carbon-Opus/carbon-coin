@@ -31,6 +31,7 @@ module.exports = async (hre) => {
 
   // SOMNIA TESTNET
   const useExistingTreasuryContract = isHardhat(network) ? '' : '';
+  const useExistingVaultContract = isHardhat(network) ? '' : '';
   const useExistingOpusContract = isHardhat(network) ? '' : '';
   const useExistingConfigContract = isHardhat(network) ? '' : '';
   const useExistingDexContract = isHardhat(network) ? '' : '';
@@ -46,6 +47,7 @@ module.exports = async (hre) => {
 
   // SOMNIA Mainnet
   // const useExistingTreasuryContract = isHardhat(network) ? '' : '';
+  // const useExistingVaultContract = isHardhat(network) ? '' : '';
   // const useExistingOpusContract = isHardhat(network) ? '' : '';
   // const useExistingConfigContract = isHardhat(network) ? '' : '';
   // const useExistingDexContract = isHardhat(network) ? '' : '';
@@ -272,6 +274,28 @@ module.exports = async (hre) => {
   //
   //////////////////////////////////////////////////////////////
   //
+  // Deploy CarbonOpusVault
+  let carbonOpusVault;
+  if (useExistingVaultContract.length === 0) {
+    log('  Deploying CarbonOpusVault...');
+    const constructorArgs = [
+      usdcAddress,
+      carbonTreasury.address,
+    ];
+    const vaultDeploy = await deploy('CarbonOpusVault', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+    carbonOpusVault = { address: vaultDeploy.address };
+  } else {
+    carbonOpusVault = { address: useExistingVaultContract };
+  }
+  const carbonOpusVaultContract = await ethers.getContractAt('CarbonOpusVault', carbonOpusVault.address);
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
   // Deploy CarbonOpus
   let carbonOpus;
   if (useExistingOpusContract.length === 0) {
@@ -280,7 +304,7 @@ module.exports = async (hre) => {
       nftUri,
       usdcAddress,
       carbonTreasury.address,
-      ethers.constants.AddressZero // temp, will be updated
+      carbonOpusVault.address,
     ];
     const opusDeploy = await deploy('CarbonOpus', {
       from: deployer,
@@ -292,36 +316,6 @@ module.exports = async (hre) => {
     carbonOpus = { address: useExistingOpusContract };
   }
   const carbonOpusContract = await ethers.getContractAt('CarbonOpus', carbonOpus.address);
-
-
-  //
-  //////////////////////////////////////////////////////////////
-  //
-  // Deploy CarbonOpusVault
-  let carbonOpusVault;
-  if (useExistingOpusContract.length === 0) {
-    log('  Deploying CarbonOpusVault...');
-    const constructorArgs = [
-      carbonOpus.address,
-      usdcAddress,
-      carbonTreasury.address,
-    ];
-    const vaultDeploy = await deploy('CarbonOpusVault', {
-      from: deployer,
-      args: constructorArgs,
-      log: true,
-    });
-    carbonOpusVault = { address: vaultDeploy.address };
-  }
-
-  // Update CarbonOpus with the vault address
-  if (useExistingOpusContract.length === 0) {
-    log('  Updating CarbonOpus with vault address...');
-    await carbonOpusContract.updateOpusVault(carbonOpusVault.address);
-  }
-
-
-
 
   //
   //////////////////////////////////////////////////////////////
@@ -465,6 +459,12 @@ module.exports = async (hre) => {
   if (useExistingLauncherContract.length === 0) {
     log(`  Setting Max Tokens per Creator in CarbonCoinLauncher: ${globals.maxTokensPerCreator}`);
     await carbonCoinLauncher.setMaxTokensPerCreator(globals.maxTokensPerCreator).then(tx => tx.wait());
+  }
+
+  // Configure CarbonOpusVault with CarbonOpus address
+  if (useExistingVaultContract.length === 0) {
+    log('  Updating CarbonOpusVault with CarbonOpus address...');
+    await carbonOpusVaultContract.updateCarbonOpus(carbonOpus.address);
   }
 
   // Configure Newly Deployed CarbonCoinProtection

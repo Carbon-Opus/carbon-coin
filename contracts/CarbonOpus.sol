@@ -40,8 +40,6 @@ interface IUSDC is IERC20, IERC20Permit {}
 contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, ReentrancyGuard {
   using SafeERC20 for IUSDC;
 
-  bytes32 constant private TREASURY_ID = bytes32("treasury");
-
   mapping (address => uint256[]) internal _memberSongsOwned;    // stored by memberAddress
   mapping (bytes32 => uint256[]) internal _memberSongsCreated;  // stored by memberId
 
@@ -54,15 +52,16 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, Reent
   uint256 public protocolFee; // e.g., 100 = 1%
   uint256 private nextTokenId;
 
-  string public name = "Carbon Opus Music";
-  string public symbol = "OPUS-M";
+  string public constant name = "Carbon Opus Music";
+  string public constant symbol = "OPUS-M";
 
-  constructor(string memory uri_, address usdcTokenAddress, address treasuryAddress, address opusVaultAddress) ERC1155(uri_) Ownable(_msgSender()) {
+  constructor(string memory uri_, address usdcTokenAddress, address treasuryAddress, address opusVaultAddress) ERC1155(uri_) Ownable(_msgSender()) ReentrancyGuard() {
     require(usdcTokenAddress != address(0), "Invalid token");
     require(treasuryAddress != address(0), "Invalid treasury");
+    require(opusVaultAddress != address(0), "Invalid opus vault");
     nextTokenId = 1;
     protocolFee = 100;
-    controller = _msgSender();
+    controller = _msgSender(); // Server Wallet or other trusted controller
     usdcToken = IUSDC(usdcTokenAddress);
     treasury = treasuryAddress;
     opusVault = opusVaultAddress;
@@ -106,7 +105,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, Reent
     if (song.locked) revert SongLocked(tokenId);
 
     // Securely pull permit signatures inside the isolated money vault
-    ICarbonOpusVault(opusVault).collectPaymentWithPermitFromOpus(_msgSender(), song.price, deadline, v, r, s);
+    ICarbonOpusVault(opusVault).collectPaymentWithPermitFromOpus(memberAddress, song.price, deadline, v, r, s);
 
     // Finalize purchase & instantly distribute accounting fractions
     _purchaseMusic(memberId, memberAddress, tokenId, referrer);
@@ -134,15 +133,11 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, Reent
     uint256 totalCost = _getTotalCostOfBatch(tokenIds);
 
     // Securely process permit signatures and pull tokens via Treasury
-    ICarbonOpusVault(opusVault).collectPaymentWithPermitFromOpus(_msgSender(), totalCost, deadline, v, r, s);
+    ICarbonOpusVault(opusVault).collectPaymentWithPermitFromOpus(memberAddress, totalCost, deadline, v, r, s);
 
     // Process accounting and mint entries
     _purchaseBatch(memberId, memberAddress, tokenIds, referrers);
   }
-
-
-
-
 
   function musicBalance(address memberAddress) external view returns (uint256[] memory, uint256[] memory) {
     uint256[] memory tokenIds = _memberSongsOwned[memberAddress];
@@ -283,15 +278,18 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, Reent
 
       amounts[i] = 1;
       _memberSongsOwned[memberAddress].push(tokenId);
+
+      ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
+
       emit SongPurchased(tokenId, memberId, referrers[i], song.price, true);
     }
 
     _mintBatch(memberAddress, tokenIds, amounts, "");
 
-    for (uint256 i = 0; i < tokenIds.length; i++) {
-      Song storage song = songs[tokenIds[i]];
-      ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
-    }
+    // for (uint256 i = 0; i < tokenIds.length; i++) {
+    //   Song storage song = songs[tokenIds[i]];
+    //   ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
+    // }
     emit BatchPurchased(memberAddress, memberId);
   }
 
@@ -305,8 +303,6 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention, Reent
     }
     return totalCost;
   }
-
-
 
   function _update(
     address from,

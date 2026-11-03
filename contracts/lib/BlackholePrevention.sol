@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 // BlackholePrevention.sol
-// Copyright (c) 2021 Firma Lux, Inc. <https://charged.fi>
+// Copyright (c) 2026 Firma Lux Labs, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

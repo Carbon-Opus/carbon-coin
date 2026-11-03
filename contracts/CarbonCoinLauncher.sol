@@ -53,7 +53,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
   /// @notice The address of the CarbonCoinPaymaster contract.
   address public paymasterAddress;
   /// @notice The address of the controller of the contract.
-  address internal _controller;
+  address internal controller;
   /// @notice The maximum number of tokens that a single address can create.
   uint256 public maxTokensPerCreator = 1;
 
@@ -81,16 +81,15 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     address _usdcAddress,
     address _protectionAddress,
     address _paymasterAddress
-  ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
-    if (_configAddress == address(0) || _usdcAddress == address(0) || _protectionAddress == address(0))
+  ) Ownable(msg.sender) ReentrancyGuard() {
+    if (_configAddress == address(0) || _usdcAddress == address(0) || _protectionAddress == address(0) || _paymasterAddress == address(0))
       revert InvalidParameters();
 
     configAddress = _configAddress;
     usdcAddress = _usdcAddress;
     protectionAddress = _protectionAddress;
-    require(_paymasterAddress != address(0), "Invalid paymaster");
     paymasterAddress = _paymasterAddress;
-    _controller = msg.sender;
+    controller = msg.sender;
   }
 
   receive() external payable {
@@ -115,7 +114,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     address creatorAddress,
     ICarbonCoin.BondingCurveConfig memory curveConfig
   ) public nonReentrant whenNotPaused returns (address) {
-    if (msg.sender != _controller) revert Unauthorized();
+    if (msg.sender != controller) revert Unauthorized();
     if (tokensCreatedByAddress[creatorAddress] >= maxTokensPerCreator) revert TooManyTokens();
 
     CarbonCoin token = new CarbonCoin(
@@ -237,7 +236,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
 
   function updateController(address newController) external onlyOwner {
     if (newController == address(0)) revert InvalidAddress(newController);
-    _controller = newController;
+    controller = newController;
     emit ControllerUpdated(newController);
   }
 

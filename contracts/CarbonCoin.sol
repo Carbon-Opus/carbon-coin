@@ -83,7 +83,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address _config,
     address _protection,
     BondingCurveConfig memory bondingCurveConfig
-  ) ERC20(name_, symbol_) ERC20Permit(name_) {
+  ) ERC20(name_, symbol_) ERC20Permit(name_) ReentrancyGuard() {
     // Validate inputs
     require(_creator != address(0), "Invalid creator");
     require(_usdc != address(0), "Invalid USDC address");

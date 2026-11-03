@@ -40,8 +40,8 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
   IERC20 public immutable USDC;
   address public config;
   INonfungiblePositionManager public dexRouter;
-  int24 internal tickLower;
-  int24 internal tickUpper;
+  int24 internal immutable tickLower;
+  int24 internal immutable tickUpper;
   uint24 public poolFee;
 
   /**
@@ -56,7 +56,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     address _config,
     int24 _tickLower,
     int24 _tickUpper
-  ) Ownable(msg.sender) ReentrancyGuard() Pausable() {
+  ) Ownable(msg.sender) ReentrancyGuard() {
     // Validate inputs
     require(_usdc != address(0), "Invalid USDC address");
     require(_router != address(0), "Invalid router");

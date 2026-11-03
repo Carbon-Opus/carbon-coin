@@ -38,9 +38,9 @@ contract CarbonCoinPaymaster is ICarbonCoinPaymaster, ReentrancyGuard, Ownable {
   address internal controller;
 
   // USDC token integration
-  IUSDC public usdcToken;
+  IUSDC public immutable usdcToken;
 
-  constructor(address _usdc) Ownable(msg.sender) {
+  constructor(address _usdc) Ownable(msg.sender) ReentrancyGuard() {
     // Validate inputs
     require(_usdc != address(0), "Invalid USDC address");
 

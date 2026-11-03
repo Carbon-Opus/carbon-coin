@@ -1,4 +1,26 @@
 // SPDX-License-Identifier: MIT
+
+// CarbonOpusVault.sol
+// Copyright (c) 2026 Firma Lux Labs, Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 pragma solidity 0.8.28;
 pragma abicoder v2;
 
@@ -8,10 +30,11 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { ICarbonOpusVault } from "./interface/ICarbonOpusVault.sol";
+import { BlackholePrevention } from "./lib/BlackholePrevention.sol";
 
 interface IUSDC is IERC20, IERC20Permit {}
 
-contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
+contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable, BlackholePrevention {
   using SafeERC20 for IUSDC;
 
   bytes32 constant private TREASURY_ID = bytes32("treasury");
@@ -21,13 +44,13 @@ contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
   address public carbonOpus;
   address public treasury;
 
-  constructor(address opus, address usdcTokenAddress, address treasuryAddress) Ownable(_msgSender()) {
+  constructor(address usdcTokenAddress, address treasuryAddress) Ownable(_msgSender()) {
     require(usdcTokenAddress != address(0), "Invalid token address");
-    usdcToken = IUSDC(usdcTokenAddress);
-    require(opus != address(0), "Invalid opus");
     require(treasuryAddress != address(0), "Invalid treasury");
-    carbonOpus = opus;
+
+    usdcToken = IUSDC(usdcTokenAddress);
     treasury = treasuryAddress;
+    carbonOpus = 0x000000000000000000000000000000000000dEaD; // Initialize to dead, will be set immediately after deployment
   }
 
   function onERC721Received(
@@ -78,6 +101,8 @@ contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
   }
 
   function claimRewards(bytes32 memberId, address memberAddress) external {
+    require(_msgSender() == memberAddress, "Unauthorized");
+
     uint256 amount = rewards[memberId];
     if (amount == 0) revert ICarbonOpusVault.NoRewardsToClaim(memberId);
 
@@ -104,11 +129,29 @@ contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
   function updateCarbonOpus(address newOpus) external onlyOwner {
     require(newOpus != address(0), "Invalid address");
     carbonOpus = newOpus;
+    emit CarbonOpusUpdated(newOpus, block.timestamp);
   }
 
   function updateTreasury(address newTreasury) external onlyOwner {
     require(newTreasury != address(0), "Invalid treasury");
     treasury = newTreasury;
+    emit CarbonTreasuryUpdated(newTreasury, block.timestamp);
+  }
+
+  function withdrawEther(address payable receiver, uint256 amount) external onlyOwner {
+    _withdrawEther(receiver, amount);
+  }
+
+  function withdrawErc20(address payable receiver, address tokenAddress, uint256 amount) external onlyOwner {
+    _withdrawERC20(receiver, tokenAddress, amount);
+  }
+
+  function withdrawERC721(address payable receiver, address tokenAddress, uint256 tokenId) external onlyOwner {
+    _withdrawERC721(receiver, tokenAddress, tokenId);
+  }
+
+  function withdrawERC1155(address payable receiver, address tokenAddress, uint256 tokenId, uint256 amount) external onlyOwner {
+    _withdrawERC1155(receiver, tokenAddress, tokenId, amount);
   }
 
   modifier onlyOpus() {

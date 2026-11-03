@@ -170,10 +170,7 @@ interface ICarbonCoinProtection {
     );
 
     function getUserCooldown(address token, address user) external view returns (uint256);
-
     function whitelist(address token, address user) external view returns (bool);
-
     function updateController(address newController) external;
-
     function controller() external view returns (address);
 }

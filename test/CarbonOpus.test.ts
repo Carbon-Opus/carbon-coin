@@ -8,7 +8,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   let carbonOpusVault: CarbonOpusVault;
   let carbonTreasury: CarbonTreasury;
   let usdcToken: ERC20Mintable;
-  
+
   let deployer: SignerWithAddress;
   let controller: SignerWithAddress;
   let artistA: SignerWithAddress;
@@ -25,7 +25,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   const uri = "https://api-plxgamnywq-uc.a.run.app/nft/{id}.json";
   const songPrice = ethers.utils.parseUnits("10", 6); // 10 USDC (6 decimals)
   const referralPct = 500; // 5% (500 basis points)
-  
+
   beforeEach(async () => {
     [deployer, controller, artistA, artistB, buyer, referrer] = await ethers.getSigners();
 
@@ -37,16 +37,15 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
     const CarbonTreasuryFactory = await ethers.getContractFactory("CarbonTreasury");
     carbonTreasury = (await CarbonTreasuryFactory.deploy(usdcToken.address)) as CarbonTreasury;
 
-    const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
-    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, ethers.constants.AddressZero)) as CarbonOpus;
-    
     const CarbonOpusVaultFactory = await ethers.getContractFactory("CarbonOpusVault");
-    carbonOpusVault = (await CarbonOpusVaultFactory.deploy(carbonOpus.address, usdcToken.address, carbonTreasury.address)) as CarbonOpusVault;
+    carbonOpusVault = (await CarbonOpusVaultFactory.deploy(usdcToken.address, carbonTreasury.address)) as CarbonOpusVault;
 
-    await carbonOpus.connect(deployer).updateOpusVault(carbonOpusVault.address);
+    const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
+    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, carbonOpusVault.address)) as CarbonOpus;
 
     // 3. Set the controller and opus address
     await carbonOpus.connect(deployer).updateController(controller.address);
+    await carbonOpus.connect(deployer).updateOpusVault(carbonOpusVault.address);
     await carbonOpusVault.connect(deployer).updateCarbonOpus(carbonOpus.address);
 
     // 4. Mint some USDC to the buyer
@@ -59,7 +58,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
     await usdcToken.connect(buyer).approve(carbonOpusVault.address, mintAmount);
     await usdcToken.connect(controller).approve(carbonOpusVault.address, mintAmount);
   });
-  
+
   describe("Song Initialization & Creation", () => {
     it("should allow controller to create a song with correct parameters", async () => {
       const tx = await carbonOpus.connect(controller).createMusic(
@@ -68,7 +67,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         songPrice,
         referralPct
       );
-      
+
       const receipt = await tx.wait();
       expect(receipt).to.not.be.null;
 
@@ -301,7 +300,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
       const oldBalanceA = await usdcToken.balanceOf(artistA.address);
       await carbonOpusVault.connect(artistA).claimRewards(memberIdA, artistA.address);
       expect((await usdcToken.balanceOf(artistA.address)).sub(oldBalanceA)).to.equal(artistShare);
-      
+
       // Claim rewards for Artist B
       const oldBalanceB = await usdcToken.balanceOf(artistB.address);
       await carbonOpusVault.connect(artistB).claimRewards(memberIdB, artistB.address);
@@ -384,7 +383,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         artistA.address,
         artistA.address
       );
-      
+
       const receipt = await tx.wait();
       // Should not emit SongReassigned if they are equal
       const reassignedEvent = receipt.events?.find(e => e.event === 'SongReassigned');

@@ -29,6 +29,8 @@ interface ICarbonOpusVault {
   error NoRewardsToClaim(bytes32 memberId);
 
   event RewardsClaimed(bytes32 indexed memberId, address indexed receiverAddress, uint256 amount);
+  event CarbonOpusUpdated(address indexed newOpus, uint256 timestamp);
+  event CarbonTreasuryUpdated(address indexed newTreasury, uint256 timestamp);
 
   function collectPaymentFromOpus(address buyer, uint256 amount) external;
   function collectPaymentWithPermitFromOpus(address buyer, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;

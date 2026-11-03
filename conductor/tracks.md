@@ -11,5 +11,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Update Deploy Scripts**
+- [x] **Track: Update Deploy Scripts**
 *Link: [./tracks/update_deploy_scripts_20261103/](./tracks/update_deploy_scripts_20261103/)*

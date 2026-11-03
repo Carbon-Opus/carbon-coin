@@ -262,11 +262,11 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
   function _purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) internal {
     Song memory song = songs[tokenId];
 
-    // Instantly calculate and log fractions on-buy to completely bypass historical loops
-    ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrer);
-
     _mint(memberAddress, tokenId, 1, "");
     _memberSongsOwned[memberAddress].push(tokenId);
+
+    // Instantly calculate and log fractions on-buy to completely bypass historical loops
+    ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrer);
 
     emit SongPurchased(tokenId, memberId, referrer, song.price, false);
   }
@@ -280,13 +280,17 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
       if (song.memberId == bytes32(0)) revert SongDoesNotExist(tokenId);
       if (song.locked) revert SongLocked(tokenId);
 
-      ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
       amounts[i] = 1;
       _memberSongsOwned[memberAddress].push(tokenId);
       emit SongPurchased(tokenId, memberId, referrers[i], song.price, true);
     }
 
     _mintBatch(memberAddress, tokenIds, amounts, "");
+
+    for (uint256 i = 0; i < tokenIds.length; i++) {
+      Song storage song = songs[tokenIds[i]];
+      ICarbonOpusVault(opusVault).recordRewards(song.price, protocolFee, song.referralPct, song.memberId, referrers[i]);
+    }
     emit BatchPurchased(memberAddress, memberId);
   }
 

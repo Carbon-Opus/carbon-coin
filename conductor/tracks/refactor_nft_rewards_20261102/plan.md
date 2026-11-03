@@ -11,7 +11,7 @@
 ## Phase 2: Contract Refactoring
 
 - [ ] Task: Refactor `CarbonOpus.sol`.
-    - [~] Task: Write unit tests to verify that all reward calculation and storage logic has been removed.
+    - [x] Task: Write unit tests to verify that all reward calculation and storage logic has been removed. [df231df]
     - [ ] Task: Implement the changes, removing reward logic and adding the external call to `CarbonOpusVault` upon a successful purchase.
 - [ ] Task: Implement `CarbonOpusVault.sol`.
     - [ ] Task: Write unit tests for all new functionality, including reward accounting, fund storage, user claims, and treasury claims.

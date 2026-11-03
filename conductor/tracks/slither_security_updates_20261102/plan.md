@@ -45,6 +45,6 @@
 ## Phase 4: Reporting
 
 - [ ] Task: Create a new markdown file for the remediation report.
-- [ ] Task: For each vulnerability, document the issue and the implemented fix.
+- [x] Task: For each vulnerability, document the issue and the implemented fix.
 - [ ] Task: Review and finalize the report.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Reporting' (Protocol in workflow.md)

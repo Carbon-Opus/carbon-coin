@@ -1,0 +1,34 @@
+# Implementation Plan: Refactor CarbonOpus NFT and Rewards Contracts
+
+## Phase 1: Analysis & Design
+
+- [x] Task: Thoroughly review the existing implementations of `CarbonOpus.sol`, `CarbonOpusVault.sol`, and `CarbonTreasury.sol` to understand the current logic. [8273023]
+- [x] Task: Design the precise data structures for storing reward balances within `CarbonOpusVault.sol`. [525fe19]
+- [x] Task: Define the function signatures and interfaces required for the interaction between the three contracts (e.g., `CarbonOpus` calling `Vault` to record a sale, `Treasury` calling `Vault` to claim fees). [fce00bd]
+- [x] Task: Create or update local tests to replicate the current functionality, which will be used to verify the refactor. [0664fbc]
+- [ ] Task: Conductor - User Manual Verification 'Analysis & Design' (Protocol in workflow.md) [checkpoint: 40e86fe]
+
+## Phase 2: Contract Refactoring
+
+- [ ] Task: Refactor `CarbonOpus.sol`.
+    - [x] Task: Write unit tests to verify that all reward calculation and storage logic has been removed. [df231df]
+    - [x] Task: Implement the changes, removing reward logic and adding the external call to `CarbonOpusVault` upon a successful purchase. [45a76db]
+- [ ] Task: Implement `CarbonOpusVault.sol`.
+    - [x] Task: Write unit tests for all new functionality, including reward accounting, fund storage, user claims, and treasury claims. [ba46b63]
+    - [x] Task: Implement the core logic for the vault, ensuring all security and access control measures are in place. [75e39a5]
+- [ ] Task: Refactor `CarbonTreasury.sol`.
+    - [x] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`. [75761ef]
+    - [x] Task: Implement the `claim` function and remove any outdated logic. [fa19b84]
+- [ ] Task: Conductor - User Manual Verification 'Contract Refactoring' (Protocol in workflow.md) [checkpoint: 8005ad3]
+
+## Phase 3: Integration & Verification
+
+- [x] Task: Update the Hardhat deployment scripts to correctly deploy and link the three refactored contracts. [bc629e7]
+- [x] Task: Write comprehensive integration tests that simulate the entire lifecycle: [73b7746]
+    - [x] Test: A user purchases an NFT. [73b7746]
+    - [x] Test: The correct amounts are sent to the `CarbonOpusVault`. [73b7746]
+    - [x] Test: The artist, referrer, and treasury balances are correctly updated in the vault. [73b7746]
+    - [x] Test: The artist and referrer can successfully claim their rewards. [73b7746]
+    - [x] Test: The `CarbonTreasury` can successfully claim the protocol fees. [73b7746]
+- [~] Task: Run the full project test suite to ensure the refactoring has not introduced any regressions in other parts of the system.
+- [ ] Task: Conductor - User Manual Verification 'Integration & Verification' (Protocol in workflow.md)

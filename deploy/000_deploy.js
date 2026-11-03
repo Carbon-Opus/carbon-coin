@@ -272,11 +272,37 @@ module.exports = async (hre) => {
   //
   //////////////////////////////////////////////////////////////
   //
+  // Deploy CarbonOpus
+  let carbonOpus;
+  if (useExistingOpusContract.length === 0) {
+    log('  Deploying CarbonOpus...');
+    const constructorArgs = [
+      nftUri,
+      usdcAddress,
+      carbonTreasury.address,
+      ethers.constants.AddressZero // temp, will be updated
+    ];
+    const opusDeploy = await deploy('CarbonOpus', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+    carbonOpus = { address: opusDeploy.address };
+  } else {
+    carbonOpus = { address: useExistingOpusContract };
+  }
+  const carbonOpusContract = await ethers.getContractAt('CarbonOpus', carbonOpus.address);
+
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
   // Deploy CarbonOpusVault
   let carbonOpusVault;
   if (useExistingOpusContract.length === 0) {
     log('  Deploying CarbonOpusVault...');
     const constructorArgs = [
+      carbonOpus.address,
       usdcAddress,
       carbonTreasury.address,
     ];
@@ -288,32 +314,13 @@ module.exports = async (hre) => {
     carbonOpusVault = { address: vaultDeploy.address };
   }
 
-  //
-  //////////////////////////////////////////////////////////////
-  //
-  // Deploy CarbonOpus
+  // Update CarbonOpus with the vault address
   if (useExistingOpusContract.length === 0) {
-    log('  Deploying CarbonOpus...');
-    const constructorArgs = [
-      nftUri,
-      usdcAddress,
-      carbonTreasury.address,
-      carbonOpusVault.address
-    ];
-    await deploy('CarbonOpus', {
-      from: deployer,
-      args: constructorArgs,
-      log: true,
-    });
+    log('  Updating CarbonOpus with vault address...');
+    await carbonOpusContract.updateOpusVault(carbonOpusVault.address);
   }
 
-  // Get Deployed CarbonOpus
-  let carbonOpus;
-  if (useExistingOpusContract.length === 0) {
-    carbonOpus = await ethers.getContract('CarbonOpus');
-  } else {
-    carbonOpus = await ethers.getContractAt('CarbonOpus', useExistingOpusContract);
-  }
+
 
 
   //

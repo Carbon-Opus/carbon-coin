@@ -36,14 +36,15 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
     const carbonTreasury = await CarbonTreasuryFactory.deploy(usdcToken.address);
     await carbonTreasury.deployed();
 
+    const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
+    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, ethers.constants.AddressZero)) as CarbonOpus;
+    await carbonOpus.deployed();
+
     const CarbonOpusVaultFactory = await ethers.getContractFactory("CarbonOpusVault");
-    const carbonOpusVault = await CarbonOpusVaultFactory.deploy(usdcToken.address, carbonTreasury.address);
+    const carbonOpusVault = await CarbonOpusVaultFactory.deploy(carbonOpus.address, usdcToken.address, carbonTreasury.address);
     await carbonOpusVault.deployed();
 
-    // 3. Deploy CarbonOpus
-    const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
-    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, carbonOpusVault.address)) as CarbonOpus;
-    await carbonOpus.deployed();
+    await carbonOpus.connect(deployer).updateOpusVault(carbonOpusVault.address);
 
     // 4. Set the controller
     await carbonOpus.connect(deployer).updateController(controller.address);

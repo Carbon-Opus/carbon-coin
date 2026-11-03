@@ -14,13 +14,18 @@ interface IUSDC is IERC20, IERC20Permit {}
 contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
   using SafeERC20 for IUSDC;
 
+  bytes32 constant private TREASURY_ID = bytes32("treasury");
+
+  mapping (bytes32 => uint256) public rewards;
   IUSDC public immutable usdcToken;
   address public carbonOpus;
+  address public treasury;
 
-  constructor(address opus, address usdcTokenAddress) Ownable(_msgSender()) {
+  constructor(address opus, address usdcTokenAddress, address treasuryAddress) Ownable(_msgSender()) {
     require(usdcTokenAddress != address(0), "Invalid token address");
     usdcToken = IUSDC(usdcTokenAddress);
     carbonOpus = opus;
+    treasury = treasuryAddress;
   }
 
   function onERC721Received(
@@ -56,12 +61,52 @@ contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
     usdcToken.safeTransferFrom(buyer, address(this), amount);
   }
 
+  function recordRewards(uint256 songPrice, uint256 protocolFee, uint256 referralPct, bytes32 artistMemberId, bytes32 referrerMemberId) external onlyOpus {
+    uint256 platformShare = (songPrice * protocolFee) / 10000;
+    uint256 remaining = songPrice - platformShare;
+    rewards[TREASURY_ID] += platformShare;
+
+    if (referrerMemberId != bytes32(0) && referralPct > 0) {
+      uint256 referralShare = (remaining * referralPct) / 10000;
+      rewards[referrerMemberId] += referralShare;
+      remaining -= referralShare;
+    }
+
+    rewards[artistMemberId] += remaining;
+  }
+
+  function claimRewards(bytes32 memberId, address memberAddress) external {
+    uint256 amount = rewards[memberId];
+    if (amount == 0) revert ICarbonOpusVault.NoRewardsToClaim(memberId);
+
+    rewards[memberId] = 0;
+    usdcToken.safeTransfer(memberAddress, amount);
+
+    emit ICarbonOpusVault.RewardsClaimed(memberId, memberAddress, amount);
+  }
+
+  function claimTreasuryRewards(address treasuryAddress) external {
+    require(_msgSender() == treasury, "Only treasury can claim");
+    uint256 amount = rewards[TREASURY_ID];
+    if (amount == 0) revert ICarbonOpusVault.NoRewardsToClaim(TREASURY_ID);
+
+    rewards[TREASURY_ID] = 0;
+    usdcToken.safeTransfer(treasuryAddress, amount);
+
+    emit ICarbonOpusVault.RewardsClaimed(TREASURY_ID, treasuryAddress, amount);
+  }
+
   /**
    * @notice Administrative setter to update or authorize the active CarbonOpus contract.
    */
   function updateCarbonOpus(address newOpus) external onlyOwner {
     require(newOpus != address(0), "Invalid address");
     carbonOpus = newOpus;
+  }
+
+  function updateTreasury(address newTreasury) external onlyOwner {
+    require(newTreasury != address(0), "Invalid treasury");
+    treasury = newTreasury;
   }
 
   modifier onlyOpus() {

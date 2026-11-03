@@ -38,10 +38,12 @@ describe("CarbonOpus Refactor", () => {
     carbonTreasury = (await CarbonTreasuryFactory.deploy(usdcToken.address)) as CarbonTreasury;
 
     const CarbonOpusVaultFactory = await ethers.getContractFactory("CarbonOpusVault");
-    carbonOpusVault = (await CarbonOpusVaultFactory.deploy(usdcToken.address, carbonTreasury.address)) as CarbonOpusVault;
-
     const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
-    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, carbonOpusVault.address)) as CarbonOpus;
+    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, ethers.constants.AddressZero)) as CarbonOpus;
+
+    carbonOpusVault = (await CarbonOpusVaultFactory.deploy(carbonOpus.address, usdcToken.address, carbonTreasury.address)) as CarbonOpusVault;
+
+    await carbonOpus.connect(deployer).updateOpusVault(carbonOpusVault.address);
 
     // 3. Set the controller and opus address
     await carbonOpus.connect(deployer).updateController(controller.address);

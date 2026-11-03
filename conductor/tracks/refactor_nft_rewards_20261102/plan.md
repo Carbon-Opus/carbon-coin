@@ -15,7 +15,7 @@
     - [x] Task: Implement the changes, removing reward logic and adding the external call to `CarbonOpusVault` upon a successful purchase. [45a76db]
 - [ ] Task: Implement `CarbonOpusVault.sol`.
     - [x] Task: Write unit tests for all new functionality, including reward accounting, fund storage, user claims, and treasury claims. [ba46b63]
-    - [ ] Task: Implement the core logic for the vault, ensuring all security and access control measures are in place.
+    - [~] Task: Implement the core logic for the vault, ensuring all security and access control measures are in place.
 - [ ] Task: Refactor `CarbonTreasury.sol`.
     - [ ] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`.
     - [ ] Task: Implement the `claim` function and remove any outdated logic.

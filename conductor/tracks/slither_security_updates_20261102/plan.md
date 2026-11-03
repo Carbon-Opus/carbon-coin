@@ -13,7 +13,7 @@
 - [x] Task: Address `unchecked-transfer` vulnerabilities. (52ce8d4)
 - [x] Task: Address `divide-before-multiply` vulnerabilities. (c4e4d8b)
 - [x] Task: Address `incorrect-equality` vulnerabilities. (N/A)
-- [ ] Task: Address `calls-loop` vulnerabilities.
+- [x] Task: Address `calls-loop` vulnerabilities. (N/A)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Medium-Severity Vulnerabilities' (Protocol in workflow.md)
 
 ## Phase 3: Low-Severity and Informational Vulnerabilities

@@ -31,19 +31,29 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
     usdcToken = (await ERC20MintableFactory.deploy("USDC Mock", "USDC")) as ERC20Mintable;
     await usdcToken.deployed();
 
-    // 2. Deploy CarbonOpus
+    // 2. Deploy CarbonTreasury and CarbonOpusVault
+    const CarbonTreasuryFactory = await ethers.getContractFactory("CarbonTreasury");
+    const carbonTreasury = await CarbonTreasuryFactory.deploy(usdcToken.address);
+    await carbonTreasury.deployed();
+
+    const CarbonOpusVaultFactory = await ethers.getContractFactory("CarbonOpusVault");
+    const carbonOpusVault = await CarbonOpusVaultFactory.deploy(usdcToken.address, carbonTreasury.address);
+    await carbonOpusVault.deployed();
+
+    // 3. Deploy CarbonOpus
     const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
-    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address)) as CarbonOpus;
+    carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, carbonOpusVault.address)) as CarbonOpus;
     await carbonOpus.deployed();
 
-    // 3. Set the controller
+    // 4. Set the controller
     await carbonOpus.connect(deployer).updateController(controller.address);
+    await carbonOpusVault.connect(deployer).updateCarbonOpus(carbonOpus.address);
 
-    // 4. Mint some USDC to the controller (since they pay for standard purchases)
+    // 5. Mint some USDC to the controller (since they pay for standard purchases)
     const mintAmount = ethers.utils.parseUnits("1000", 6);
     await usdcToken.connect(deployer).mint(controller.address, mintAmount);
 
-    // 5. Approve CarbonOpus to spend controller's USDC
+    // 6. Approve CarbonOpus to spend controller's USDC
     await usdcToken.connect(controller).approve(carbonOpus.address, mintAmount);
   });
 

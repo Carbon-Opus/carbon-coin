@@ -272,12 +272,33 @@ module.exports = async (hre) => {
   //
   //////////////////////////////////////////////////////////////
   //
+  // Deploy CarbonOpusVault
+  let carbonOpusVault;
+  if (useExistingOpusContract.length === 0) {
+    log('  Deploying CarbonOpusVault...');
+    const constructorArgs = [
+      usdcAddress,
+      carbonTreasury.address,
+    ];
+    const vaultDeploy = await deploy('CarbonOpusVault', {
+      from: deployer,
+      args: constructorArgs,
+      log: true,
+    });
+    carbonOpusVault = { address: vaultDeploy.address };
+  }
+
+  //
+  //////////////////////////////////////////////////////////////
+  //
   // Deploy CarbonOpus
   if (useExistingOpusContract.length === 0) {
     log('  Deploying CarbonOpus...');
     const constructorArgs = [
       nftUri,
-      usdcAddress
+      usdcAddress,
+      carbonTreasury.address,
+      carbonOpusVault.address
     ];
     await deploy('CarbonOpus', {
       from: deployer,

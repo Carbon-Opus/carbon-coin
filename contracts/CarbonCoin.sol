@@ -65,8 +65,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
    * @notice Constructor for the CarbonCoinUSDC contract.
    * @dev Initializes the token with its name, symbol, creator, USDC address, and Somnia Exchange router.
    * It also whitelists the creator and the launcher contract to bypass certain restrictions.
-   * @param name The name of the token.
-   * @param symbol The symbol of the token.
+   * @param name_ The name of the token.
+   * @param symbol_ The symbol of the token.
    * @param _creator The address of the token creator.
    * @param _usdc The address of the USDC token contract.
    * @param _paymaster The address of the paymaster contract.
@@ -75,15 +75,15 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
    * @param bondingCurveConfig The bonding curve parameters.
    */
   constructor(
-    string memory name,
-    string memory symbol,
+    string memory name_,
+    string memory symbol_,
     address _creator,
     address _usdc,
     address _paymaster,
     address _config,
     address _protection,
     BondingCurveConfig memory bondingCurveConfig
-  ) ERC20(name, symbol) ERC20Permit(name) {
+  ) ERC20(name_, symbol_) ERC20Permit(name_) {
     // Validate inputs
     require(_creator != address(0), "Invalid creator");
     require(_usdc != address(0), "Invalid USDC address");
@@ -96,6 +96,7 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     protection = _protection;
     USDC = IERC20(_usdc);
     launchTime = block.timestamp;
+    require(_paymaster != address(0), "Invalid address");
     paymaster = _paymaster;
 
     // Set bonding curve config (immutable)
@@ -117,8 +118,8 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     emit TokenDeployed(
       address(this),
       creator,
-      name,
-      symbol,
+      name_,
+      symbol_,
       MAX_SUPPLY,
       GRADUATION_THRESHOLD,
       block.timestamp
@@ -571,13 +572,14 @@ contract CarbonCoin is ICarbonCoin, ERC20, ERC20Permit, ReentrancyGuard, Pausabl
     address dexAddress = ICarbonCoinConfig(config).getCarbonCoinDex();
 
     _approve(address(this), dexAddress, LIQUIDITY_SUPPLY);
-    USDC.approve(dexAddress, realUsdcReserves);
+    require(USDC.approve(dexAddress, realUsdcReserves), "USDC approve failed");
 
     address treasury = ICarbonCoinConfig(config).getTreasury();
     if (treasury == address(0)) {
-      treasury = _owner();
+      treasury = creator;
     }
 
+    // slither-disable-next-line unused-return
     (uint256 amountA, uint256 amountB, uint256 liquidity, ) = ICarbonCoinDex(dexAddress)
       .deployLiquidity(treasury, address(this), LIQUIDITY_SUPPLY, realUsdcReserves);
 

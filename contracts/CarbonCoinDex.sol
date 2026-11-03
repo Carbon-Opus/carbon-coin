@@ -120,13 +120,14 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     }
 
     // Approve router to spend tokens and USDC
-    IERC20(token).approve(address(dexRouter), tokensAmount);
-    USDC.approve(address(dexRouter), usdcAmount);
+    require(IERC20(token).approve(address(dexRouter), tokensAmount), "Token approve failed");
+    require(USDC.approve(address(dexRouter), usdcAmount), "USDC approve failed");
 
     // Initialize pool with absolute high-precision scaling formula (scales by 2^192 first)
     uint256 ratioX192 = Math.mulDiv(amount1Desired, uint256(1) << 192, amount0Desired);
     uint160 sqrtPriceX96 = uint160(Math.sqrt(ratioX192));
 
+    // slither-disable-next-line unused-return
     dexRouter.createAndInitializePoolIfNecessary(token0, token1, poolFee, sqrtPriceX96);
 
     // Add liquidity
@@ -152,8 +153,8 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
     amountB = isUsdc0 ? minted1 : minted0; // Tokens
 
     // Clear residual allowances to prevent active router vulnerability surface
-    IERC20(token).approve(address(dexRouter), 0);
-    USDC.approve(address(dexRouter), 0);
+    require(IERC20(token).approve(address(dexRouter), 0), "Clear token approve failed");
+    require(USDC.approve(address(dexRouter), 0), "Clear USDC approve failed");
 
     // Emit Liquidity event
     emit LiquidityDeployed(
@@ -209,6 +210,7 @@ contract CarbonCoinDex is ICarbonCoinDex, ReentrancyGuard, Ownable, Pausable {
    * @notice Update the config address
    */
   function updateConfig(address newConfig) external onlyOwner {
+    require(newConfig != address(0), "Invalid config");
     config = newConfig;
     emit ConfigUpdated(newConfig, block.timestamp);
   }

@@ -112,9 +112,9 @@ contract PhoenixEggs is
   /**
     * @dev See {IERC721-balanceOf}.
     */
-  function balanceOf(address owner) public view override returns (uint256) {
-    require(owner != address(0), "invalid address");
-    return _burned[owner] ? 0 : 1;
+  function balanceOf(address account) public view override returns (uint256) {
+    require(account != address(0), "invalid address");
+    return _burned[account] ? 0 : 1;
   }
 
   /**
@@ -122,14 +122,14 @@ contract PhoenixEggs is
     */
   function ownerOf(uint256 tokenId) public view override returns (address) {
     if (tokenId > 2**160) { return address(0); }
-    address owner = address(uint160(tokenId));
-    if (_burned[owner]) { return address(0); }
-    return owner;
+    address account = address(uint160(tokenId));
+    if (_burned[account]) { return address(0); }
+    return account;
   }
 
-  function tokenOf(address owner) public view returns (uint256) {
-    if (_burned[owner]) { return 0; }
-    return uint256(uint160(owner));
+  function tokenOf(address account) public view returns (uint256) {
+    if (_burned[account]) { return 0; }
+    return uint256(uint160(account));
   }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
@@ -142,8 +142,8 @@ contract PhoenixEggs is
   }
 
   function isEggBurned(uint256 tokenId) external view returns (bool) {
-    address owner = address(uint160(tokenId));
-    return _burned[owner];
+    address account = address(uint160(tokenId));
+    return _burned[account];
   }
 
   function getBurnPrice() external view returns (uint256) {
@@ -175,8 +175,8 @@ contract PhoenixEggs is
     return address(phoenixDex);
   }
 
-  function phxBalanceOf(address owner) external view returns (uint256) {
-    return _getOwnerTotalPHX(owner);
+  function phxBalanceOf(address account) external view returns (uint256) {
+    return _getOwnerTotalPHX(account);
   }
 
   function phxTotalSupply() external view returns (uint256) {
@@ -209,8 +209,8 @@ contract PhoenixEggs is
     Signature memory sig2,
     Signature memory sig3
   ) external nonReentrant {
-    address payable owner = payable(_msgSender());
-    uint256 tokenId = tokenOf(owner);
+    address payable account = payable(_msgSender());
+    uint256 tokenId = tokenOf(account);
 
     // Validate 3 Signatures
     address signer1 = _validateSig(tokenId, deadline, sig1);
@@ -219,7 +219,7 @@ contract PhoenixEggs is
     require(signer1 != signer2 && signer1 != signer3 && signer2 != signer3, "duplicate signers");
 
     // Reward Owner
-    _ownerPhxEarnings[owner] += PHX_PER_BURN;
+    _ownerPhxEarnings[account] += PHX_PER_BURN;
 
     // Reward Signers
     _ownerPhxEarnings[signer1] += PHX_PER_VOTE;
@@ -227,14 +227,14 @@ contract PhoenixEggs is
     _ownerPhxEarnings[signer3] += PHX_PER_VOTE;
 
     // Validate & Reward Referrer
-    bool hasReferrer = (referrer != address(0) && referrer != owner);
+    bool hasReferrer = (referrer != address(0) && referrer != account);
     if (hasReferrer) {
       _ownerPhxEarnings[referrer] += PHX_PER_REFERRAL;
       _totalReferrals += 1;
     }
 
     // Burn the Egg! Release the Magical Beast!
-    _burnEgg(owner, tokenId, false);
+    _burnEgg(account, tokenId, false);
   }
 
   /**
@@ -243,7 +243,7 @@ contract PhoenixEggs is
   function approve(address to, uint256 tokenId) public override {}
   function getApproved(uint256 tokenId) public pure override returns (address) {}
   function setApprovalForAll(address operator, bool approved) public override {}
-  function isApprovedForAll(address owner, address operator) public pure override returns (bool) {}
+  function isApprovedForAll(address account, address operator) public pure override returns (bool) {}
 
   /**
     * @dev Disable Transfers
@@ -259,16 +259,16 @@ contract PhoenixEggs is
   /**
     * @dev First Dozen Eggs is Team Pre-mint in order to Kick-Start Voting - Only Owner
     */
-  function teamBurn(address payable owner) external onlyOwner {
+  function teamBurn(address payable account) external onlyOwner {
     require(address(phoenixNft) != address(0), "no phoenix");
     require(phoenixNft.totalSupply() < _maxTeamEggs, "team-burn ended");
 
     // Reward Owner
-    _ownerPhxEarnings[owner] += PHX_PER_BURN;
+    _ownerPhxEarnings[account] += PHX_PER_BURN;
     _totalTeamBurns++;
 
     // Burn the Egg!  Release the Magical Beast!
-    _burnEgg(owner, tokenOf(owner), true);
+    _burnEgg(account, tokenOf(account), true);
   }
 
   function createLiquidity() external onlyOwner {
@@ -347,8 +347,8 @@ contract PhoenixEggs is
   |        Private Functions          |
   |__________________________________*/
 
-  function _getOwnerTotalPHX(address owner) internal view returns (uint256 totalPhx) {
-    totalPhx = _ownerPhxEarnings[owner] * 1e18;
+  function _getOwnerTotalPHX(address account) internal view returns (uint256 totalPhx) {
+    totalPhx = _ownerPhxEarnings[account] * 1e18;
   }
 
   function _getAccumulatedPHX() internal view returns (uint256 totalPhx) {
@@ -379,43 +379,43 @@ contract PhoenixEggs is
     * @dev Burn the Phoenix Egg to Release the Phoenix
     */
   function _burnEgg(
-    address payable owner,
+    address payable account,
     uint256 tokenId,
     bool isTeamBurn
   ) internal {
     require(address(phoenixNft) != address(0), "no phoenix");
-    require(!_burned[owner], "already burned");
+    require(!_burned[account], "already burned");
     require(phoenixNft.totalSupply() != _maxNfts, "end reached");
     require(_liquidityCreatedTimestamp == 0, "liquidity event started");
     require(usdcToken != address(0), "no usdc");
 
     if (!isTeamBurn) {
-      IERC20(usdcToken).safeTransferFrom(owner, address(this), _price);
+      IERC20(usdcToken).safeTransferFrom(account, address(this), _price);
     }
 
     // Spawn new Phoenix
-    _burned[owner] = true;
-    uint256 newTokenId = phoenixNft.spawnFromAshes(owner, 0);
+    _burned[account] = true;
+    uint256 newTokenId = phoenixNft.spawnFromAshes(account, 0);
 
     // Burn Events
-    emit Transfer(owner, address(0), tokenId);
-    emit PhoenixBurned(owner, newTokenId);
+    emit Transfer(account, address(0), tokenId);
+    emit PhoenixBurned(account, newTokenId);
   }
 
-  function _claimPhx(address owner) internal {
+  function _claimPhx(address account) internal {
     require(_liquidityCreatedTimestamp > 0, "insufficient liquidity");
 
-    uint256 totalPhx = _getOwnerTotalPHX(owner);
+    uint256 totalPhx = _getOwnerTotalPHX(account);
     require(totalPhx > 0, "no PHX to claim");
 
     // Clear Earnings for Owner
-    _ownerPhxEarnings[owner] = 0;
+    _ownerPhxEarnings[account] = 0;
 
     // Transfer PHX to Owner
-    IERC20(phoenixToken).safeTransfer(owner, totalPhx);
+    IERC20(phoenixToken).safeTransfer(account, totalPhx);
 
     // Emit Event
-    emit PhxClaimed(owner, totalPhx);
+    emit PhxClaimed(account, totalPhx);
   }
 
   /**
@@ -449,8 +449,8 @@ contract PhoenixEggs is
     require(PhoenixToken(phoenixToken).balanceOf(address(this)) == totalSupply, "mint failed");
 
     // Approve PhoenixDex to spend USDC and PHX
-    IERC20(phoenixToken).approve(address(phoenixDex), accumulatedPHX);
-    IERC20(usdcToken).approve(address(phoenixDex), poolUSDC);
+    require(IERC20(phoenixToken).approve(address(phoenixDex), accumulatedPHX), "PHX approve failed");
+    require(IERC20(usdcToken).approve(address(phoenixDex), poolUSDC), "USDC approve failed");
 
     // Create Liquidity using PhoenixDex
     (uint256 amountToken, uint256 amountUSDC, uint256 liquidityTokens) = phoenixDex.deployLiquidity(

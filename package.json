@@ -16,6 +16,7 @@
     "watch-test": "hardhat watch test",
     "test-all": "yarn hardhat test --deploy-fixture --network hardhat",
     "test-one": "yarn hardhat test --deploy-fixture --network hardhat ./test/CarbonCoin.test.ts",
+    "sec": "slither .",
     "hint": "solhint \"contracts/**/*.sol\"",
     "coverage": "hardhat --show-stack-traces coverage --temp coverage_build",
     "gas": "REPORT_GAS=true hardhat test",

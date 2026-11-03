@@ -88,6 +88,7 @@ contract CarbonCoinLauncher is ICarbonCoinLauncher, ReentrancyGuard, Pausable, O
     configAddress = _configAddress;
     usdcAddress = _usdcAddress;
     protectionAddress = _protectionAddress;
+    require(_paymasterAddress != address(0), "Invalid paymaster");
     paymasterAddress = _paymasterAddress;
     _controller = msg.sender;
   }

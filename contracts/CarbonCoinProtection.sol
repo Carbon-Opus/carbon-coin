@@ -58,6 +58,7 @@ contract CarbonCoinProtection is ICarbonCoinProtection, Ownable {
     address internal _controller;
 
     constructor(address _initialController) Ownable(msg.sender) {
+        require(_initialController != address(0), "Invalid controller");
         _controller = _initialController;
     }
 

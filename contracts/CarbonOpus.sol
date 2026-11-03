@@ -56,7 +56,7 @@ contract CarbonOpus is ICarbonOpus, ERC1155, Ownable, BlackholePrevention {
   string public name = "Carbon Opus Music";
   string public symbol = "OPUS-M";
 
-  constructor(string memory uri, address usdcTokenAddress, address treasuryAddress, address opusVaultAddress) ERC1155(uri) Ownable(_msgSender()) {
+  constructor(string memory uri_, address usdcTokenAddress, address treasuryAddress, address opusVaultAddress) ERC1155(uri_) Ownable(_msgSender()) {
     require(usdcTokenAddress != address(0), "Invalid token");
     require(treasuryAddress != address(0), "Invalid treasury");
     nextTokenId = 1;

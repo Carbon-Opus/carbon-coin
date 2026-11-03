@@ -77,8 +77,8 @@ contract PhoenixDex is IPhoenixDex, ReentrancyGuard, Ownable {
         require(PHX.transferFrom(_msgSender(), address(this), phxAmount), "PHX transfer failed");
         require(USDC.transferFrom(_msgSender(), address(this), usdcAmount), "USDC transfer failed");
 
-        PHX.approve(address(dexRouter), phxAmount);
-        USDC.approve(address(dexRouter), usdcAmount);
+        require(PHX.approve(address(dexRouter), phxAmount), "PHX approve failed");
+        require(USDC.approve(address(dexRouter), usdcAmount), "USDC approve failed");
 
         (amountA, amountB, liquidity) = dexRouter.addLiquidity(
             address(USDC),
@@ -103,7 +103,7 @@ contract PhoenixDex is IPhoenixDex, ReentrancyGuard, Ownable {
         require(to != address(0), "Invalid address");
         require(liquidity > 0, "Liquidity must be greater than 0");
 
-        ISomniaExchangePair(pair).approve(address(dexRouter), liquidity);
+        require(ISomniaExchangePair(pair).approve(address(dexRouter), liquidity), "LP approve failed");
 
         (amountA, amountB) = dexRouter.removeLiquidity(
             address(USDC),

@@ -475,7 +475,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       }
     ],
@@ -706,7 +706,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       },
       {
@@ -872,7 +872,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       }
     ],
@@ -1194,7 +1194,7 @@
     "inputs": [
       {
         "internalType": "address payable",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       }
     ],
@@ -1207,7 +1207,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       }
     ],

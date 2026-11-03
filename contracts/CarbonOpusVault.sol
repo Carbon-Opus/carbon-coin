@@ -24,6 +24,8 @@ contract CarbonOpusVault is ICarbonOpusVault, IERC721Receiver, Ownable {
   constructor(address opus, address usdcTokenAddress, address treasuryAddress) Ownable(_msgSender()) {
     require(usdcTokenAddress != address(0), "Invalid token address");
     usdcToken = IUSDC(usdcTokenAddress);
+    require(opus != address(0), "Invalid opus");
+    require(treasuryAddress != address(0), "Invalid treasury");
     carbonOpus = opus;
     treasury = treasuryAddress;
   }

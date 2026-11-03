@@ -23,7 +23,7 @@
 - [x] Task: Address `locked-ether` vulnerabilities. (N/A)
 - [x] Task: Address `unused-return` vulnerabilities. (032a998)
 - [x] Task: Address `shadowing-local` vulnerabilities. (032a998)
-- [ ] Task: Address `events-access` vulnerabilities.
+- [x] Task: Address `events-access` vulnerabilities. (N/A)
 - [ ] Task: Address `events-maths` vulnerabilities.
 - [x] Task: Address `missing-zero-check` vulnerabilities. (032a998)
 - [ ] Task: Address `reentrancy-benign` vulnerabilities.

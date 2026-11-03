@@ -1,0 +1,8 @@
+{
+  "track_id": "unit_test_coverage_20261103",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-11-03T00:00:00Z",
+  "updated_at": "2026-11-03T00:00:00Z",
+  "description": "- Unit Tests - lets review all of the contracts in the file \"deploy/000_deploy_carbon.js\" that get deployed as part of the \"CarbonOpus\" contracts, and let's review all unit-tests that we have and make a plan to make a very comprehensive unit-test coverage of at least 80% and we should also setup unit-test coverage reports. I already have \"solidity-coverage\": \"^0.8.14\" installed and we have a yarn command for running the reports but it might be broken.. let's tackle a comprehensive unit-test plan for the carbon contracts"
+}

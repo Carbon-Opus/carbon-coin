@@ -19,7 +19,7 @@
 - [ ] Task: Refactor `CarbonTreasury.sol`.
     - [x] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`. [75761ef]
     - [x] Task: Implement the `claim` function and remove any outdated logic. [fa19b84]
-- [ ] Task: Conductor - User Manual Verification 'Contract Refactoring' (Protocol in workflow.md) [checkpoint: CHECKPOINT_HASH]
+- [ ] Task: Conductor - User Manual Verification 'Contract Refactoring' (Protocol in workflow.md) [checkpoint: 8005ad3]
 
 ## Phase 3: Integration & Verification
 

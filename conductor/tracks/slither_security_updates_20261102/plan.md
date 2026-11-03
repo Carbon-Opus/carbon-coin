@@ -20,7 +20,7 @@
 
 - [x] Task: Address `incorrect-exp` vulnerabilities. (N/A)
 - [x] Task: Address `uninitialized-state` vulnerabilities. (N/A)
-- [ ] Task: Address `locked-ether` vulnerabilities.
+- [x] Task: Address `locked-ether` vulnerabilities. (N/A)
 - [x] Task: Address `unused-return` vulnerabilities. (032a998)
 - [x] Task: Address `shadowing-local` vulnerabilities. (032a998)
 - [ ] Task: Address `events-access` vulnerabilities.

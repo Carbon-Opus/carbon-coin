@@ -142,6 +142,19 @@ describe("CarbonOpus Refactor", () => {
         expect(newBalance.sub(oldBalance)).to.equal(treasuryReward);
         expect(await carbonOpusVault.rewards(treasuryId)).to.equal(0);
     });
+
+    it("should not allow non-treasury to claim treasury rewards", async () => {
+        await carbonOpus.connect(buyer).purchaseMusic(
+            buyerMemberId,
+            buyer.address,
+            tokenId,
+            referrerMemberId
+        );
+
+        await expect(
+            carbonOpusVault.connect(buyer).claimTreasuryRewards(carbonTreasury.address)
+        ).to.be.revertedWith("Only treasury can claim");
+    });
   });
 
   describe("CarbonOpus Contract Refactor Verification", () => {

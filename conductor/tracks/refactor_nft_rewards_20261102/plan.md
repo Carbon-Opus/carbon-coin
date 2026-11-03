@@ -17,7 +17,7 @@
     - [x] Task: Write unit tests for all new functionality, including reward accounting, fund storage, user claims, and treasury claims. [ba46b63]
     - [x] Task: Implement the core logic for the vault, ensuring all security and access control measures are in place. [75e39a5]
 - [ ] Task: Refactor `CarbonTreasury.sol`.
-    - [ ] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`.
+    - [~] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`.
     - [ ] Task: Implement the `claim` function and remove any outdated logic.
 - [ ] Task: Conductor - User Manual Verification 'Contract Refactoring' (Protocol in workflow.md)
 

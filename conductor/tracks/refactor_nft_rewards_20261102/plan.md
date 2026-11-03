@@ -24,11 +24,11 @@
 ## Phase 3: Integration & Verification
 
 - [x] Task: Update the Hardhat deployment scripts to correctly deploy and link the three refactored contracts. [bc629e7]
-- [ ] Task: Write comprehensive integration tests that simulate the entire lifecycle:
-    - [ ] Test: A user purchases an NFT.
-    - [ ] Test: The correct amounts are sent to the `CarbonOpusVault`.
-    - [ ] Test: The artist, referrer, and treasury balances are correctly updated in the vault.
-    - [ ] Test: The artist and referrer can successfully claim their rewards.
-    - [ ] Test: The `CarbonTreasury` can successfully claim the protocol fees.
+- [x] Task: Write comprehensive integration tests that simulate the entire lifecycle: [73b7746]
+    - [x] Test: A user purchases an NFT. [73b7746]
+    - [x] Test: The correct amounts are sent to the `CarbonOpusVault`. [73b7746]
+    - [x] Test: The artist, referrer, and treasury balances are correctly updated in the vault. [73b7746]
+    - [x] Test: The artist and referrer can successfully claim their rewards. [73b7746]
+    - [x] Test: The `CarbonTreasury` can successfully claim the protocol fees. [73b7746]
 - [ ] Task: Run the full project test suite to ensure the refactoring has not introduced any regressions in other parts of the system.
 - [ ] Task: Conductor - User Manual Verification 'Integration & Verification' (Protocol in workflow.md)

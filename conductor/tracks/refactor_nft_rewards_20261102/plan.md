@@ -6,7 +6,7 @@
 - [x] Task: Design the precise data structures for storing reward balances within `CarbonOpusVault.sol`. [525fe19]
 - [x] Task: Define the function signatures and interfaces required for the interaction between the three contracts (e.g., `CarbonOpus` calling `Vault` to record a sale, `Treasury` calling `Vault` to claim fees). [fce00bd]
 - [x] Task: Create or update local tests to replicate the current functionality, which will be used to verify the refactor. [0664fbc]
-- [ ] Task: Conductor - User Manual Verification 'Analysis & Design' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Analysis & Design' (Protocol in workflow.md) [checkpoint: 40e86fe]
 
 ## Phase 2: Contract Refactoring
 

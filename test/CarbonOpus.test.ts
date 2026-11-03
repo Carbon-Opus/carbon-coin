@@ -5,6 +5,8 @@ import { CarbonOpus, ERC20Mintable } from "../typechain-types";
 
 describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   let carbonOpus: CarbonOpus;
+  let carbonOpusVault: CarbonOpusVault;
+  let carbonTreasury: CarbonTreasury;
   let usdcToken: ERC20Mintable;
   
   let deployer: SignerWithAddress;
@@ -18,46 +20,46 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   const memberIdB = ethers.utils.formatBytes32String("artist_b_member_id");
   const buyerMemberId = ethers.utils.formatBytes32String("buyer_member_id");
   const referrerMemberId = ethers.utils.formatBytes32String("referrer_member_id");
+  const treasuryId = ethers.utils.formatBytes32String("treasury");
 
   const uri = "https://api-plxgamnywq-uc.a.run.app/nft/{id}.json";
   const songPrice = ethers.utils.parseUnits("10", 6); // 10 USDC (6 decimals)
   const referralPct = 500; // 5% (500 basis points)
-
+  
   beforeEach(async () => {
     [deployer, controller, artistA, artistB, buyer, referrer] = await ethers.getSigners();
 
     // 1. Deploy mock USDC token
     const ERC20MintableFactory = await ethers.getContractFactory("ERC20Mintable");
     usdcToken = (await ERC20MintableFactory.deploy("USDC Mock", "USDC")) as ERC20Mintable;
-    await usdcToken.deployed();
 
-    // 2. Deploy CarbonTreasury and CarbonOpusVault
+    // 2. Deploy the contracts
     const CarbonTreasuryFactory = await ethers.getContractFactory("CarbonTreasury");
-    const carbonTreasury = await CarbonTreasuryFactory.deploy(usdcToken.address);
-    await carbonTreasury.deployed();
+    carbonTreasury = (await CarbonTreasuryFactory.deploy(usdcToken.address)) as CarbonTreasury;
 
     const CarbonOpusFactory = await ethers.getContractFactory("CarbonOpus");
     carbonOpus = (await CarbonOpusFactory.deploy(uri, usdcToken.address, carbonTreasury.address, ethers.constants.AddressZero)) as CarbonOpus;
-    await carbonOpus.deployed();
-
+    
     const CarbonOpusVaultFactory = await ethers.getContractFactory("CarbonOpusVault");
-    const carbonOpusVault = await CarbonOpusVaultFactory.deploy(carbonOpus.address, usdcToken.address, carbonTreasury.address);
-    await carbonOpusVault.deployed();
+    carbonOpusVault = (await CarbonOpusVaultFactory.deploy(carbonOpus.address, usdcToken.address, carbonTreasury.address)) as CarbonOpusVault;
 
     await carbonOpus.connect(deployer).updateOpusVault(carbonOpusVault.address);
 
-    // 4. Set the controller
+    // 3. Set the controller and opus address
     await carbonOpus.connect(deployer).updateController(controller.address);
     await carbonOpusVault.connect(deployer).updateCarbonOpus(carbonOpus.address);
 
-    // 5. Mint some USDC to the controller (since they pay for standard purchases)
+    // 4. Mint some USDC to the buyer
     const mintAmount = ethers.utils.parseUnits("1000", 6);
+    await usdcToken.connect(deployer).mint(buyer.address, mintAmount);
     await usdcToken.connect(deployer).mint(controller.address, mintAmount);
 
-    // 6. Approve CarbonOpus to spend controller's USDC
-    await usdcToken.connect(controller).approve(carbonOpus.address, mintAmount);
-  });
 
+    // 5. Approve CarbonOpusVault to spend buyer's USDC
+    await usdcToken.connect(buyer).approve(carbonOpusVault.address, mintAmount);
+    await usdcToken.connect(controller).approve(carbonOpusVault.address, mintAmount);
+  });
+  
   describe("Song Initialization & Creation", () => {
     it("should allow controller to create a song with correct parameters", async () => {
       const tx = await carbonOpus.connect(controller).createMusic(

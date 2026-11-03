@@ -18,7 +18,7 @@
     - [x] Task: Implement the core logic for the vault, ensuring all security and access control measures are in place. [75e39a5]
 - [ ] Task: Refactor `CarbonTreasury.sol`.
     - [x] Task: Write unit tests to verify its ability to claim funds from the `CarbonOpusVault`. [75761ef]
-    - [ ] Task: Implement the `claim` function and remove any outdated logic.
+    - [~] Task: Implement the `claim` function and remove any outdated logic.
 - [ ] Task: Conductor - User Manual Verification 'Contract Refactoring' (Protocol in workflow.md)
 
 ## Phase 3: Integration & Verification

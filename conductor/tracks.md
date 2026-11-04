@@ -11,5 +11,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Comprehensive Unit Test Coverage for Carbon Contracts**
+- [x] **Track: Comprehensive Unit Test Coverage for Carbon Contracts**
 *Link: [./tracks/unit_test_coverage_20261103/](./tracks/unit_test_coverage_20261103/)*

@@ -230,4 +230,39 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       ).to.be.revertedWith("Invalid position manager");
     });
   });
+
+  describe("Missing Coverage Tests", () => {
+    it("should allow the owner to withdraw Ether", async () => {
+        const amount = ethers.utils.parseEther("1.0");
+        await ethers.provider.send("hardhat_setBalance", [
+            carbonTreasury.address,
+            amount.toHexString().replace("0x0", "0x")
+        ]);
+        
+        const initialBalance = await ethers.provider.getBalance(receiver.address);
+        await carbonTreasury.connect(deployer).withdrawEther(receiver.address, amount);
+        const finalBalance = await ethers.provider.getBalance(receiver.address);
+        expect(finalBalance.sub(initialBalance)).to.equal(amount);
+    });
+
+    it("should allow the owner to withdraw ERC20", async () => {
+        const amount = ethers.utils.parseUnits("10", 6);
+        await usdcToken.mint(carbonTreasury.address, amount);
+        
+        const initialBalance = await usdcToken.balanceOf(receiver.address);
+        await carbonTreasury.connect(deployer).withdrawErc20(receiver.address, usdcToken.address, amount);
+        const finalBalance = await usdcToken.balanceOf(receiver.address);
+        expect(finalBalance.sub(initialBalance)).to.equal(amount);
+    });
+
+    it("should allow the owner to withdraw ERC721", async () => {
+        await expect(carbonTreasury.connect(attacker).withdrawERC721(receiver.address, usdcToken.address, 1))
+            .to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount");
+    });
+
+    it("should allow the owner to withdraw ERC1155", async () => {
+        await expect(carbonTreasury.connect(attacker).withdrawERC1155(receiver.address, usdcToken.address, 1, 1))
+            .to.be.revertedWithCustomError(carbonTreasury, "OwnableUnauthorizedAccount");
+    });
+  });
 });

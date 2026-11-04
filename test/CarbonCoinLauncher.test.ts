@@ -51,18 +51,35 @@ describe("CarbonCoinLauncher", () => {
   });
 
   it("should reject token creation if max tokens reached", async () => {
-    await expect(launcher.connect(deployer).createToken(
-        "Test", "TST", user1.address,
+    await launcher.connect(deployer).setMaxTokensPerCreator(1);
+    
+    // Create 1st token (should succeed)
+    await launcher.connect(deployer).createToken(
+        "Test1", "TST1", user1.address,
         {
           virtualUsdc: 1,
           virtualTokens: 1,
           creatorReserve: 1,
           liquiditySupply: 1,
           curveSupply: 1,
-          maxSupply: 1,
+          maxSupply: 10,
           graduationThreshold: 1
         }
-    )).to.be.revertedWithCustomError(launcher, "Unauthorized");
+    );
+
+    // Create 2nd token for the same user (should fail)
+    await expect(launcher.connect(deployer).createToken(
+        "Test2", "TST2", user1.address,
+        {
+          virtualUsdc: 1,
+          virtualTokens: 1,
+          creatorReserve: 1,
+          liquiditySupply: 1,
+          curveSupply: 1,
+          maxSupply: 10,
+          graduationThreshold: 1
+        }
+    )).to.be.revertedWithCustomError(launcher, "TooManyTokens");
   });
 
   it("should allow owner to update max tokens", async () => {

@@ -28,16 +28,16 @@ module.exports = async (hre) => {
   const tickUpper = BigInt(findNearestValidTick(60, false));
 
   // TESTNET
-  const useExistingTreasuryContract = isHardhat(network) ? '' : '0xF7a1C1FD464A0b5DCbbc7AAeCa29D2dB1CC0E2F6';
-  const useExistingVaultContract = isHardhat(network) ? '' : '0xd8e555d9cfc86371303CeDc1430A26021DCB7Aa3';
-  const useExistingOpusContract = isHardhat(network) ? '' : '0x0f3636bcFDeD6AC3A19a7f63a4278def8E185680';
-  const useExistingConfigContract = isHardhat(network) ? '' : '0xc10b0e5Fac8b202007871206136A1D6b5908F90e';
-  const useExistingDexContract = isHardhat(network) ? '' : '0x048874304008415344c0E11B89E99EC293A944b5';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '0xda3B07BFeDE6FB91aB54C0D0988a468f11A70EbE';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '0x306E996ceDD05c33bee051e43fa386DBbB32d611';
-  const useExistingPaymasterContract = isHardhat(network) ? '' : '0x0e6779fF55bAA6A7Ee144C9C4c4c3280Fe4d51C8';
+  const useExistingTreasuryContract = isHardhat(network) ? '' : '';
+  const useExistingVaultContract = isHardhat(network) ? '' : '';
+  const useExistingOpusContract = isHardhat(network) ? '' : '';
+  const useExistingConfigContract = isHardhat(network) ? '' : '';
+  const useExistingDexContract = isHardhat(network) ? '' : '';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '';
+  const useExistingPaymasterContract = isHardhat(network) ? '' : '';
+  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '';
   const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
-  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x56EC1564F33Ad819B666982dAB840077E0F99581';
 
   const sampleCarbonCoinArgs = [
     'Carbon Coin',

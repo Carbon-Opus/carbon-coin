@@ -111,7 +111,7 @@ contract MockNonfungiblePositionManager is INonfungiblePositionManager {
 
     function positions(uint256)
         external
-        view
+        pure
         returns (
             uint96,
             address,

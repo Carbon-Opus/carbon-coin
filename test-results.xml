@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="17.375" tests="146" failures="0" skipped="2">
-  <testsuite name="Root Suite" timestamp="2026-11-04T01:37:00" tests="0" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="18.031" tests="146" failures="0" skipped="2">
+  <testsuite name="Root Suite" timestamp="2026-11-04T23:51:28" tests="0" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="CarbonCoin" timestamp="2026-11-04T01:37:00" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.000" failures="0">
-    <testcase name="CarbonCoin should have the correct name and symbol" time="0.013" classname="should have the correct name and symbol">
-    </testcase>
-  </testsuite>
-  <testsuite name="Whale Protection (Intent-to-Trade)" timestamp="2026-11-04T01:37:00" tests="7" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.948" failures="0">
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should revert if whale buy is attempted without registering intent" time="0.044" classname="should revert if whale buy is attempted without registering intent">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should allow registering whale intent and persist it in storage" time="0.021" classname="should allow registering whale intent and persist it in storage">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should revert if whale trade is executed before delay expires" time="0.045" classname="should revert if whale trade is executed before delay expires">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should execute whale buy successfully after delay has elapsed" time="0.101" classname="should execute whale buy successfully after delay has elapsed">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should allow cancelling a registered whale intent" time="0.027" classname="should allow cancelling a registered whale intent">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should enforce cooldown between consecutive whale trades" time="0.106" classname="should enforce cooldown between consecutive whale trades">
-    </testcase>
-    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should support whale sell intent and execution" time="0.237" classname="should support whale sell intent and execution">
+  <testsuite name="CarbonCoin" timestamp="2026-11-04T23:51:28" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.000" failures="0">
+    <testcase name="CarbonCoin should have the correct name and symbol" time="0.010" classname="should have the correct name and symbol">
     </testcase>
   </testsuite>
-  <testsuite name="Circuit Breaker &amp; Price Impact Protection" timestamp="2026-11-04T01:37:01" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.992" failures="0">
-    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should revert on extreme price impact (&gt; 2x maxPriceImpact) without triggering circuit breaker" time="0.078" classname="should revert on extreme price impact (&gt; 2x maxPriceImpact) without triggering circuit breaker">
+  <testsuite name="Whale Protection (Intent-to-Trade)" timestamp="2026-11-04T23:51:28" tests="7" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="1.145" failures="0">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should revert if whale buy is attempted without registering intent" time="0.051" classname="should revert if whale buy is attempted without registering intent">
     </testcase>
-    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should trigger circuit breaker on high price impact (between 1x and 2x maxPriceImpact) and halt subsequent trades" time="0.209" classname="should trigger circuit breaker on high price impact (between 1x and 2x maxPriceImpact) and halt subsequent trades">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should allow registering whale intent and persist it in storage" time="0.022" classname="should allow registering whale intent and persist it in storage">
     </testcase>
-    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should store lastPrice and lastPriceTimestamp in packed slot and reset on window expiration without DoS" time="0.149" classname="should store lastPrice and lastPriceTimestamp in packed slot and reset on window expiration without DoS">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should revert if whale trade is executed before delay expires" time="0.049" classname="should revert if whale trade is executed before delay expires">
     </testcase>
-    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should track consecutive volatile price moves and trigger circuit breaker on excessive volatility" time="0.334" classname="should track consecutive volatile price moves and trigger circuit breaker on excessive volatility">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should execute whale buy successfully after delay has elapsed" time="0.118" classname="should execute whale buy successfully after delay has elapsed">
     </testcase>
-  </testsuite>
-  <testsuite name="Creator Pre-Graduation Lock" timestamp="2026-11-04T01:37:02" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.510" failures="0">
-    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from selling reserve tokens before graduation" time="0.009" classname="should prevent creator from selling reserve tokens before graduation">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should allow cancelling a registered whale intent" time="0.028" classname="should allow cancelling a registered whale intent">
     </testcase>
-    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from transferring tokens before graduation via transfer" time="0.003" classname="should prevent creator from transferring tokens before graduation via transfer">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should enforce cooldown between consecutive whale trades" time="0.124" classname="should enforce cooldown between consecutive whale trades">
     </testcase>
-    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from transferring tokens before graduation via transferFrom" time="0.125" classname="should prevent creator from transferring tokens before graduation via transferFrom">
-    </testcase>
-    <testcase name="CarbonCoin Creator Pre-Graduation Lock should allow non-creator users to transfer and sell tokens freely" time="0.144" classname="should allow non-creator users to transfer and sell tokens freely">
+    <testcase name="CarbonCoin Whale Protection (Intent-to-Trade) should support whale sell intent and execution" time="0.308" classname="should support whale sell intent and execution">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoinPaymaster Integration" timestamp="2026-11-04T01:37:03" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.314" failures="0">
-    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should reject sellOnBehalf from unauthorized non-controller caller" time="0.002" classname="should reject sellOnBehalf from unauthorized non-controller caller">
+  <testsuite name="Circuit Breaker &amp; Price Impact Protection" timestamp="2026-11-04T23:51:29" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="1.131" failures="0">
+    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should revert on extreme price impact (&gt; 2x maxPriceImpact) without triggering circuit breaker" time="0.098" classname="should revert on extreme price impact (&gt; 2x maxPriceImpact) without triggering circuit breaker">
     </testcase>
-    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should reject sellOnBehalf for creator before graduation" time="0.011" classname="should reject sellOnBehalf for creator before graduation">
+    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should trigger circuit breaker on high price impact (between 1x and 2x maxPriceImpact) and halt subsequent trades" time="0.227" classname="should trigger circuit breaker on high price impact (between 1x and 2x maxPriceImpact) and halt subsequent trades">
     </testcase>
-    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should correctly execute sellOnBehalf, burning user tokens and paying user USDC" time="0.150" classname="should correctly execute sellOnBehalf, burning user tokens and paying user USDC">
+    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should store lastPrice and lastPriceTimestamp in packed slot and reset on window expiration without DoS" time="0.170" classname="should store lastPrice and lastPriceTimestamp in packed slot and reset on window expiration without DoS">
     </testcase>
-  </testsuite>
-  <testsuite name="Sell Limits Enforcement (Issue #7)" timestamp="2026-11-04T01:37:03" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.771" failures="0">
-    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should revert with ExceedsMaxSellAmount if sell exceeds maxSellPercentage" time="0.086" classname="should revert with ExceedsMaxSellAmount if sell exceeds maxSellPercentage">
-    </testcase>
-    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should allow sell when tokensIn &lt;= currentMaxSellTokens" time="0.125" classname="should allow sell when tokensIn &lt;= currentMaxSellTokens">
-    </testcase>
-    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should allow whitelisted user to sell beyond maxSellPercentage" time="0.132" classname="should allow whitelisted user to sell beyond maxSellPercentage">
-    </testcase>
-    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should revert with &apos;Trade size too large&apos; when sell trade size exceeds maxTradeSize" time="0.106" classname="should revert with &apos;Trade size too large&apos; when sell trade size exceeds maxTradeSize">
-    </testcase>
-    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should enforce maxSellPercentage in sellOnBehalf" time="0.081" classname="should enforce maxSellPercentage in sellOnBehalf">
+    <testcase name="CarbonCoin Circuit Breaker &amp; Price Impact Protection should track consecutive volatile price moves and trigger circuit breaker on excessive volatility" time="0.396" classname="should track consecutive volatile price moves and trigger circuit breaker on excessive volatility">
     </testcase>
   </testsuite>
-  <testsuite name="Controller Key Rotation in CarbonCoinProtection" timestamp="2026-11-04T01:37:04" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.064" failures="0">
-    <testcase name="CarbonCoin Controller Key Rotation in CarbonCoinProtection should allow owner to update controller and prevent unauthorized rotation" time="0.015" classname="should allow owner to update controller and prevent unauthorized rotation">
+  <testsuite name="Creator Pre-Graduation Lock" timestamp="2026-11-04T23:51:30" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.528" failures="0">
+    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from selling reserve tokens before graduation" time="0.011" classname="should prevent creator from selling reserve tokens before graduation">
+    </testcase>
+    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from transferring tokens before graduation via transfer" time="0.004" classname="should prevent creator from transferring tokens before graduation via transfer">
+    </testcase>
+    <testcase name="CarbonCoin Creator Pre-Graduation Lock should prevent creator from transferring tokens before graduation via transferFrom" time="0.115" classname="should prevent creator from transferring tokens before graduation via transferFrom">
+    </testcase>
+    <testcase name="CarbonCoin Creator Pre-Graduation Lock should allow non-creator users to transfer and sell tokens freely" time="0.173" classname="should allow non-creator users to transfer and sell tokens freely">
     </testcase>
   </testsuite>
-  <testsuite name="Bonding Curve Rounding Invariant Protection" timestamp="2026-11-04T01:37:04" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.192" failures="0">
-    <testcase name="CarbonCoin Bonding Curve Rounding Invariant Protection should round in favor of curve reserves and prevent attrition" time="0.147" classname="should round in favor of curve reserves and prevent attrition">
+  <testsuite name="CarbonCoinPaymaster Integration" timestamp="2026-11-04T23:51:31" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.362" failures="0">
+    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should reject sellOnBehalf from unauthorized non-controller caller" time="0.003" classname="should reject sellOnBehalf from unauthorized non-controller caller">
+    </testcase>
+    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should reject sellOnBehalf for creator before graduation" time="0.012" classname="should reject sellOnBehalf for creator before graduation">
+    </testcase>
+    <testcase name="CarbonCoin CarbonCoinPaymaster Integration should correctly execute sellOnBehalf, burning user tokens and paying user USDC" time="0.180" classname="should correctly execute sellOnBehalf, burning user tokens and paying user USDC">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoinConfig" timestamp="2026-11-04T01:37:04" tests="6" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinConfig.test.ts" time="0.068" failures="0">
-    <testcase name="CarbonCoinConfig should allow owner to update fees" time="0.007" classname="should allow owner to update fees">
+  <testsuite name="Sell Limits Enforcement (Issue #7)" timestamp="2026-11-04T23:51:31" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.916" failures="0">
+    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should revert with ExceedsMaxSellAmount if sell exceeds maxSellPercentage" time="0.103" classname="should revert with ExceedsMaxSellAmount if sell exceeds maxSellPercentage">
     </testcase>
-    <testcase name="CarbonCoinConfig should reject fee updates from non-owner" time="0.003" classname="should reject fee updates from non-owner">
+    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should allow sell when tokensIn &lt;= currentMaxSellTokens" time="0.157" classname="should allow sell when tokensIn &lt;= currentMaxSellTokens">
+    </testcase>
+    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should allow whitelisted user to sell beyond maxSellPercentage" time="0.142" classname="should allow whitelisted user to sell beyond maxSellPercentage">
+    </testcase>
+    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should revert with &apos;Trade size too large&apos; when sell trade size exceeds maxTradeSize" time="0.118" classname="should revert with &apos;Trade size too large&apos; when sell trade size exceeds maxTradeSize">
+    </testcase>
+    <testcase name="CarbonCoin Sell Limits Enforcement (Issue #7) should enforce maxSellPercentage in sellOnBehalf" time="0.088" classname="should enforce maxSellPercentage in sellOnBehalf">
+    </testcase>
+  </testsuite>
+  <testsuite name="Controller Key Rotation in CarbonCoinProtection" timestamp="2026-11-04T23:51:32" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.075" failures="0">
+    <testcase name="CarbonCoin Controller Key Rotation in CarbonCoinProtection should allow owner to update controller and prevent unauthorized rotation" time="0.018" classname="should allow owner to update controller and prevent unauthorized rotation">
+    </testcase>
+  </testsuite>
+  <testsuite name="Bonding Curve Rounding Invariant Protection" timestamp="2026-11-04T23:51:32" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoin.test.ts" time="0.208" failures="0">
+    <testcase name="CarbonCoin Bonding Curve Rounding Invariant Protection should round in favor of curve reserves and prevent attrition" time="0.160" classname="should round in favor of curve reserves and prevent attrition">
+    </testcase>
+  </testsuite>
+  <testsuite name="CarbonCoinConfig" timestamp="2026-11-04T23:51:32" tests="6" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinConfig.test.ts" time="0.074" failures="0">
+    <testcase name="CarbonCoinConfig should allow owner to update fees" time="0.006" classname="should allow owner to update fees">
+    </testcase>
+    <testcase name="CarbonCoinConfig should reject fee updates from non-owner" time="0.004" classname="should reject fee updates from non-owner">
     </testcase>
     <testcase name="CarbonCoinConfig should allow owner to update anti-bot settings" time="0.009" classname="should allow owner to update anti-bot settings">
     </testcase>
@@ -81,149 +81,149 @@
     </testcase>
     <testcase name="CarbonCoinConfig should allow owner to update whale limit settings" time="0.009" classname="should allow owner to update whale limit settings">
     </testcase>
-    <testcase name="CarbonCoinConfig should allow owner to update dex and treasury addresses" time="0.012" classname="should allow owner to update dex and treasury addresses">
+    <testcase name="CarbonCoinConfig should allow owner to update dex and treasury addresses" time="0.013" classname="should allow owner to update dex and treasury addresses">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration" timestamp="2026-11-04T01:37:04" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinDex.test.ts" time="0.000" failures="0">
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should deploy liquidity with correct token ordering when address(USDC) &lt; token (USDC is token0)" time="0.202" classname="should deploy liquidity with correct token ordering when address(USDC) &lt; token (USDC is token0)">
+  <testsuite name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration" timestamp="2026-11-04T23:51:32" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinDex.test.ts" time="0.000" failures="0">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should deploy liquidity with correct token ordering when address(USDC) &lt; token (USDC is token0)" time="0.209" classname="should deploy liquidity with correct token ordering when address(USDC) &lt; token (USDC is token0)">
     </testcase>
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should deploy liquidity with correct token ordering when token &lt; address(USDC) (Token is token0)" time="0.093" classname="should deploy liquidity with correct token ordering when token &lt; address(USDC) (Token is token0)">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should deploy liquidity with correct token ordering when token &lt; address(USDC) (Token is token0)" time="0.095" classname="should deploy liquidity with correct token ordering when token &lt; address(USDC) (Token is token0)">
     </testcase>
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should invert asymmetric ticks correctly when token is token0" time="0.082" classname="should invert asymmetric ticks correctly when token is token0">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should invert asymmetric ticks correctly when token is token0" time="0.090" classname="should invert asymmetric ticks correctly when token is token0">
     </testcase>
     <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should reject unauthorized callers from deploying liquidity" time="0.025" classname="should reject unauthorized callers from deploying liquidity">
     </testcase>
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should respect pause and unpause" time="0.032" classname="should respect pause and unpause">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration should respect pause and unpause" time="0.037" classname="should respect pause and unpause">
     </testcase>
   </testsuite>
-  <testsuite name="Graduation LP Recipient &amp; Rug Pull Protection (Issue #9)" timestamp="2026-11-04T01:37:05" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinDex.test.ts" time="0.578" failures="0">
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration Graduation LP Recipient &amp; Rug Pull Protection (Issue #9) should allow owner to update and get treasury in CarbonCoinConfig" time="0.018" classname="should allow owner to update and get treasury in CarbonCoinConfig">
+  <testsuite name="Graduation LP Recipient &amp; Rug Pull Protection (Issue #9)" timestamp="2026-11-04T23:51:33" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinDex.test.ts" time="0.532" failures="0">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration Graduation LP Recipient &amp; Rug Pull Protection (Issue #9) should allow owner to update and get treasury in CarbonCoinConfig" time="0.017" classname="should allow owner to update and get treasury in CarbonCoinConfig">
     </testcase>
     <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration Graduation LP Recipient &amp; Rug Pull Protection (Issue #9) should route LP tokens to treasury when deployLiquidity is called with address(0)" time="0.094" classname="should route LP tokens to treasury when deployLiquidity is called with address(0)">
     </testcase>
-    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration Graduation LP Recipient &amp; Rug Pull Protection (Issue #9) should send LP position NFT to treasury instead of creator upon CarbonCoin graduation" time="0.298" classname="should send LP position NFT to treasury instead of creator upon CarbonCoin graduation">
+    <testcase name="CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration Graduation LP Recipient &amp; Rug Pull Protection (Issue #9) should send LP position NFT to treasury instead of creator upon CarbonCoin graduation" time="0.244" classname="should send LP position NFT to treasury instead of creator upon CarbonCoin graduation">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening" timestamp="2026-11-04T01:37:05" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.000" failures="0">
+  <testsuite name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening" timestamp="2026-11-04T23:51:34" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="1. Zero &amp; Boundary Arithmetic Invariants" timestamp="2026-11-04T01:37:05" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.452" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should revert if buy amount is 0" time="0.026" classname="should revert if buy amount is 0">
+  <testsuite name="1. Zero &amp; Boundary Arithmetic Invariants" timestamp="2026-11-04T23:51:34" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.472" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should revert if buy amount is 0" time="0.029" classname="should revert if buy amount is 0">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should revert if sell tokensIn is 0" time="0.007" classname="should revert if sell tokensIn is 0">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should revert if selling more tokens than balance" time="0.010" classname="should revert if selling more tokens than balance">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should return zero for calculate view functions with zero inputs" time="0.010" classname="should return zero for calculate view functions with zero inputs">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should return zero for calculate view functions with zero inputs" time="0.011" classname="should return zero for calculate view functions with zero inputs">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 1. Zero &amp; Boundary Arithmetic Invariants should return (0, 0) for calculateUsdcOutWithFee when tokensIn exceeds realTokenSupply" time="0.003" classname="should return (0, 0) for calculateUsdcOutWithFee when tokensIn exceeds realTokenSupply">
     </testcase>
   </testsuite>
-  <testsuite name="2. Slippage Protection" timestamp="2026-11-04T01:37:06" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.278" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 2. Slippage Protection should revert buy if tokensOut is less than minTokensOut" time="0.047" classname="should revert buy if tokensOut is less than minTokensOut">
+  <testsuite name="2. Slippage Protection" timestamp="2026-11-04T23:51:34" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.298" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 2. Slippage Protection should revert buy if tokensOut is less than minTokensOut" time="0.052" classname="should revert buy if tokensOut is less than minTokensOut">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 2. Slippage Protection should revert sell if usdcOut is less than minUsdcOut" time="0.115" classname="should revert sell if usdcOut is less than minUsdcOut">
-    </testcase>
-  </testsuite>
-  <testsuite name="3. Supply Cap Enforcement" timestamp="2026-11-04T01:37:06" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.139" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 3. Supply Cap Enforcement should revert buy if tokensOut would exceed curve supply" time="0.082" classname="should revert buy if tokensOut would exceed curve supply">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 2. Slippage Protection should revert sell if usdcOut is less than minUsdcOut" time="0.125" classname="should revert sell if usdcOut is less than minUsdcOut">
     </testcase>
   </testsuite>
-  <testsuite name="4. Anti-Bot Early Launch Window Protections" timestamp="2026-11-04T01:37:06" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.636" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 4. Anti-Bot Early Launch Window Protections should revert if buy amount is below minBuyAmount (&lt; 1 USDC)" time="0.023" classname="should revert if buy amount is below minBuyAmount (&lt; 1 USDC)">
+  <testsuite name="3. Supply Cap Enforcement" timestamp="2026-11-04T23:51:34" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.143" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 3. Supply Cap Enforcement should revert buy if tokensOut would exceed curve supply" time="0.085" classname="should revert buy if tokensOut would exceed curve supply">
+    </testcase>
+  </testsuite>
+  <testsuite name="4. Anti-Bot Early Launch Window Protections" timestamp="2026-11-04T23:51:35" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.637" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 4. Anti-Bot Early Launch Window Protections should revert if buy amount is below minBuyAmount (&lt; 1 USDC)" time="0.024" classname="should revert if buy amount is below minBuyAmount (&lt; 1 USDC)">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 4. Anti-Bot Early Launch Window Protections should revert if buy amount exceeds maxBuyAmountEarly in first 2 minutes" time="0.011" classname="should revert if buy amount exceeds maxBuyAmountEarly in first 2 minutes">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 4. Anti-Bot Early Launch Window Protections should revert if trader buys twice within anti-bot cooldown period (15s)" time="0.314" classname="should revert if trader buys twice within anti-bot cooldown period (15s)">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 4. Anti-Bot Early Launch Window Protections should revert if trader buys twice within anti-bot cooldown period (15s)" time="0.298" classname="should revert if trader buys twice within anti-bot cooldown period (15s)">
     </testcase>
   </testsuite>
-  <testsuite name="5. Whale Intent Lifecycle Edge Cases" timestamp="2026-11-04T01:37:07" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.449" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert if cancelling when no whale intent exists" time="0.006" classname="should revert if cancelling when no whale intent exists">
+  <testsuite name="5. Whale Intent Lifecycle Edge Cases" timestamp="2026-11-04T23:51:35" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.505" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert if cancelling when no whale intent exists" time="0.005" classname="should revert if cancelling when no whale intent exists">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert registering whale intent below whaleThreshold" time="0.007" classname="should revert registering whale intent below whaleThreshold">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert registering whale intent below whaleThreshold" time="0.008" classname="should revert registering whale intent below whaleThreshold">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert registering a duplicate whale intent when one is already pending" time="0.018" classname="should revert registering a duplicate whale intent when one is already pending">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should revert registering a duplicate whale intent when one is already pending" time="0.019" classname="should revert registering a duplicate whale intent when one is already pending">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should successfully cancel a pending whale intent and allow registering a new one" time="0.034" classname="should successfully cancel a pending whale intent and allow registering a new one">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should successfully cancel a pending whale intent and allow registering a new one" time="0.035" classname="should successfully cancel a pending whale intent and allow registering a new one">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should enforce whaleDelay cooldown between consecutive executed whale trades" time="0.098" classname="should enforce whaleDelay cooldown between consecutive executed whale trades">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 5. Whale Intent Lifecycle Edge Cases should enforce whaleDelay cooldown between consecutive executed whale trades" time="0.145" classname="should enforce whaleDelay cooldown between consecutive executed whale trades">
     </testcase>
   </testsuite>
-  <testsuite name="6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom" timestamp="2026-11-04T01:37:07" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.558" failures="0">
+  <testsuite name="6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom" timestamp="2026-11-04T23:51:36" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.635" failures="0">
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom should strictly prevent creator from transferring tokens via transfer pre-graduation" time="0.003" classname="should strictly prevent creator from transferring tokens via transfer pre-graduation">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom should strictly prevent creator from transferring tokens via transferFrom pre-graduation" time="0.006" classname="should strictly prevent creator from transferring tokens via transferFrom pre-graduation">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom should strictly prevent creator from calling sell pre-graduation" time="0.007" classname="should strictly prevent creator from calling sell pre-graduation">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom should allow creator to transfer tokens freely AFTER graduation" time="0.312" classname="should allow creator to transfer tokens freely AFTER graduation">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 6. Creator Pre-Graduation Lockout &amp; Post-Graduation Freedom should allow creator to transfer tokens freely AFTER graduation" time="0.377" classname="should allow creator to transfer tokens freely AFTER graduation">
     </testcase>
   </testsuite>
-  <testsuite name="7. Post-Graduation Bonding Curve Lockdown" timestamp="2026-11-04T01:37:08" tests="7" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="1.956" failures="0">
+  <testsuite name="7. Post-Graduation Bonding Curve Lockdown" timestamp="2026-11-04T23:51:36" tests="7" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="1.945" failures="0">
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert buy after graduation" time="0.003" classname="should revert buy after graduation">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert sell after graduation" time="0.007" classname="should revert sell after graduation">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert buyOnBehalf after graduation" time="0.004" classname="should revert buyOnBehalf after graduation">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert sellOnBehalf after graduation" time="0.008" classname="should revert sellOnBehalf after graduation">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert sellOnBehalf after graduation" time="0.007" classname="should revert sellOnBehalf after graduation">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert registerWhaleIntent after graduation" time="0.003" classname="should revert registerWhaleIntent after graduation">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert registerWhaleIntent after graduation" time="0.002" classname="should revert registerWhaleIntent after graduation">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert pause after graduation" time="0.005" classname="should revert pause after graduation">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert pause after graduation" time="0.008" classname="should revert pause after graduation">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 7. Post-Graduation Bonding Curve Lockdown should revert emergencyWithdraw after graduation" time="0.004" classname="should revert emergencyWithdraw after graduation">
     </testcase>
   </testsuite>
-  <testsuite name="8. Pause State Machine &amp; Emergency Withdrawal" timestamp="2026-11-04T01:37:10" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.600" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should block buys and sells when contract is paused" time="0.076" classname="should block buys and sells when contract is paused">
+  <testsuite name="8. Pause State Machine &amp; Emergency Withdrawal" timestamp="2026-11-04T23:51:38" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.562" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should block buys and sells when contract is paused" time="0.084" classname="should block buys and sells when contract is paused">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should reject emergencyWithdraw if contract is not paused" time="0.004" classname="should reject emergencyWithdraw if contract is not paused">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should reject emergencyWithdraw if contract is not paused" time="0.005" classname="should reject emergencyWithdraw if contract is not paused">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should reject emergencyWithdraw from non-owner even if paused" time="0.008" classname="should reject emergencyWithdraw from non-owner even if paused">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should reject emergencyWithdraw from non-owner even if paused" time="0.009" classname="should reject emergencyWithdraw from non-owner even if paused">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should allow owner to execute emergencyWithdraw to treasury when paused" time="0.278" classname="should allow owner to execute emergencyWithdraw to treasury when paused">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 8. Pause State Machine &amp; Emergency Withdrawal should allow owner to execute emergencyWithdraw to treasury when paused" time="0.226" classname="should allow owner to execute emergencyWithdraw to treasury when paused">
     </testcase>
   </testsuite>
-  <testsuite name="9. Paymaster Authorization &amp; Access Control" timestamp="2026-11-04T01:37:10" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.178" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 9. Paymaster Authorization &amp; Access Control should reject buyOnBehalf from non-paymaster" time="0.003" classname="should reject buyOnBehalf from non-paymaster">
+  <testsuite name="9. Paymaster Authorization &amp; Access Control" timestamp="2026-11-04T23:51:39" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.189" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 9. Paymaster Authorization &amp; Access Control should reject buyOnBehalf from non-paymaster" time="0.004" classname="should reject buyOnBehalf from non-paymaster">
     </testcase>
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 9. Paymaster Authorization &amp; Access Control should reject sellOnBehalf from non-paymaster" time="0.003" classname="should reject sellOnBehalf from non-paymaster">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 9. Paymaster Authorization &amp; Access Control should reject sellOnBehalf from non-paymaster" time="0.004" classname="should reject sellOnBehalf from non-paymaster">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 9. Paymaster Authorization &amp; Access Control should reject registerWhaleIntentOnBehalf from non-paymaster" time="0.003" classname="should reject registerWhaleIntentOnBehalf from non-paymaster">
     </testcase>
   </testsuite>
-  <testsuite name="10. Multi-Trade Price Monotonicity &amp; Conservation" timestamp="2026-11-04T01:37:10" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.744" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 10. Multi-Trade Price Monotonicity &amp; Conservation should strictly increase price across consecutive buys and decrease across consecutive sells" time="0.688" classname="should strictly increase price across consecutive buys and decrease across consecutive sells">
+  <testsuite name="10. Multi-Trade Price Monotonicity &amp; Conservation" timestamp="2026-11-04T23:51:39" tests="1" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.776" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 10. Multi-Trade Price Monotonicity &amp; Conservation should strictly increase price across consecutive buys and decrease across consecutive sells" time="0.718" classname="should strictly increase price across consecutive buys and decrease across consecutive sells">
     </testcase>
   </testsuite>
-  <testsuite name="11. EIP-2612 Permit Buy Gasless Verification" timestamp="2026-11-04T01:37:11" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.303" failures="0">
-    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 11. EIP-2612 Permit Buy Gasless Verification should execute buyWithPermit with valid signature in a single transaction" time="0.175" classname="should execute buyWithPermit with valid signature in a single transaction">
+  <testsuite name="11. EIP-2612 Permit Buy Gasless Verification" timestamp="2026-11-04T23:51:40" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinEdgeCases.test.ts" time="0.427" failures="0">
+    <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 11. EIP-2612 Permit Buy Gasless Verification should execute buyWithPermit with valid signature in a single transaction" time="0.298" classname="should execute buyWithPermit with valid signature in a single transaction">
     </testcase>
     <testcase name="CarbonCoin - Comprehensive Edge Cases &amp; Invariant Hardening 11. EIP-2612 Permit Buy Gasless Verification should revert buyWithPermit if permit deadline has passed" time="0.010" classname="should revert buyWithPermit if permit deadline has passed">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoinLauncher" timestamp="2026-11-04T01:37:12" tests="9" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinLauncher.test.ts" time="0.120" failures="0">
+  <testsuite name="CarbonCoinLauncher" timestamp="2026-11-04T23:51:40" tests="9" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinLauncher.test.ts" time="0.119" failures="0">
     <testcase name="CarbonCoinLauncher should deploy properly and expose view methods" time="0.004" classname="should deploy properly and expose view methods">
     </testcase>
     <testcase name="CarbonCoinLauncher should allow owner to update controller" time="0.005" classname="should allow owner to update controller">
     </testcase>
     <testcase name="CarbonCoinLauncher should reject unpausing by non-owner" time="0.003" classname="should reject unpausing by non-owner">
     </testcase>
-    <testcase name="CarbonCoinLauncher should reject pausing by non-owner" time="0.003" classname="should reject pausing by non-owner">
+    <testcase name="CarbonCoinLauncher should reject pausing by non-owner" time="0.004" classname="should reject pausing by non-owner">
     </testcase>
-    <testcase name="CarbonCoinLauncher should allow owner to withdraw accumulated fees" time="0.008" classname="should allow owner to withdraw accumulated fees">
+    <testcase name="CarbonCoinLauncher should allow owner to withdraw accumulated fees" time="0.007" classname="should allow owner to withdraw accumulated fees">
     </testcase>
     <testcase name="CarbonCoinLauncher should reject fee withdrawal from non-owner" time="0.003" classname="should reject fee withdrawal from non-owner">
     </testcase>
-    <testcase name="CarbonCoinLauncher should reject token creation if max tokens reached" time="0.027" classname="should reject token creation if max tokens reached">
+    <testcase name="CarbonCoinLauncher should reject token creation if max tokens reached" time="0.030" classname="should reject token creation if max tokens reached">
     </testcase>
-    <testcase name="CarbonCoinLauncher should allow owner to update max tokens" time="0.008" classname="should allow owner to update max tokens">
+    <testcase name="CarbonCoinLauncher should allow owner to update max tokens" time="0.007" classname="should allow owner to update max tokens">
     </testcase>
-    <testcase name="CarbonCoinLauncher should revert if invalid bonding curve parameters are provided" time="0.004" classname="should revert if invalid bonding curve parameters are provided">
+    <testcase name="CarbonCoinLauncher should revert if invalid bonding curve parameters are provided" time="0.002" classname="should revert if invalid bonding curve parameters are provided">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonCoinPaymaster" timestamp="2026-11-04T01:37:12" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinPaymaster.test.ts" time="0.030" failures="0">
-    <testcase name="CarbonCoinPaymaster should allow controller to update treasury" time="0.005" classname="should allow controller to update treasury">
+  <testsuite name="CarbonCoinPaymaster" timestamp="2026-11-04T23:51:40" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonCoinPaymaster.test.ts" time="0.031" failures="0">
+    <testcase name="CarbonCoinPaymaster should allow controller to update treasury" time="0.004" classname="should allow controller to update treasury">
     </testcase>
     <testcase name="CarbonCoinPaymaster should revert buy on behalf if not authorized" time="0.003" classname="should revert buy on behalf if not authorized">
     </testcase>
@@ -232,37 +232,37 @@
     <testcase name="CarbonCoinPaymaster should revert register whale intent if not authorized" time="0.003" classname="should revert register whale intent if not authorized">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonOpus - Song Locking, Reward Locking, and Reassignment" timestamp="2026-11-04T01:37:12" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.000" failures="0">
+  <testsuite name="CarbonOpus - Song Locking, Reward Locking, and Reassignment" timestamp="2026-11-04T23:51:40" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Song Initialization &amp; Creation" timestamp="2026-11-04T01:37:12" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.250" failures="0">
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Initialization &amp; Creation should allow controller to create a song with correct parameters" time="0.021" classname="should allow controller to create a song with correct parameters">
+  <testsuite name="Song Initialization &amp; Creation" timestamp="2026-11-04T23:51:40" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.247" failures="0">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Initialization &amp; Creation should allow controller to create a song with correct parameters" time="0.023" classname="should allow controller to create a song with correct parameters">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Initialization &amp; Creation should reject song creation if not authorized" time="0.007" classname="should reject song creation if not authorized">
-    </testcase>
-  </testsuite>
-  <testsuite name="Song Locking &amp; Purchasing Protections" timestamp="2026-11-04T01:37:12" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.677" failures="0">
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should allow purchasing an unlocked song" time="0.025" classname="should allow purchasing an unlocked song">
-    </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should lock and unlock a song and update status" time="0.020" classname="should lock and unlock a song and update status">
-    </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should revert single purchases if the song is locked" time="0.013" classname="should revert single purchases if the song is locked">
-    </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should revert batch purchases if any of the songs are locked" time="0.028" classname="should revert batch purchases if any of the songs are locked">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Initialization &amp; Creation should reject song creation if not authorized" time="0.005" classname="should reject song creation if not authorized">
     </testcase>
   </testsuite>
-  <testsuite name="Reward Tracking and Locking" timestamp="2026-11-04T01:37:13" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.311" failures="0">
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Reward Tracking and Locking should correctly track and accumulate rewards in the vault" time="0.027" classname="should correctly track and accumulate rewards in the vault">
+  <testsuite name="Song Locking &amp; Purchasing Protections" timestamp="2026-11-04T23:51:41" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.761" failures="0">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should allow purchasing an unlocked song" time="0.023" classname="should allow purchasing an unlocked song">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Reward Tracking and Locking should allow artist to claim their rewards from the vault" time="0.034" classname="should allow artist to claim their rewards from the vault">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should lock and unlock a song and update status" time="0.023" classname="should lock and unlock a song and update status">
     </testcase>
-  </testsuite>
-  <testsuite name="Song Reassignment" timestamp="2026-11-04T01:37:13" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.401" failures="0">
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Reassignment should reattribute song and future rewards to new member, but not unclaimed rewards" time="0.084" classname="should reattribute song and future rewards to new member, but not unclaimed rewards">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should revert single purchases if the song is locked" time="0.014" classname="should revert single purchases if the song is locked">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Reassignment should correctly update ownership lists (musicBalance) upon reassignment" time="0.030" classname="should correctly update ownership lists (musicBalance) upon reassignment">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Locking &amp; Purchasing Protections should revert batch purchases if any of the songs are locked" time="0.026" classname="should revert batch purchases if any of the songs are locked">
     </testcase>
   </testsuite>
-  <testsuite name="Security Boundaries &amp; Complex Edge Cases" timestamp="2026-11-04T01:37:13" tests="8" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="1.234" failures="0">
+  <testsuite name="Reward Tracking and Locking" timestamp="2026-11-04T23:51:41" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.302" failures="0">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Reward Tracking and Locking should correctly track and accumulate rewards in the vault" time="0.026" classname="should correctly track and accumulate rewards in the vault">
+    </testcase>
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Reward Tracking and Locking should allow artist to claim their rewards from the vault" time="0.035" classname="should allow artist to claim their rewards from the vault">
+    </testcase>
+  </testsuite>
+  <testsuite name="Song Reassignment" timestamp="2026-11-04T23:51:42" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.389" failures="0">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Reassignment should reattribute song and future rewards to new member, but not unclaimed rewards" time="0.079" classname="should reattribute song and future rewards to new member, but not unclaimed rewards">
+    </testcase>
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Song Reassignment should correctly update ownership lists (musicBalance) upon reassignment" time="0.032" classname="should correctly update ownership lists (musicBalance) upon reassignment">
+    </testcase>
+  </testsuite>
+  <testsuite name="Security Boundaries &amp; Complex Edge Cases" timestamp="2026-11-04T23:51:42" tests="8" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="1.217" failures="0">
     <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should reject unauthorized attempts to lock/unlock a song" time="0.004" classname="should reject unauthorized attempts to lock/unlock a song">
     </testcase>
     <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should reject unauthorized attempts to reassign a song" time="0.004" classname="should reject unauthorized attempts to reassign a song">
@@ -271,107 +271,107 @@
     </testcase>
     <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should revert if reassigning a non-existent song" time="0.005" classname="should revert if reassigning a non-existent song">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should handle self-reassignment gracefully and return early" time="0.012" classname="should handle self-reassignment gracefully and return early">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should handle self-reassignment gracefully and return early" time="0.013" classname="should handle self-reassignment gracefully and return early">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should succeed in reassigning even if the old artist has a zero NFT balance" time="0.033" classname="should succeed in reassigning even if the old artist has a zero NFT balance">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should succeed in reassigning even if the old artist has a zero NFT balance" time="0.037" classname="should succeed in reassigning even if the old artist has a zero NFT balance">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should allow referrers to claim their rewards" time="0.038" classname="should allow referrers to claim their rewards">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should allow referrers to claim their rewards" time="0.034" classname="should allow referrers to claim their rewards">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should allow the treasury to claim protocol fees" time="0.039" classname="should allow the treasury to claim protocol fees">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Security Boundaries &amp; Complex Edge Cases should allow the treasury to claim protocol fees" time="0.037" classname="should allow the treasury to claim protocol fees">
     </testcase>
   </testsuite>
-  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T01:37:15" tests="6" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.575" failures="0">
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw Ether" time="0.013" classname="should allow the owner to withdraw Ether">
+  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T23:51:43" tests="6" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpus.test.ts" time="0.562" failures="0">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw Ether" time="0.011" classname="should allow the owner to withdraw Ether">
     </testcase>
     <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw ERC20" time="0.016" classname="should allow the owner to withdraw ERC20">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw ERC721" time="0.005" classname="should allow the owner to withdraw ERC721">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw ERC721" time="0.006" classname="should allow the owner to withdraw ERC721">
     </testcase>
-    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw ERC1155" time="0.005" classname="should allow the owner to withdraw ERC1155">
+    <testcase name="CarbonOpus - Song Locking, Reward Locking, and Reassignment Missing Coverage Tests should allow the owner to withdraw ERC1155" time="0.006" classname="should allow the owner to withdraw ERC1155">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonOpus Refactor" timestamp="2026-11-04T01:37:15" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.000" failures="0">
+  <testsuite name="CarbonOpus Refactor" timestamp="2026-11-04T23:51:44" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Reward Distribution through Vault" timestamp="2026-11-04T01:37:15" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.870" failures="0">
-    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should correctly calculate and store rewards in the vault" time="0.029" classname="should correctly calculate and store rewards in the vault">
+  <testsuite name="Reward Distribution through Vault" timestamp="2026-11-04T23:51:44" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.715" failures="0">
+    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should correctly calculate and store rewards in the vault" time="0.027" classname="should correctly calculate and store rewards in the vault">
     </testcase>
-    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should allow artist to claim rewards from the vault" time="0.039" classname="should allow artist to claim rewards from the vault">
+    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should allow artist to claim rewards from the vault" time="0.032" classname="should allow artist to claim rewards from the vault">
     </testcase>
     <testcase name="CarbonOpus Refactor Reward Distribution through Vault should allow referrer to claim rewards from the vault" time="0.037" classname="should allow referrer to claim rewards from the vault">
     </testcase>
-    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should allow treasury to claim rewards from the vault" time="0.036" classname="should allow treasury to claim rewards from the vault">
+    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should allow treasury to claim rewards from the vault" time="0.037" classname="should allow treasury to claim rewards from the vault">
     </testcase>
-    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should not allow non-treasury to claim treasury rewards" time="0.025" classname="should not allow non-treasury to claim treasury rewards">
+    <testcase name="CarbonOpus Refactor Reward Distribution through Vault should not allow non-treasury to claim treasury rewards" time="0.024" classname="should not allow non-treasury to claim treasury rewards">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonOpus Contract Refactor Verification" timestamp="2026-11-04T01:37:16" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.204" failures="0">
+  <testsuite name="CarbonOpus Contract Refactor Verification" timestamp="2026-11-04T23:51:45" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusRefactor.test.ts" time="0.311" failures="0">
     <testcase name="CarbonOpus Refactor CarbonOpus Contract Refactor Verification should not have a rewards mapping" time="0.001" classname="should not have a rewards mapping">
     </testcase>
     <testcase name="CarbonOpus Refactor CarbonOpus Contract Refactor Verification should not have a claimRewards function" time="0.001" classname="should not have a claimRewards function">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonOpusVault" timestamp="2026-11-04T01:37:16" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.000" failures="0">
+  <testsuite name="CarbonOpusVault" timestamp="2026-11-04T23:51:45" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="collectPaymentFromOpus" timestamp="2026-11-04T01:37:16" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.041" failures="0">
+  <testsuite name="collectPaymentFromOpus" timestamp="2026-11-04T23:51:45" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.043" failures="0">
     <testcase name="CarbonOpusVault collectPaymentFromOpus should allow the opus contract to collect payment" time="0.009" classname="should allow the opus contract to collect payment">
     </testcase>
     <testcase name="CarbonOpusVault collectPaymentFromOpus should not allow any other address to collect payment" time="0.002" classname="should not allow any other address to collect payment">
     </testcase>
   </testsuite>
-  <testsuite name="claimTreasuryRewards" timestamp="2026-11-04T01:37:16" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.030" failures="0">
+  <testsuite name="claimTreasuryRewards" timestamp="2026-11-04T23:51:45" tests="2" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.028" failures="0">
     <testcase name="CarbonOpusVault claimTreasuryRewards should revert if there are no rewards to claim" time="0.003" classname="should revert if there are no rewards to claim">
     </testcase>
-    <testcase name="CarbonOpusVault claimTreasuryRewards should not allow any other address to claim rewards" time="0.002" classname="should not allow any other address to claim rewards">
+    <testcase name="CarbonOpusVault claimTreasuryRewards should not allow any other address to claim rewards" time="0.001" classname="should not allow any other address to claim rewards">
     </testcase>
   </testsuite>
-  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T01:37:16" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.076" failures="0">
+  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T23:51:45" tests="5" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonOpusVault.test.ts" time="0.076" failures="0">
     <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to withdraw Ether" time="0.008" classname="should allow the owner to withdraw Ether">
     </testcase>
     <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to withdraw ERC20" time="0.015" classname="should allow the owner to withdraw ERC20">
     </testcase>
     <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to withdraw ERC721" time="0.002" classname="should allow the owner to withdraw ERC721">
     </testcase>
-    <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to withdraw ERC1155" time="0.002" classname="should allow the owner to withdraw ERC1155">
+    <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to withdraw ERC1155" time="0.003" classname="should allow the owner to withdraw ERC1155">
     </testcase>
-    <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to update treasury" time="0.007" classname="should allow the owner to update treasury">
+    <testcase name="CarbonOpusVault Missing Coverage Tests should allow the owner to update treasury" time="0.008" classname="should allow the owner to update treasury">
     </testcase>
   </testsuite>
-  <testsuite name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8)" timestamp="2026-11-04T01:37:16" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.000" failures="0">
+  <testsuite name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8)" timestamp="2026-11-04T23:51:45" tests="0" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Purchase Allowance Authorization" timestamp="2026-11-04T01:37:16" tests="9" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.514" failures="0">
+  <testsuite name="Purchase Allowance Authorization" timestamp="2026-11-04T23:51:45" tests="9" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.511" failures="0">
     <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert if an attacker attempts to call purchase using another user&apos;s allowance" time="0.009" classname="should revert if an attacker attempts to call purchase using another user&apos;s allowance">
     </testcase>
     <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should succeed when user calls purchase for their own memberAddress" time="0.012" classname="should succeed when user calls purchase for their own memberAddress">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow purchaseWithPermit using a valid permit signature" time="0.019" classname="should allow purchaseWithPermit using a valid permit signature">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow purchaseWithPermit using a valid permit signature" time="0.018" classname="should allow purchaseWithPermit using a valid permit signature">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert purchaseWithPermit if permit signature is invalid" time="0.007" classname="should revert purchaseWithPermit if permit signature is invalid">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert purchaseWithPermit if permit signature is invalid" time="0.006" classname="should revert purchaseWithPermit if permit signature is invalid">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow owner to withdraw accumulated funds and reject non-owners" time="0.023" classname="should allow owner to withdraw accumulated funds and reject non-owners">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow owner to withdraw accumulated funds and reject non-owners" time="0.020" classname="should allow owner to withdraw accumulated funds and reject non-owners">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow owner to collect LP fee rewards" time="0.025" classname="should allow owner to collect LP fee rewards">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow owner to collect LP fee rewards" time="0.026" classname="should allow owner to collect LP fee rewards">
     </testcase>
     <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should allow owner to collect LP fee rewards with custom amount caps" time="0.023" classname="should allow owner to collect LP fee rewards with custom amount caps">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert collectLpRewards if called by non-owner" time="0.013" classname="should revert collectLpRewards if called by non-owner">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert collectLpRewards if called by non-owner" time="0.014" classname="should revert collectLpRewards if called by non-owner">
     </testcase>
     <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Purchase Allowance Authorization should revert collectLpRewards if invalid position manager is provided" time="0.004" classname="should revert collectLpRewards if invalid position manager is provided">
     </testcase>
   </testsuite>
-  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T01:37:17" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.360" failures="0">
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw Ether" time="0.009" classname="should allow the owner to withdraw Ether">
+  <testsuite name="Missing Coverage Tests" timestamp="2026-11-04T23:51:46" tests="4" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/CarbonTreasury.test.ts" time="0.196" failures="0">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw Ether" time="0.007" classname="should allow the owner to withdraw Ether">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw ERC20" time="0.017" classname="should allow the owner to withdraw ERC20">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw ERC20" time="0.014" classname="should allow the owner to withdraw ERC20">
     </testcase>
-    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw ERC721" time="0.003" classname="should allow the owner to withdraw ERC721">
+    <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw ERC721" time="0.004" classname="should allow the owner to withdraw ERC721">
     </testcase>
     <testcase name="CarbonTreasury - Purchase &amp; Allowance Protection (Issue #8) Missing Coverage Tests should allow the owner to withdraw ERC1155" time="0.003" classname="should allow the owner to withdraw ERC1155">
     </testcase>
   </testsuite>
-  <testsuite name="PermitAndTransfer" timestamp="2026-11-04T01:37:17" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/PermitAndTransfer.test.ts" time="0.032" failures="0">
-    <testcase name="PermitAndTransfer should allow owner to add and remove token" time="0.011" classname="should allow owner to add and remove token">
+  <testsuite name="PermitAndTransfer" timestamp="2026-11-04T23:51:46" tests="3" file="/Users/robsecord/workspace/Ethereum/CarbonOpus/carbon-coin/test/PermitAndTransfer.test.ts" time="0.030" failures="0">
+    <testcase name="PermitAndTransfer should allow owner to add and remove token" time="0.008" classname="should allow owner to add and remove token">
     </testcase>
-    <testcase name="PermitAndTransfer should revert addToken from non-owner" time="0.003" classname="should revert addToken from non-owner">
+    <testcase name="PermitAndTransfer should revert addToken from non-owner" time="0.002" classname="should revert addToken from non-owner">
     </testcase>
     <testcase name="PermitAndTransfer should revert permitAndTransfer with unwhitelisted token" time="0.004" classname="should revert permitAndTransfer with unwhitelisted token">
     </testcase>

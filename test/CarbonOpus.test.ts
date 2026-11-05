@@ -15,6 +15,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   let artistB: SignerWithAddress;
   let buyer: SignerWithAddress;
   let referrer: SignerWithAddress;
+  let user1: SignerWithAddress;
 
   const memberIdA = ethers.utils.formatBytes32String("artist_a_member_id");
   const memberIdB = ethers.utils.formatBytes32String("artist_b_member_id");
@@ -27,7 +28,7 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
   const referralPct = 500; // 5% (500 basis points)
 
   beforeEach(async () => {
-    [deployer, controller, artistA, artistB, buyer, referrer] = await ethers.getSigners();
+    [deployer, controller, artistA, artistB, buyer, referrer, user1] = await ethers.getSigners();
 
     // 1. Deploy mock USDC token
     const ERC20MintableFactory = await ethers.getContractFactory("ERC20Mintable");
@@ -52,7 +53,6 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
     const mintAmount = ethers.utils.parseUnits("1000", 6);
     await usdcToken.connect(deployer).mint(buyer.address, mintAmount);
     await usdcToken.connect(deployer).mint(controller.address, mintAmount);
-
 
     // 5. Approve CarbonOpusVault to spend buyer's USDC
     await usdcToken.connect(buyer).approve(carbonOpusVault.address, mintAmount);
@@ -467,18 +467,18 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
             carbonOpus.address,
             amount.toHexString().replace("0x0", "0x")
         ]);
-        
+
         const initialBalance = await ethers.provider.getBalance(deployer.address);
         await carbonOpus.connect(deployer).withdrawEther(deployer.address, amount);
         const finalBalance = await ethers.provider.getBalance(deployer.address);
         // We can't strictly assert the exact amount because deployer pays gas for the withdraw transaction.
-        expect(finalBalance.sub(initialBalance)).to.be.gt(0); 
+        expect(finalBalance.sub(initialBalance)).to.be.gt(0);
     });
 
     it("should allow the owner to withdraw ERC20", async () => {
         const amount = ethers.utils.parseUnits("10", 6);
         await usdcToken.mint(carbonOpus.address, amount);
-        
+
         const initialBalance = await usdcToken.balanceOf(deployer.address);
         await carbonOpus.connect(deployer).withdrawErc20(deployer.address, usdcToken.address, amount);
         const finalBalance = await usdcToken.balanceOf(deployer.address);
@@ -495,14 +495,14 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
             .to.be.reverted; // Reverts because USDC is not ERC1155, but covers the method.
     });
 
-    it.skip("should allow purchase with permit", async () => {
+    it("should allow purchase with permit", async () => {
         const permitAmount = ethers.utils.parseUnits("10", 6);
-        const nonce = await usdcToken.nonces(deployer.address);
+        const nonce = await usdcToken.nonces(user1.address);
         const deadline = ethers.constants.MaxUint256;
         const { chainId } = await ethers.provider.getNetwork();
 
         const domain = {
-            name: "USDC Mock",
+            name: "USDC",
             version: "1",
             chainId,
             verifyingContract: usdcToken.address,
@@ -519,42 +519,43 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         };
 
         const values = {
-            owner: deployer.address,
+            owner: user1.address,
             spender: carbonOpusVault.address,
             value: permitAmount,
             nonce,
             deadline,
         };
 
-        const signature = await deployer._signTypedData(domain, types, values);
+        const signature = await user1._signTypedData(domain, types, values);
         const { v, r, s } = ethers.utils.splitSignature(signature);
 
-        await carbonOpus.connect(deployer).createMusic(
-            ethers.utils.formatBytes32String("artist1"),
-            user1.address,
+        await carbonOpus.connect(controller).createMusic(
+            ethers.utils.formatBytes32String("artistA"),
+            artistA.address,
             permitAmount,
             500
         );
 
-        await usdcToken.mint(deployer.address, permitAmount);
+        await usdcToken.mint(user1.address, permitAmount);
+        await usdcToken.connect(user1).approve(carbonOpusVault.address, permitAmount);
 
-        await expect(carbonOpus.connect(deployer).purchaseMusicWithPermit(
-            ethers.utils.formatBytes32String("buyer1"),
-            deployer.address,
-            2,
+        await expect(carbonOpus.connect(controller).purchaseMusicWithPermit(
+            ethers.utils.formatBytes32String("user1"),
+            user1.address,
+            1,
             ethers.utils.formatBytes32String("referrer1"),
             deadline, v, r, s
         )).to.not.be.reverted;
     });
 
-    it.skip("should allow batch purchase with permit", async () => {
+    it("should allow batch purchase with permit", async () => {
         const permitAmount = ethers.utils.parseUnits("10", 6);
-        const nonce = await usdcToken.nonces(deployer.address);
+        const nonce = await usdcToken.nonces(user1.address);
         const deadline = ethers.constants.MaxUint256;
         const { chainId } = await ethers.provider.getNetwork();
 
         const domain = {
-            name: "USDC Mock",
+            name: "USDC",
             version: "1",
             chainId,
             verifyingContract: usdcToken.address,
@@ -571,22 +572,30 @@ describe("CarbonOpus - Song Locking, Reward Locking, and Reassignment", () => {
         };
 
         const values = {
-            owner: deployer.address,
+            owner: user1.address,
             spender: carbonOpusVault.address,
             value: permitAmount,
             nonce,
             deadline,
         };
 
-        const signature = await deployer._signTypedData(domain, types, values);
+        const signature = await user1._signTypedData(domain, types, values);
         const { v, r, s } = ethers.utils.splitSignature(signature);
 
-        await usdcToken.mint(deployer.address, permitAmount);
+        await carbonOpus.connect(controller).createMusic(
+            ethers.utils.formatBytes32String("artistA"),
+            artistA.address,
+            permitAmount,
+            500
+        );
 
-        await expect(carbonOpus.connect(deployer).purchaseBatchWithPermit(
-            ethers.utils.formatBytes32String("buyer2"),
-            deployer.address,
-            [2],
+        await usdcToken.mint(user1.address, permitAmount);
+        await usdcToken.connect(user1).approve(carbonOpusVault.address, permitAmount);
+
+        await expect(carbonOpus.connect(controller).purchaseBatchWithPermit(
+            ethers.utils.formatBytes32String("user1"),
+            user1.address,
+            [1],
             [ethers.utils.formatBytes32String("referrer1")],
             deadline, v, r, s
         )).to.not.be.reverted;

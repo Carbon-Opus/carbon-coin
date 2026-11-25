@@ -28,15 +28,15 @@ module.exports = async (hre) => {
   const tickUpper = BigInt(findNearestValidTick(60, false));
 
   // TESTNET
-  const useExistingTreasuryContract = isHardhat(network) ? '' : '';
-  const useExistingVaultContract = isHardhat(network) ? '' : '';
-  const useExistingOpusContract = isHardhat(network) ? '' : '';
-  const useExistingConfigContract = isHardhat(network) ? '' : '';
-  const useExistingDexContract = isHardhat(network) ? '' : '';
-  const useExistingProtectionContract = isHardhat(network) ? '' : '';
-  const useExistingLauncherContract = isHardhat(network) ? '' : '';
-  const useExistingPaymasterContract = isHardhat(network) ? '' : '';
-  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '';
+  const useExistingTreasuryContract = isHardhat(network) ? '' : '0x22C909d6dE664BF4266ECa3ebcA26516011eec6c';
+  const useExistingVaultContract = isHardhat(network) ? '' : '0x56821097337298C5919a9afF20cF3c42546faDE9';
+  const useExistingOpusContract = isHardhat(network) ? '' : '0x06E240d100c5e367a3129D23E4D8a8d61919f0E5';
+  const useExistingConfigContract = isHardhat(network) ? '' : '0x4e9Ec7FE35B445b227C6f2aaFf94Edc1eaAb883B';
+  const useExistingDexContract = isHardhat(network) ? '' : '0x3d4Df5Ac01a835112b9A4402803d9F4c87018189';
+  const useExistingProtectionContract = isHardhat(network) ? '' : '0xfc8bA95F2293b07f53751C73932E898C40E0040f';
+  const useExistingLauncherContract = isHardhat(network) ? '' : '0x3B36BdecE2074BC36ca372b1F0fc7E2CD87cAC5E';
+  const useExistingPaymasterContract = isHardhat(network) ? '' : '0x7859DcE15f6950CB8D4a4493DfeFB9BF0a946426';
+  const useExistingPermitAndTransferContract = isHardhat(network) ? '' : '0x996286fdb0ACdEa7A72d43Ef628185011588e9eF';
   const useExistingCarbonCoinContract = isHardhat(network) ? '' : '';
 
   const sampleCarbonCoinArgs = [
@@ -77,6 +77,14 @@ module.exports = async (hre) => {
       args: constructorArgs,
       log: true,
     });
+  }
+
+  // Get Deployed PermitAndTransfer
+  let permitAndTransfer;
+  if (useExistingTreasuryContract.length === 0) {
+    permitAndTransfer = await ethers.getContract('PermitAndTransfer');
+  } else {
+    permitAndTransfer = await ethers.getContractAt('PermitAndTransfer', useExistingPermitAndTransferContract);
   }
 
   //
@@ -305,6 +313,12 @@ module.exports = async (hre) => {
 
     log(`  Setting Launcher in CarbonCoinProtection: ${carbonCoinLauncher.address}`);
     await carbonCoinProtection.updateLauncher(carbonCoinLauncher.address).then(tx => tx.wait());
+  }
+
+  // Configure PermitAndTransfer
+  if (useExistingPermitAndTransferContract.length === 0) {
+    log(`  Setting USDC in PermitAndTransfer: ${usdcAddress}`);
+    await permitAndTransfer.addToken(usdcAddress).then(tx => tx.wait());
   }
 
   //

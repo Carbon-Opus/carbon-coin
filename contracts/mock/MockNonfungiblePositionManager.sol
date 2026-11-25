@@ -22,6 +22,11 @@ contract MockNonfungiblePositionManager is INonfungiblePositionManager {
     uint160 public lastSqrtPriceX96;
 
     uint24 public lastFee;
+    address public lastRecipient;
+
+    function setMintRecipient(address _recipient) external {
+        lastRecipient = _recipient;
+    }
 
     function createAndInitializePoolIfNecessary(address token0, address token1, uint24 fee, uint160 sqrtPriceX96)
         external
@@ -47,6 +52,7 @@ contract MockNonfungiblePositionManager is INonfungiblePositionManager {
             uint256 amount1
         )
     {
+        require(params.recipient == lastRecipient, "Recipient mismatch");
         require(params.token0 < params.token1, "token0 must be < token1");
         require(params.tickLower < params.tickUpper, "tickLower must be < tickUpper");
 

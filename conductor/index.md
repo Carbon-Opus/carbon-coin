@@ -7,8 +7,10 @@
 
 ## Workflow
 - [Workflow](./workflow.md)
-- [Code Style Guides](./code_styleguides/)
+- [Solidity Style Guide](./code_styleguides/solidity.md)
+- [TypeScript Style Guide](./code_styleguides/typescript.md)
 
 ## Management
 - [Tracks Registry](./tracks.md)
 - [Tracks Directory](./tracks/)
+- [Archived Tracks](./archive/)

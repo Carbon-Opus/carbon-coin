@@ -30,6 +30,7 @@ import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
 import {BlackholePrevention} from "./BlackholePrevention.sol";
 import {IPhoenixNFT} from "../interface/IPhoenixNFT.sol";
+import {IPhoenixTraits} from "../interface/IPhoenixTraits.sol";
 
 abstract contract PhoenixNftBase is
   Ownable,
@@ -43,13 +44,9 @@ abstract contract PhoenixNftBase is
   address internal _lastPhoenix;
   address internal _nextPhoenix;
   string internal _baseUri;
+  IPhoenixTraits internal phoenixTraits;
 
-  constructor(string memory name, string memory symbol, string memory baseUri)
-    Ownable(_msgSender())
-    ERC721(name, symbol)
-  {
-    _baseUri = baseUri;
-  }
+  constructor(string memory name, string memory symbol) Ownable(_msgSender()) ERC721(name, symbol) {}
 
   /***********************************|
   |            Only Owner             |
@@ -74,6 +71,13 @@ abstract contract PhoenixNftBase is
     */
   function setNextPhoenix(address phoenixNft) external onlyOwner {
     _nextPhoenix = phoenixNft;
+  }
+
+  /**
+    * @dev Set the Phoenix Traits Contract - Only Owner
+    */
+  function setPhoenixTraits(address traitsContract) external onlyOwner {
+    phoenixTraits = IPhoenixTraits(traitsContract);
   }
 
 
@@ -113,6 +117,11 @@ abstract contract PhoenixNftBase is
     tokenId = _tokenIdCounter;
     _safeMint(receiver, tokenId);
 
+    // Record Traits
+    if (address(phoenixTraits) != address(0)) {
+      phoenixTraits.setTraits(tokenId, customTraits);
+    }
+
     // Spawn Event
     emit PhoenixSpawned(receiver, tokenId, customTraits);
   }
@@ -120,11 +129,11 @@ abstract contract PhoenixNftBase is
   function _burnPhoenix(address tokenOwner, uint256 tokenId, uint256 newTraits) internal virtual {
     require(_nextPhoenix != address(0), "phoenix not ready");
 
-    // Burn old Phoenix
-    _burn(tokenId);
-
     // Spawn New Phoenix
     uint256 newTokenId = IPhoenixNFT(_nextPhoenix).spawnFromAshes(tokenOwner, newTraits);
+
+    // Burn old Phoenix
+    _burn(tokenId);
 
     // Burn Event
     emit PhoenixBurned(tokenOwner, tokenId, _nextPhoenix, newTokenId);

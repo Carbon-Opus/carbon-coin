@@ -53,10 +53,26 @@ contract PhoenixEggs is
   using Address for address payable;
 
   error SoulBoundToken();
+  error InvalidAddress();
+  error LiquidityAlreadyCreated();
+  error LiquidityNotCreated();
+  error DuplicateSigners();
+  error PhoenixNotSet();
+  error TeamBurnEnded();
+  error AlreadyStarted();
+  error SignerNotPhoenix();
+  error AlreadyBurned();
+  error MaxNftsReached();
+  error UsdcNotSet();
+  error NoPhxToClaim();
+  error TreasuryNotSet();
+  error DexNotSet();
+  error MintFailed();
+  error ApproveFailed();
 
   event PhoenixBurned(address indexed owner, uint256 newTokenId);
   event PhxClaimed(address indexed owner, uint256 totalPhx);
-  event LiquidityCreated(address indexed caller, uint256 amountToken, uint256 amountUSDC, uint256 liquidity);
+  event LiquidityCreated(address indexed caller, uint256 amountToken, uint256 amountUSDC, uint256 liquidity, uint256 lpTokenId);
 
   struct Signature {
     uint8 v;
@@ -114,21 +130,16 @@ contract PhoenixEggs is
     * @dev See {IERC721-balanceOf}.
     */
   function balanceOf(address account) public view override returns (uint256) {
-    require(account != address(0), "invalid address");
+    if (account == address(0)) revert InvalidAddress();
     return _burned[account] ? 0 : 1;
   }
 
   /**
     * @dev See {IERC721-ownerOf}.
     */
-  function ownerOf(uint256 tokenId) public view override returns (address) {
-    if (tokenId > 2**160) { return address(0); }
-    address account = address(uint160(tokenId));
-    if (_burned[account]) { return address(0); }
-    return account;
-  }
 
   function tokenOf(address account) public view returns (uint256) {
+    if (account == address(0)) revert InvalidAddress();
     if (_burned[account]) { return 0; }
     return uint256(uint160(account));
   }
@@ -139,7 +150,7 @@ contract PhoenixEggs is
   }
 
   function isMaxReached() public view returns (bool) {
-    return _maxNfts > 0 && phoenixNft.totalSupply() == _maxNfts;
+    return _maxNfts > 0 && phoenixNft.totalSupply() >= _maxNfts;
   }
 
   function isEggBurned(uint256 tokenId) external view returns (bool) {
@@ -193,7 +204,10 @@ contract PhoenixEggs is
     uint256 totalUSDC = IERC20(usdcToken).balanceOf(address(this));
     uint256 poolUSDC = (totalUSDC * POOL_USDC_BP) / BASIS_POINTS;
     uint256 accPHX = _getAccumulatedPHX();
-    return accPHX > 0 ? poolUSDC / accPHX : 0;
+    // To calculate the price of 1 PHX (18 decimals) in USDC (6 decimals),
+    // we need to normalize the decimals. We multiply poolUSDC by 1e18
+    // before dividing by accPHX. The result will be in USDC's decimal format (1e6).
+    return accPHX > 0 ? (poolUSDC * 1e18) / accPHX : 0;
   }
 
   function getLiquidityCreationTimestamp() external view returns (uint256) {
@@ -210,6 +224,8 @@ contract PhoenixEggs is
     Signature memory sig2,
     Signature memory sig3
   ) external nonReentrant {
+    if (_liquidityCreatedTimestamp != 0) revert LiquidityAlreadyCreated();
+
     address payable account = payable(_msgSender());
     uint256 tokenId = tokenOf(account);
 
@@ -217,7 +233,7 @@ contract PhoenixEggs is
     address signer1 = _validateSig(tokenId, deadline, sig1);
     address signer2 = _validateSig(tokenId, deadline, sig2);
     address signer3 = _validateSig(tokenId, deadline, sig3);
-    require(signer1 != signer2 && signer1 != signer3 && signer2 != signer3, "duplicate signers");
+    if (signer1 == signer2 || signer1 == signer3 || signer2 == signer3) revert DuplicateSigners();
 
     // Reward Owner
     _ownerPhxEarnings[account] += PHX_PER_BURN;
@@ -261,8 +277,8 @@ contract PhoenixEggs is
     * @dev First Dozen Eggs is Team Pre-mint in order to Kick-Start Voting - Only Owner
     */
   function teamBurn(address payable account) external onlyOwner {
-    require(address(phoenixNft) != address(0), "no phoenix");
-    require(phoenixNft.totalSupply() < _maxTeamEggs, "team-burn ended");
+    if (address(phoenixNft) == address(0)) revert PhoenixNotSet();
+    if (phoenixNft.totalSupply() >= _maxTeamEggs) revert TeamBurnEnded();
 
     // Reward Owner
     _ownerPhxEarnings[account] += PHX_PER_BURN;
@@ -294,7 +310,7 @@ contract PhoenixEggs is
     * @dev Set the Max Amount of NFTs that can be Minted - Only Owner
     */
   function setMaxNfts(uint256 maxNfts) external onlyOwner {
-    require(address(phoenixNft) != address(0), "no phoenix");
+    if (address(phoenixNft) == address(0)) revert PhoenixNotSet();
     _maxNfts = maxNfts;
   }
 
@@ -309,8 +325,8 @@ contract PhoenixEggs is
     * @dev Set Phoenix NFT Contract - Only Owner
     */
   function setPhoenixNFT(address _phoenixNft) external onlyOwner {
-    if (address(phoenixNft) != address(0)) {
-      require(phoenixNft.totalSupply() == 0, "already started");
+    if (address(phoenixNft) != address(0) && phoenixNft.totalSupply() > 0) {
+      revert AlreadyStarted();
     }
     phoenixNft = IPhoenixNFT(_phoenixNft);
   }
@@ -353,8 +369,9 @@ contract PhoenixEggs is
   }
 
   function _getAccumulatedPHX() internal view returns (uint256 totalPhx) {
-    uint256 normalBurns = phoenixNft.totalSupply() - _totalTeamBurns;
-    uint256 fromBurns = (PHX_PER_BURN * phoenixNft.totalSupply()) + (PHX_PER_VOTE * 3 * normalBurns);
+    uint256 totalSupply = phoenixNft.totalSupply();
+    uint256 normalBurns = totalSupply - _totalTeamBurns;
+    uint256 fromBurns = (PHX_PER_BURN * totalSupply) + (PHX_PER_VOTE * 3 * normalBurns);
     uint256 fromReferrals = PHX_PER_REFERRAL * _totalReferrals;
     totalPhx = (fromBurns + fromReferrals) * 1e18;
   }
@@ -364,7 +381,7 @@ contract PhoenixEggs is
     */
   function _validateSig(uint256 tokenId, uint256 deadline, Signature memory sig) internal view returns (address) {
     address signer = recoverSigner(tokenId, deadline, sig.v, sig.r, sig.s);
-    require(phoenixNft.balanceOf(signer) > 0, "Signer is not a Phoenix");
+    if (phoenixNft.balanceOf(signer) == 0) revert SignerNotPhoenix();
     return signer;
   }
 
@@ -377,6 +394,16 @@ contract PhoenixEggs is
   }
 
   /**
+    * @dev Satisfies "_requireOwned" from {IERC721-tokenURI}.
+    */
+  function _ownerOf(uint256 tokenId) internal view override returns (address) {
+    if (tokenId > 2**160) { return address(0); }
+    address account = address(uint160(tokenId));
+    if (_burned[account]) { return address(0); }
+    return account;
+  }
+
+  /**
     * @dev Burn the Phoenix Egg to Release the Phoenix
     */
   function _burnEgg(
@@ -384,11 +411,11 @@ contract PhoenixEggs is
     uint256 tokenId,
     bool isTeamBurn
   ) internal {
-    require(address(phoenixNft) != address(0), "no phoenix");
-    require(!_burned[account], "already burned");
-    require(phoenixNft.totalSupply() != _maxNfts, "end reached");
-    require(_liquidityCreatedTimestamp == 0, "liquidity event started");
-    require(usdcToken != address(0), "no usdc");
+    if (address(phoenixNft) == address(0)) revert PhoenixNotSet();
+    if (_burned[account]) revert AlreadyBurned();
+    if (phoenixNft.totalSupply() == _maxNfts) revert MaxNftsReached();
+    if (_liquidityCreatedTimestamp != 0) revert LiquidityAlreadyCreated();
+    if (usdcToken == address(0)) revert UsdcNotSet();
 
     if (!isTeamBurn) {
       IERC20(usdcToken).safeTransferFrom(account, address(this), _price);
@@ -404,10 +431,10 @@ contract PhoenixEggs is
   }
 
   function _claimPhx(address account) internal {
-    require(_liquidityCreatedTimestamp > 0, "insufficient liquidity");
+    if (_liquidityCreatedTimestamp == 0) revert LiquidityNotCreated();
 
     uint256 totalPhx = _getOwnerTotalPHX(account);
-    require(totalPhx > 0, "no PHX to claim");
+    if (totalPhx == 0) revert NoPhxToClaim();
 
     // Clear Earnings for Owner
     _ownerPhxEarnings[account] = 0;
@@ -424,10 +451,10 @@ contract PhoenixEggs is
     * Note: Can only be called after Max-NFTs are Burned or Expiry Time reached
     */
   function _createLiquidity() internal {
-    require(phoenixTreasury != address(0), "no treasury");
-    require(address(phoenixDex) != address(0), "no dex");
-    require(usdcToken != address(0), "no usdc");
-    require(_liquidityCreatedTimestamp == 0, "already created");
+    if (phoenixTreasury == address(0)) revert TreasuryNotSet();
+    if (address(phoenixDex) == address(0)) revert DexNotSet();
+    if (usdcToken == address(0)) revert UsdcNotSet();
+    if (_liquidityCreatedTimestamp != 0) revert LiquidityAlreadyCreated();
 
     // All USDC from NFT Minting
     uint256 totalUSDC = IERC20(usdcToken).balanceOf(address(this));
@@ -447,15 +474,16 @@ contract PhoenixEggs is
 
     // Mint PHX to this contract (half goes to Dex Pool, half remains claimable by NFT Holders)
     PhoenixToken(phoenixToken).mintAll(totalSupply);
-    require(PhoenixToken(phoenixToken).balanceOf(address(this)) == totalSupply, "mint failed");
+    if (PhoenixToken(phoenixToken).balanceOf(address(this)) != totalSupply) revert MintFailed();
 
     // Approve PhoenixDex to spend USDC and PHX
-    require(IERC20(phoenixToken).approve(address(phoenixDex), accumulatedPHX), "PHX approve failed");
-    require(IERC20(usdcToken).approve(address(phoenixDex), poolUSDC), "USDC approve failed");
+    if (!IERC20(phoenixToken).approve(address(phoenixDex), accumulatedPHX)) revert ApproveFailed();
+    if (!IERC20(usdcToken).approve(address(phoenixDex), poolUSDC)) revert ApproveFailed();
 
     // Create Liquidity using PhoenixDex
-    (uint256 amountToken, uint256 amountUSDC, uint256 liquidityTokens) = phoenixDex.deployLiquidity(
+    (uint256 amountToken, uint256 amountUSDC, uint256 liquidityTokens, uint256 lpTokenId) = phoenixDex.deployLiquidity(
       phoenixTreasury, // LP Tokens Receiver
+      phoenixToken,
       accumulatedPHX,
       poolUSDC
     );
@@ -469,6 +497,6 @@ contract PhoenixEggs is
     }
 
     // Emit Liquidity Event
-    emit LiquidityCreated(_msgSender(), amountToken, amountUSDC, liquidityTokens);
+    emit LiquidityCreated(_msgSender(), amountToken, amountUSDC, liquidityTokens, lpTokenId);
   }
 }

@@ -26,7 +26,7 @@ pragma solidity 0.8.28;
 
 interface ICarbonTreasury {
     error Unauthorized();
-    event PurchaseCompleted(bytes32 indexed memberId, address indexed memberAddress, bytes32 orderId, bytes32 orderType, uint256 price);
+    event PurchaseCompleted(bytes32 indexed memberId, address indexed memberAddress, bytes32 orderType, uint256 price);
     event Withdrawn(address indexed caller, address indexed to, uint256 amount, uint256 timestamp);
     event RewardsClaimed(address indexed vaultAddress, uint256 timestamp);
     event LpRewardsCollected(
@@ -37,8 +37,8 @@ interface ICarbonTreasury {
         uint256 timestamp
     );
 
-    function purchase(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price) external;
-    function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function purchase(bytes32 memberId, address memberAddress, bytes32 orderType, uint256 price) external;
+    function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function claimRewards(address vaultAddress) external;
     function withdraw(address to, uint256 amount) external;
     function collectLpRewards(address positionManager, uint256 tokenId) external returns (uint256 amount0, uint256 amount1);

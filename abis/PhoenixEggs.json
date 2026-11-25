@@ -6,6 +6,31 @@
   },
   {
     "inputs": [],
+    "name": "AlreadyBurned",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyStarted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ApproveFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DexNotSet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DuplicateSigners",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ECDSAInvalidSignature",
     "type": "error"
   },
@@ -136,7 +161,37 @@
   },
   {
     "inputs": [],
+    "name": "InvalidAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidShortString",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LiquidityAlreadyCreated",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LiquidityNotCreated",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MaxNftsReached",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MintFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoPhxToClaim",
     "type": "error"
   },
   {
@@ -163,6 +218,11 @@
   },
   {
     "inputs": [],
+    "name": "PhoenixNotSet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
     "type": "error"
   },
@@ -179,6 +239,11 @@
   },
   {
     "inputs": [],
+    "name": "SignerNotPhoenix",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "SoulBoundToken",
     "type": "error"
   },
@@ -191,6 +256,21 @@
       }
     ],
     "name": "StringTooLong",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TeamBurnEnded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TreasuryNotSet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UsdcNotSet",
     "type": "error"
   },
   {
@@ -274,6 +354,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "liquidity",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenId",
         "type": "uint256"
       }
     ],

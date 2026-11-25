@@ -42,7 +42,6 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
         carbonTreasury.connect(attacker).purchase(
           memberId,
           user.address,
-          orderId,
           orderType,
           price
         )
@@ -58,12 +57,11 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
         carbonTreasury.connect(user).purchase(
           memberId,
           user.address,
-          orderId,
           orderType,
           price
         )
       ).to.emit(carbonTreasury, "PurchaseCompleted")
-        .withArgs(memberId, user.address, orderId, orderType, price);
+        .withArgs(memberId, user.address, orderType, price);
 
       // Verify payment was collected
       expect(await usdcToken.balanceOf(carbonTreasury.address)).to.equal(price);
@@ -109,7 +107,6 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
         carbonTreasury.connect(attacker).purchaseWithPermit(
           memberId,
           user.address,
-          orderId,
           orderType,
           permitAmount,
           deadline,
@@ -118,7 +115,7 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
           s
         )
       ).to.emit(carbonTreasury, "PurchaseCompleted")
-        .withArgs(memberId, user.address, orderId, orderType, permitAmount);
+        .withArgs(memberId, user.address, orderType, permitAmount);
 
       expect(await usdcToken.balanceOf(carbonTreasury.address)).to.equal(permitAmount);
     });
@@ -134,7 +131,6 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
         carbonTreasury.connect(attacker).purchaseWithPermit(
           memberId,
           user.address,
-          orderId,
           orderType,
           permitAmount,
           deadline,
@@ -150,7 +146,6 @@ describe("CarbonTreasury - Purchase & Allowance Protection (Issue #8)", () => {
       await carbonTreasury.connect(user).purchase(
         memberId,
         user.address,
-        orderId,
         orderType,
         price
       );

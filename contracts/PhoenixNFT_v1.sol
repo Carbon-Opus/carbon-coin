@@ -24,17 +24,16 @@
 pragma solidity ^0.8.28;
 
 import {PhoenixNftBase} from "./lib/PhoenixNftBase.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @custom:security-contact info@charged.fi
-contract PhoenixNFT_v1 is PhoenixNftBase {
+contract PhoenixNFT_v1 is PhoenixNftBase, ReentrancyGuard {
 
-  // In V1, this is actually the Initial Payment Amount in ETH
-  mapping (uint256 => uint256) internal _customTraits;
-
-  constructor() PhoenixNftBase("PhoenixNFT_v1", "PHX_V1", "https://us-central1-phoenix-guild-nft.cloudfunctions.net/api/nftmeta_v1/") {}
+  constructor() PhoenixNftBase("PhoenixNFT_v1", "PHX_V1") {}
 
   function getCustomTraits(uint256 tokenId) external view override returns (uint256) {
-    return _customTraits[tokenId];
+    if (address(phoenixTraits) == address(0)) { return 0; }
+    return phoenixTraits.getTraits(tokenId);
   }
 
   function spawnFromAshes(
@@ -46,21 +45,7 @@ contract PhoenixNFT_v1 is PhoenixNftBase {
     onlyLastPhoenix(_msgSender())
     returns (uint256 tokenId)
   {
-    // Spawn New Phoenix!
+    // A new Phoenix is born from the ashes of a previous version.
     tokenId = _spawnPhoenix(receiver, customTraits);
-
-    // Tracking for Metadata
-    _customTraits[tokenId] = customTraits;
-  }
-
-  function burn(uint256 tokenId) external override {
-    address tokenOwner = ownerOf(tokenId);
-    require(_msgSender() == tokenOwner, "must be token owner");
-
-    // TODO: Determine New Unique Traits
-    uint256 traits = _customTraits[tokenId];
-
-    // Burn the Phoenix!  Release a New Magical Beast!
-    _burnPhoenix(tokenOwner, tokenId, traits);
   }
 }

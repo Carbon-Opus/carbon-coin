@@ -148,12 +148,6 @@
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "orderId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
         "name": "orderType",
         "type": "bytes32"
       },
@@ -459,11 +453,6 @@
       },
       {
         "internalType": "bytes32",
-        "name": "orderId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
         "name": "orderType",
         "type": "bytes32"
       },
@@ -489,11 +478,6 @@
         "internalType": "address",
         "name": "memberAddress",
         "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "orderId",
-        "type": "bytes32"
       },
       {
         "internalType": "bytes32",

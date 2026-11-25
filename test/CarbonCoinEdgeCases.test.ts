@@ -373,6 +373,7 @@ describe("CarbonCoin - Comprehensive Edge Cases & Invariant Hardening", () => {
       // Buy to trigger graduation
       const buyAmount = ethers.utils.parseUnits("110", 6);
       await mockUsdc.connect(trader1).approve(gradCoin.address, buyAmount);
+      await mockPositionManager.setMintRecipient(deployer.address);
       await gradCoin.connect(trader1).buy(buyAmount, 0);
 
       expect(await gradCoin.hasGraduated()).to.be.true;
@@ -433,6 +434,7 @@ describe("CarbonCoin - Comprehensive Edge Cases & Invariant Hardening", () => {
       // Buy to trigger graduation
       const buyAmount = ethers.utils.parseUnits("110", 6);
       await mockUsdc.connect(trader1).approve(graduatedCoin.address, buyAmount);
+      await mockPositionManager.setMintRecipient(deployer.address);
       await graduatedCoin.connect(trader1).buy(buyAmount, 0);
       expect(await graduatedCoin.hasGraduated()).to.be.true;
     });

@@ -84,6 +84,12 @@ const config: HardhatUserConfig = {
     user3: {
       default: 4,
     },
+    user4: {
+      default: 5,
+    },
+    referrer: {
+      default: 6,
+    },
   },
   paths: {
     sources: './contracts',
@@ -113,24 +119,6 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
-    somniaMainnet: {
-      chainId: 5031,
-      url: "https://api.infra.mainnet.somnia.network",
-      accounts: {
-        mnemonic: mnemonic.mainnet,
-        initialIndex: 0,
-        count: 10,
-      },
-    },
-    somniaTestnet: {
-      chainId: 50312,
-      url: "https://dream-rpc.somnia.network",
-      accounts: {
-        mnemonic: mnemonic.testnet,
-        initialIndex: 0,
-        count: 10,
-      },
-    },
     baseSepolia: {
       chainId: 84532,
       url: "https://sepolia.base.org",
@@ -154,22 +142,6 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: "proapi_eEVhAPagn8KzTejIUiBeOfl38vsp7GPENA1oQclGBP72TH2OxueUqyMfxSwwkMtGa_9BMWy",
     customChains: [
-      {
-        network: "somniaMainnet",
-        chainId: 5031,
-        urls: {
-          apiURL: "https://api.infra.mainnet.somnia.network",
-          browserURL: "https://explorer.somnia.network",
-        },
-      },
-      {
-        network: "somniaTestnet",
-        chainId: 50312,
-        urls: {
-          apiURL: "https://shannon-explorer.somnia.network/api",
-          browserURL: "https://shannon-explorer.somnia.network",
-        },
-      },
       {
         network: "baseSepolia",
         chainId: 84532,

@@ -56,15 +56,15 @@ contract CarbonTreasury is ICarbonTreasury, IERC721Receiver, Ownable, Reentrancy
     return this.onERC721Received.selector;
   }
 
-  function purchase(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price) external nonReentrant {
+  function purchase(bytes32 memberId, address memberAddress, bytes32 orderType, uint256 price) external nonReentrant {
     if (msg.sender != memberAddress) revert Unauthorized();
     usdcToken.safeTransferFrom(memberAddress, address(this), price);
-    emit PurchaseCompleted(memberId, memberAddress, orderId, orderType, price);
+    emit PurchaseCompleted(memberId, memberAddress, orderType, price);
   }
 
-  function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderId, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
+  function purchaseWithPermit(bytes32 memberId, address memberAddress, bytes32 orderType, uint256 price, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
     _collectPaymentWithPermit(memberAddress, price, deadline, v, r, s);
-    emit PurchaseCompleted(memberId, memberAddress, orderId, orderType, price);
+    emit PurchaseCompleted(memberId, memberAddress, orderType, price);
   }
 
   function claimRewards(address vaultAddress) external onlyOwner {

@@ -1,96 +1,33 @@
 // SPDX-License-Identifier: MIT
-
-// PhoenixNFT_v1.sol
-// Copyright (c) 2026 Firma Lux Labs, Inc.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 pragma solidity ^0.8.28;
 
-import {ERC721, ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-
-import {BlackholePrevention} from "./lib/BlackholePrevention.sol";
 import {IPhoenixTraits} from "./interface/IPhoenixTraits.sol";
 
-/// @custom:security-contact info@charged.fi
-contract PhoenixTraits is
-  IPhoenixTraits,
-  Ownable,
-  ERC721Enumerable,
-  BlackholePrevention
-{
-  using Strings for uint256;
+contract PhoenixTraits is IPhoenixTraits, Ownable {
+    mapping(uint256 => uint256) private _traits;
+    mapping(address => bool) private _managers;
 
-  string internal _baseUri;
-  mapping (uint256 => uint256) internal _traitBits;
+    constructor() Ownable(_msgSender()) {}
 
-  constructor()
-    Ownable(_msgSender())
-    ERC721("Phoenix Traits", "PHXT")
-  {}
+    function getTraits(uint256 tokenId) external view override returns (uint256) {
+        return _traits[tokenId];
+    }
 
-  function getTraits(uint256 tokenId) external view override returns (uint256) {
-    return _traitBits[tokenId];
-  }
+    function setTraits(uint256 tokenId, uint256 traits) external override onlyManager {
+        _traits[tokenId] = traits;
+    }
 
+    function addManager(address manager) external onlyOwner {
+        _managers[manager] = true;
+    }
 
-  /***********************************|
-  |            Only Owner             |
-  |__________________________________*/
+    function removeManager(address manager) external onlyOwner {
+        _managers[manager] = false;
+    }
 
-  /**
-    * @dev Set Base URI for Metadata - Only Owner
-    */
-  function setBaseURI(string memory newBase) external onlyOwner {
-    _baseUri = newBase;
-  }
-
-
-  /***********************************|
-  |          Only Admin/DAO           |
-  |      (blackhole prevention)       |
-  |__________________________________*/
-
-  function withdrawEther(address payable receiver, uint256 amount) external onlyOwner {
-    _withdrawEther(receiver, amount);
-  }
-
-  function withdrawErc20(address payable receiver, address tokenAddress, uint256 amount) external onlyOwner {
-    _withdrawERC20(receiver, tokenAddress, amount);
-  }
-
-  function withdrawERC721(address payable receiver, address tokenAddress, uint256 tokenId) external onlyOwner {
-    _withdrawERC721(receiver, tokenAddress, tokenId);
-  }
-
-  function withdrawERC1155(address payable receiver, address tokenAddress, uint256 tokenId, uint256 amount) external onlyOwner {
-    _withdrawERC1155(receiver, tokenAddress, tokenId, amount);
-  }
-
-
-  /***********************************|
-  |        Private Functions          |
-  |__________________________________*/
-
-  function _baseURI() internal view virtual override returns (string memory) {
-    return _baseUri;
-  }
+    modifier onlyManager() {
+        require(_managers[msg.sender], "Only manager can set traits");
+        _;
+    }
 }

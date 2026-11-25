@@ -23,107 +23,201 @@
 //
 
 pragma solidity 0.8.28;
+pragma abicoder v2;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { IPhoenixDex } from "./interface/IPhoenixDex.sol";
-import { ISomniaExchangeRouter02 } from "./interface/ISomniaExchangeRouter02.sol";
-import { ISomniaExchangeFactory } from "./interface/ISomniaExchangeFactory.sol";
-import { ISomniaExchangePair } from "./interface/ISomniaExchangePair.sol";
 
-contract PhoenixDex is IPhoenixDex, ReentrancyGuard, Ownable {
-    IERC20 public immutable USDC;
-    IERC20 public immutable PHX;
-    address public immutable phoenixEggs;
-    ISomniaExchangeRouter02 public dexRouter;
-    address public pair;
-    ISomniaExchangeFactory public factory;
+import { INonfungiblePositionManager } from "./interface/INonfungiblePositionManager.sol";
 
-    /**
-     * @notice Constructor for the PhoenixDex contract.
-     * @param _usdc The address of the USDC token contract.
-     * @param _router The address of the Somnia Exchange V2 router.
-     */
-    constructor(
-        address _usdc,
-        address _phx,
-        address _eggs,
-        address _router
-    ) Ownable(_msgSender()) ReentrancyGuard() {
-        require(_usdc != address(0), "Invalid USDC address");
-        require(_phx != address(0), "Invalid PHX address");
-        require(_eggs != address(0), "Invalid Eggs address");
-        require(_router != address(0), "Invalid router");
 
-        USDC = IERC20(_usdc);
-        PHX = IERC20(_phx);
-        phoenixEggs = _eggs;
-        dexRouter = ISomniaExchangeRouter02(_router);
-        factory = ISomniaExchangeFactory(dexRouter.factory());
-        pair = factory.getPair(address(USDC), address(PHX));
+contract PhoenixDex is IPhoenixDex, ReentrancyGuard, Ownable, Pausable {
+  // USDC token integration
+  IERC20 public immutable USDC;
+
+  INonfungiblePositionManager public dexRouter;
+  int24 internal immutable tickLower;
+  int24 internal immutable tickUpper;
+  uint24 public poolFee;
+
+  /**
+   * @notice Constructor for the PhoenixDex contract.
+   * @param _usdc The address of the USDC token contract.
+   * @param _router The address of the Uniswap V3 router.
+   */
+  constructor(
+    address _usdc,
+    address _router,
+    int24 _tickLower,
+    int24 _tickUpper
+  ) Ownable(msg.sender) ReentrancyGuard() {
+    // Validate inputs
+    require(_usdc != address(0), "Invalid USDC address");
+    require(_router != address(0), "Invalid router");
+
+    USDC = IERC20(_usdc);
+    dexRouter = INonfungiblePositionManager(_router);
+    tickLower = _tickLower;
+    tickUpper = _tickUpper;
+    poolFee = 100; // Default to 0.01% fee tier
+  }
+
+  /**
+   * @notice Deploy Liquidity to Somnia Exchange with USDC/Token pair.
+   * @dev Creates a USDC/Token liquidity pool.
+   */
+  function deployLiquidity(address recipient, address token, uint256 tokensAmount, uint256 usdcAmount)
+    external nonReentrant whenNotPaused
+    returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId)
+  {
+    uint256 size;
+    assembly {
+      size := extcodesize(token)
+    }
+    require(size > 0, "Token must be a contract");
+    require(token != address(USDC), "Token cannot be USDC");
+
+    address lpRecipient = recipient;
+    if (lpRecipient == address(0)) {
+      lpRecipient = owner();
     }
 
-    /**
-     * @notice Deploy Liquidity to Somnia Exchange with USDC/Token pair.
-     * @dev Creates a USDC/Token liquidity pool.
-     */
-    function deployLiquidity(address creator, uint256 phxAmount, uint256 usdcAmount)
-        external
-        onlyAuthorized
-        nonReentrant
-        returns (uint256 amountA, uint256 amountB, uint256 liquidity)
-    {
-        require(PHX.transferFrom(_msgSender(), address(this), phxAmount), "PHX transfer failed");
-        require(USDC.transferFrom(_msgSender(), address(this), usdcAmount), "USDC transfer failed");
+    // Transfer tokens and USDC from the caller to this contract
+    require(IERC20(token).transferFrom(msg.sender, address(this), tokensAmount), "Token transfer failed");
+    require(USDC.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
 
-        require(PHX.approve(address(dexRouter), phxAmount), "PHX approve failed");
-        require(USDC.approve(address(dexRouter), usdcAmount), "USDC approve failed");
+    // Sort tokens to satisfy token0 < token1 required by concentrated liquidity AMMs
+    bool isUsdc0 = address(USDC) < token;
+    address token0 = isUsdc0 ? address(USDC) : token;
+    address token1 = isUsdc0 ? token : address(USDC);
 
-        (amountA, amountB, liquidity) = dexRouter.addLiquidity(
-            address(USDC),
-            address(PHX),
-            usdcAmount,
-            phxAmount,
-            (usdcAmount * 95) / 100, // 5% slippage
-            (phxAmount * 95) / 100, // 5% slippage
-            address(0x0),
-            block.timestamp
-        );
+    uint256 amount0Desired = isUsdc0 ? usdcAmount : tokensAmount;
+    uint256 amount1Desired = isUsdc0 ? tokensAmount : usdcAmount;
 
-        emit LiquidityDeployed(creator, pair, amountA, amountB, liquidity, block.timestamp);
+    uint256 amount0Min = (amount0Desired * 95) / 100; // 5% slippage tolerance
+    uint256 amount1Min = (amount1Desired * 95) / 100;
+
+    // Fetch pool specific tick spacing matching the current poolFee configuration
+    int24 spacing = _getTickSpacing(poolFee);
+
+    // Compute and align ticks accurately to the pool's tick spacing framework
+    int24 rawLower = isUsdc0 ? tickLower : -tickUpper;
+    int24 rawUpper = isUsdc0 ? tickUpper : -tickLower;
+
+    int24 positionTickLower = _roundToTickSpacing(rawLower, spacing);
+    int24 positionTickUpper = _roundToTickSpacing(rawUpper, spacing);
+
+    // Strictly safeguard tick boundary orientation ordering rules
+    if (positionTickLower > positionTickUpper) {
+        (positionTickLower, positionTickUpper) = (positionTickUpper, positionTickLower);
+    } else if (positionTickLower == positionTickUpper) {
+        // Edge fallback: Prevent a zero-width range assignment error
+        positionTickUpper += spacing;
     }
 
-    function removeLiquidity(address to, uint256 liquidity)
-        external
-        onlyAuthorized
-        nonReentrant
-        returns (uint256 amountA, uint256 amountB)
-    {
-        require(to != address(0), "Invalid address");
-        require(liquidity > 0, "Liquidity must be greater than 0");
+    // Approve router to spend tokens and USDC
+    require(IERC20(token).approve(address(dexRouter), tokensAmount), "Token approve failed");
+    require(USDC.approve(address(dexRouter), usdcAmount), "USDC approve failed");
 
-        require(ISomniaExchangePair(pair).approve(address(dexRouter), liquidity), "LP approve failed");
+    // Initialize pool with absolute high-precision scaling formula (scales by 2^192 first)
+    uint256 ratioX192 = Math.mulDiv(amount1Desired, uint256(1) << 192, amount0Desired);
+    uint160 sqrtPriceX96 = uint160(Math.sqrt(ratioX192));
 
-        (amountA, amountB) = dexRouter.removeLiquidity(
-            address(USDC),
-            address(PHX),
-            liquidity,
-            0,
-            0,
-            to,
-            block.timestamp
-        );
-        emit LiquidityRemoved(to, amountA, amountB, block.timestamp);
+    // slither-disable-next-line unused-return
+    dexRouter.createAndInitializePoolIfNecessary(token0, token1, poolFee, sqrtPriceX96);
+
+    // Add liquidity
+    uint256 minted0;
+    uint256 minted1;
+    INonfungiblePositionManager.MintParams memory params =
+      INonfungiblePositionManager.MintParams({
+        token0: token0,
+        token1: token1,
+        fee: poolFee,
+        tickLower: positionTickLower,
+        tickUpper: positionTickUpper,
+        amount0Desired: amount0Desired,
+        amount1Desired: amount1Desired,
+        amount0Min: amount0Min,
+        amount1Min: amount1Min,
+        recipient: lpRecipient,
+        deadline: block.timestamp
+      });
+    (lpTokenId, liquidity, minted0, minted1) = dexRouter.mint(params);
+
+    amountA = isUsdc0 ? minted0 : minted1; // USDC
+    amountB = isUsdc0 ? minted1 : minted0; // Tokens
+
+    // Clear residual allowances to prevent active router vulnerability surface
+    require(IERC20(token).approve(address(dexRouter), 0), "Clear token approve failed");
+    require(USDC.approve(address(dexRouter), 0), "Clear USDC approve failed");
+
+    // Emit Liquidity event
+    emit LiquidityDeployed(
+      token,
+      lpRecipient,
+      lpTokenId,
+      amountB,
+      amountA,
+      liquidity,
+      block.timestamp
+    );
+  }
+
+  /**
+   * @notice Maps active Uniswap V3 pool fee tiers to corresponding tick spacings.
+   */
+  function _getTickSpacing(uint24 fee) internal pure returns (int24) {
+    if (fee == 100) return 1;     // 0.01% fee tier
+    if (fee == 500) return 10;    // 0.05% fee tier
+    if (fee == 3000) return 60;   // 0.30% fee tier
+    if (fee == 10000) return 200; // 1.00% fee tier
+    revert("Unsupported fee tier");
+  }
+
+  /**
+   * @notice Helper function forcing raw boundaries to snap to valid tick multiples.
+   */
+  function _roundToTickSpacing(int24 tick, int24 spacing) internal pure returns (int24) {
+    int24 rounded = tick / spacing;
+    if (tick < 0 && tick % spacing != 0) {
+      rounded -= 1;
     }
+    return rounded * spacing;
+  }
 
-    function updateRouter(address newRouter) external onlyOwner {
-        dexRouter = ISomniaExchangeRouter02(newRouter);
-        emit RouterUpdated(newRouter, block.timestamp);
-    }
+  /**
+   * @notice Pause the DEX
+   */
+  function pause() external onlyOwner {
+    _pause();
+    emit DexPaused(block.timestamp);
+  }
 
-    modifier onlyAuthorized() {
-        if (_msgSender() != owner() && _msgSender() != phoenixEggs) revert Unauthorized();
-        _;
-    }
+  /**
+   * @notice Unpause the DEX
+   */
+  function unpause() external onlyOwner {
+    _unpause();
+    emit DexUnpaused(block.timestamp);
+  }
+
+
+
+
+  function updateRouter(address newRouter) external onlyOwner {
+    dexRouter = INonfungiblePositionManager(newRouter);
+    emit RouterUpdated(newRouter, block.timestamp);
+  }
+
+  function updatePoolFee(uint24 newFee) external onlyOwner {
+    poolFee = newFee;
+    emit PoolFeeUpdated(newFee, block.timestamp);
+  }
+
+
 }

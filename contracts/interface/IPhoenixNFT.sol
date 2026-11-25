@@ -31,6 +31,5 @@ interface IPhoenixNFT is IERC721, IERC721Enumerable {
   event PhoenixBurned(address owner, uint256 oldTokenId, address newPhoenix, uint256 newTokenId);
 
   function spawnFromAshes(address receiver, uint256 customTraits) external returns (uint256 tokenId);
-  function burn(uint256 tokenId) external;
   function getCustomTraits(uint256 tokenId) external view returns (uint256);
 }

@@ -26,24 +26,33 @@ pragma solidity 0.8.28;
 
 interface IPhoenixDex {
   event LiquidityDeployed(
-    address indexed creator,
-    address indexed pair,
+    address indexed token,
+    address indexed recipient,
+    uint256 indexed lpTokenId,
     uint256 tokenAmount,
     uint256 usdcAmount,
     uint256 liquidity,
     uint256 timestamp
   );
-  event LiquidityRemoved(address indexed to, uint256 amountA, uint256 amountB, uint256 timestamp);
-  event TokensSwapped(address indexed to, uint256 amountIn, uint256 amountOut, address[] path, uint256 timestamp);
+  event DexPaused(uint256 timestamp);
+  event DexUnpaused(uint256 timestamp);
   event RouterUpdated(address indexed newRouter, uint256 timestamp);
+  event PoolFeeUpdated(uint24 newFee, uint256 timestamp);
 
   error Unauthorized();
 
-  function deployLiquidity(address creator, uint256 tokensAmount, uint256 usdcAmount)
-    external
-    returns (uint256 amountA, uint256 amountB, uint256 liquidity);
+  function deployLiquidity(
+    address recipient,
+    address token,
+    uint256 tokensAmount,
+    uint256 usdcAmount
+  ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
 
-  function removeLiquidity(address to, uint256 liquidity)
-    external
-    returns (uint256 amountA, uint256 amountB);
+  function pause() external;
+
+  function unpause() external;
+
+  function updateRouter(address newRouter) external;
+
+  function updatePoolFee(uint24 newFee) external;
 }

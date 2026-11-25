@@ -45,7 +45,6 @@ interface ICarbonOpus {
     error SongLocked(uint256 tokenId);
 
     event RewardsClaimed(bytes32 indexed memberId, address indexed account, uint256 amount);
-    event RewardsDistributed(bytes32 indexed artist, bytes32 indexed referrer, uint256 artistAmount, uint256 referrerAmount, uint256 protocolFee);
     event SongCreated(uint256 indexed tokenId, bytes32 indexed artist, uint256 price, uint256 referralPct);
     event SongPurchased(uint256 indexed tokenId, bytes32 indexed buyer, bytes32 indexed referrer, uint256 price, bool inBatch);
     event BatchPurchased(address indexed memberAddress, bytes32 indexed memberId);

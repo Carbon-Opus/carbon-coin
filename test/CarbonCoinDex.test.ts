@@ -69,6 +69,8 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
     await usdc.connect(owner).approve(dex.address, usdcAmount);
     await creatorToken.connect(owner).approve(dex.address, tokensAmount);
 
+    await mockPositionManager.setMintRecipient(creator.address);
+
     await expect(
       dex.connect(owner).deployLiquidity(creator.address, creatorToken.address, tokensAmount, usdcAmount)
     ).to.emit(dex, "LiquidityDeployed")
@@ -124,6 +126,8 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
     await usdc.connect(owner).approve(dex.address, usdcAmount);
     await creatorToken.connect(owner).approve(dex.address, tokensAmount);
 
+    await mockPositionManager.setMintRecipient(creator.address);
+
     await expect(
       dex.connect(owner).deployLiquidity(creator.address, creatorToken.address, tokensAmount, usdcAmount)
     ).to.emit(dex, "LiquidityDeployed")
@@ -175,6 +179,8 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
     await creatorToken.mint(owner.address, tokensAmount);
     await usdc.connect(owner).approve(dex.address, usdcAmount);
     await creatorToken.connect(owner).approve(dex.address, tokensAmount);
+
+    await mockPositionManager.setMintRecipient(creator.address);
 
     await dex.connect(owner).deployLiquidity(creator.address, creatorToken.address, tokensAmount, usdcAmount);
 
@@ -276,6 +282,8 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
       await usdc.connect(owner).approve(dex.address, usdcAmount);
       await creatorToken.connect(owner).approve(dex.address, tokensAmount);
 
+      await mockPositionManager.setMintRecipient(treasury.address);
+
       // Call deployLiquidity with AddressZero recipient
       await expect(
         dex.connect(owner).deployLiquidity(ethers.constants.AddressZero, creatorToken.address, tokensAmount, usdcAmount)
@@ -350,6 +358,8 @@ describe("CarbonCoinDex - Uniswap V3 / Concentrated Liquidity Integration", () =
       const buyAmount = ethers.utils.parseUnits("110", 6);
       await usdc.mint(owner.address, buyAmount);
       await usdc.connect(owner).approve(coin.address, buyAmount);
+
+      await mockPositionManager.setMintRecipient(treasury.address);
 
       // Buy enough to trigger graduation
       await coin.connect(owner).buy(buyAmount, 0);
